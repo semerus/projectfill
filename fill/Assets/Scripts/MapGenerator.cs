@@ -5,26 +5,27 @@ public class MapGenerator : MonoBehaviour {
 
 	public GameObject linePrefab;
 	public GameObject vertexPrefab;
-	GameObject line;
-	Vector3 p0 = new Vector3 (0f, -7f);
-	Vector3 p1 = new Vector3 (8f, -10f);
-	Vector3 p2 = new Vector3 (3f, -3f);
-	Vector3 p3 = new Vector3 (8f, 5f);
-	Vector3 p4 = new Vector3 (3f, 3f);
-	Vector3 p5 = new Vector3 (0f, 10f);
-	Vector3 p6 = new Vector3 (-3f, 3f);
-	Vector3 p7 = new Vector3 (-8f, 5f);
-	Vector3 p8 = new Vector3 (-3f, -3f);
-	Vector3 p9 = new Vector3 (-8f, -10f);
-	//Vector3 p10 = new Vector3 (0f, 3f);
 
-	Vector3[] vertices;
-	int length;
+
+	//GameObject line;
+	Vector2 p0 = new Vector2 (0f, -7f);
+	Vector2 p1 = new Vector2 (8f, -10f);
+	Vector2 p2 = new Vector2 (3f, -3f);
+	Vector2 p3 = new Vector2 (8f, 5f);
+	Vector2 p4 = new Vector2 (3f, 3f);
+	Vector2 p5 = new Vector2 (0f, 10f);
+	Vector2 p6 = new Vector2 (-3f, 3f);
+	Vector2 p7 = new Vector2 (-8f, 5f);
+	Vector2 p8 = new Vector2 (-3f, -3f);
+	Vector2 p9 = new Vector2 (-8f, -10f);
+
+	public Vector2[] vertices;
+	public int length;
 
 	// Use this for initialization
 	void Start () {
-		vertices = new Vector3[] {p0, p1, p2, p3, p4, p5, p6, p7, p8, p9};
-		length = vertices.Length;
+		vertices = new Vector2[] {p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p0};
+		length = vertices.Length - 1;
 		CreateMap ();
 	}
 
@@ -45,8 +46,10 @@ public class MapGenerator : MonoBehaviour {
 			lineRenderer.SetPositions(positions);
 		}
 		CreateVertex ();
+		CreateCollider ();
 	}
 
+	//creating a dot sprite for each vertex to render round corners
 	void CreateVertex() {
 		for (int i = 0; i < length; i++) {
 			GameObject vertex = Instantiate (vertexPrefab) as GameObject;
@@ -54,10 +57,13 @@ public class MapGenerator : MonoBehaviour {
 			vertex.transform.position = vertices [i];
 		}
 	}
-	/*
-	void AddColliderToLine() {
-		BoxCollider2D col = new GameObject ("Collider").AddComponent<BoxCollider2D> ();
-		col.transform.parent = 
+
+	//creating EdgeCollider2D by connecting the vertices of the polygon
+	void CreateCollider () {
+		GameObject edge = new GameObject ("Edge Collider");
+		edge.AddComponent<EdgeCollider2D> ();
+		EdgeCollider2D edgeCollider = edge.GetComponent<EdgeCollider2D> ();
+
+		edgeCollider.points = vertices;
 	}
-	*/
 }
