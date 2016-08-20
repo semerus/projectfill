@@ -1,9 +1,10 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GuardController : MonoBehaviour {
 
-	const float initAngleDelta = 0.00001f;
+	const float initAngleDelta = 0.001f;
 
 	public GameObject vertexPrefab;
 	GameObject guard;
@@ -16,6 +17,7 @@ public class GuardController : MonoBehaviour {
 
 //	ArrayList visibleVertices = new ArrayList();
 
+	GameObject Mesher;
 
 	// Use this for initialization
 	void Start () {
@@ -24,6 +26,10 @@ public class GuardController : MonoBehaviour {
 
 		guard = Instantiate (vertexPrefab) as GameObject;
 		guard.name = "guard";
+
+		Mesher = new GameObject ("Mesher");
+		Mesher.AddComponent<MeshFilter> ();
+		Mesher.AddComponent<MeshRenderer> ();
 //		guard.transform.position = new Vector2 (0f, 0f);
 	}
 	
@@ -46,36 +52,18 @@ public class GuardController : MonoBehaviour {
 	Vector2[] ShootRays (Vector3 targetPos) {
 		Vector2[] orderedVertices = new Vector2[vertices.Length * 3];
 
-//		string temp = "";
-//		for (int i = 0; i < vertices.Length - 1; i++) {
-//			temp += vertices[i] + "";
-//		}
-//		Debug.Log (temp);
-//
-//		Debug.Log (temp);
-//		string temp2 = "";
-//		for (int i = 0; i < vertices.Length - 1; i++) {
-////			RaycastHit2D[] hits = Physics2D.LinecastAll (targetPos, vertices [i]);
-////			for (int j = 0; j < hits.Length; j++) {
-////				Debug.Log (Physics.Linecast (targetPos, hits [j].point));
-////				Debug.DrawLine (new Vector2(targetPos.x, targetPos.y), hits [j].point);
-////			}
-//			RaycastHit2D hit = Physics2D.Linecast (targetPos, vertices [i]);
-//			Debug.DrawLine (targetPos, hit.point, Color.red);
-////			Debug.DrawLine (targetPos, vertices[i], Color.white);
-//			temp2 += hit.point;
-//		}
-//		Debug.Log (temp2);
-
-		for (int i = 0; i < vertices.Length - 1; i++) {
+		for (int i = 0; i < vertices.Length - 1; i++) {//
 			int maxCount = 10000;
 
-			Vector2 standardAngle = (vertices [i] - new Vector2(targetPos.x, targetPos.y)).normalized;
-			Vector2 leftAngle = Quaternion.AngleAxis (initAngleDelta, Vector3.up) * standardAngle;
+			Vector2 standardAngle = (vertices [i] - new Vector2(targetPos.x, targetPos.y));
+
+			Vector2 leftAngle = Quaternion.AngleAxis (initAngleDelta, Vector3.forward) * standardAngle;
 			int count = 0;
 			float angleDelta = initAngleDelta;
 			while (leftAngle == standardAngle) {
-				leftAngle = Quaternion.AngleAxis (angleDelta, Vector3.up) * leftAngle;
+//				Debug.Log ("LeftAngle deltaAngle = " + angleDelta);
+				transform.Rotate (standardAngle);
+				leftAngle = Quaternion.AngleAxis (angleDelta, Vector3.forward) * standardAngle;
 				count++;
 				angleDelta *= 2;
 				if (count >= maxCount) {
@@ -83,12 +71,13 @@ public class GuardController : MonoBehaviour {
 					break;
 				}
 			}
-
-			Vector2 rightAngle = Quaternion.AngleAxis (-initAngleDelta, Vector3.up) * leftAngle;
+				
+			Vector2 rightAngle = Quaternion.AngleAxis (-initAngleDelta, Vector3.forward) * leftAngle;
 			count = 0;
 			angleDelta = initAngleDelta;
 			while (rightAngle == standardAngle) {
-				rightAngle = Quaternion.AngleAxis (-angleDelta, Vector3.up) * rightAngle;
+//				Debug.Log ("RightAngle deltaAngle = " + angleDelta);
+				rightAngle = Quaternion.AngleAxis (-angleDelta, Vector3.forward) * standardAngle;
 				count++;
 				angleDelta *= 2;
 				if (count >= maxCount) {
@@ -97,9 +86,16 @@ public class GuardController : MonoBehaviour {
 				}
 			}
 
-			if (leftAngle == standardAngle || rightAngle == standardAngle) {
-				Debug.Log ("Same");
-			}
+
+//			if (leftAngle == standardAngle || rightAngle == standardAngle) {
+//				Debug.Log ("Same");
+//			}
+
+//			Debug.Log ("Left, Stand, Right: " + leftAngle + ", " + standardAngle + ", " + rightAngle);
+
+//			if (leftAngle == rightAngle) {
+//				Debug.Log ("Left&Right Same" + leftAngle);
+//			}
 
 //			if (leftAngle != rightAngle)
 //				Debug.Log ("diff " + leftAngle + ", " + standardAngle + ", " + rightAngle);
@@ -111,9 +107,18 @@ public class GuardController : MonoBehaviour {
 //			drawLine (targetPos, leftAngle, Color.red, Color.white);
 //			drawLine (targetPos, rightAngle, Color.red, Color.white);
 
-			drawLine (targetPos, standardAngle);
-			drawLine (targetPos, leftAngle);
-			drawLine (targetPos, rightAngle);
+//			RaycastHit2D hit = Physics2D.Raycast (targetPos, standardAngle);
+//			RaycastHit2D Lhit = Physics2D.Raycast (targetPos, leftAngle);
+//			RaycastHit2D Rhit = Physics2D.Raycast (targetPos, rightAngle);
+//
+//			Debug.DrawLine (targetPos, Lhit.point, Color.red);
+//			Debug.DrawLine (targetPos, Rhit.point, Color.green);
+//			Debug.DrawLine (targetPos, hit.point, Color.white);
+
+
+			RaycastHit2D hit = drawLine (targetPos, leftAngle, Color.green);
+			RaycastHit2D leftHit = drawLine (targetPos, rightAngle, Color.blue);
+			RaycastHit2D rightHit = drawLine (targetPos, standardAngle);
 
 //			if (hit.point == new Vector2 (0, 0)) {
 ////				Debug.Log (targetPos + "->" + vertices [i] );
@@ -129,38 +134,45 @@ public class GuardController : MonoBehaviour {
 //			Debug.DrawLine (targetPos, rightHit.point, Color.cyan);
 
 			// add to 2D vertices
-//			orderedVertices [i * 3 + 0] = leftHit.point;
-//			orderedVertices [i * 3 + 1] = hit.point;
-//			orderedVertices [i * 3 + 2] = rightHit.point;
+			orderedVertices [i * 3 + 0] = leftHit.point;
+			orderedVertices [i * 3 + 1] = hit.point;
+			orderedVertices [i * 3 + 2] = rightHit.point;
 		}
 
 		return orderedVertices;
 	}
 
 //	void drawLine (Vector3 targetPos, Vector3 queryAngle, Color c1, Color c2)
-	void drawLine (Vector3 targetPos, Vector3 queryAngle)
+	RaycastHit2D drawLine (Vector3 targetPos, Vector3 queryAngle)
 	{
-		//			RaycastHit2D leftHit = Physics2D.Linecast (targetPos, leftAngle);
 		RaycastHit2D hit = Physics2D.Raycast (targetPos, queryAngle);
-		//			RaycastHit2D rightHit = Physics2D.Linecast (targetPos, rightAngle);
 
-		//			Debug.DrawLine (targetPos, leftHit.point, Color.green);
 		if (hit.collider != null)
 			Debug.DrawLine (targetPos, hit.point, Color.red);
-		else
+		else {
 			Debug.DrawRay (targetPos, queryAngle, Color.white);
-	}
-}
+		}
 
-//	void renderVG(Vector2[] orderedVertices)
-//	{
+		return hit;
+	}
+
+	RaycastHit2D drawLine (Vector3 targetPos, Vector3 queryAngle, Color c)
+	{
+		RaycastHit2D hit = Physics2D.Raycast (targetPos, queryAngle);
+
+		if (hit.collider != null)
+			Debug.DrawLine (targetPos, hit.point, c);
+		else {
+			Debug.DrawRay (targetPos, queryAngle, Color.white);
+		}
+		return hit;
+	}
+
+	void renderVG(Vector2[] orderedVertices)
+	{
+		
 //		for (int i = 0; i < orderedVertices.Length - 1; i++)
 //		{
-//			// TODO: better solution than destroy and re create?
-//			Destroy (GameObject.Find ("Triangle" + i);
-//			GameObject gObj = new GameObject ("Triangle" + i);
-////			Debug.Log ("Creating " + i + "-th triangle");
-//
 //			Vector2[] vertices2D = new Vector2[3];
 //			vertices2D [0] = orderedVertices[i];
 //			vertices2D [1] = guard.transform.position;
@@ -169,53 +181,50 @@ public class GuardController : MonoBehaviour {
 //
 //			renderOneVG (vertices2D, gObj);
 //		}
-//
-//		/* the reason the last triangle is dealt separatly is because of
-//		out of bound exception (i.e., using array does not allow wrapping around
-//		*/
-//
-//		// destroy already existing triangle
-//		Destroy (GameObject.Find ("FinalTriangle"));
-//
-//		// create GameObject
-//		GameObject gObj_2 = new GameObject("FinalTriangle");
-//
-//		// create vertices2D info
-//		Vector2[] vertices2D_2 = new Vector2[3];
-//		vertices2D_2 [0] = orderedVertices[orderedVertices.Length - 1];
-//		vertices2D_2 [1] = guard.transform.position;
-//		vertices2D_2 [2] = orderedVertices[0];
-//
-//		// render it
-//		renderOneVG(vertices2D_2, gObj_2);
-//	}
-//
-//	void renderOneVG(Vector2[] vertices2D, GameObject gObj)
-//	{
-//
-//		// Create the Vector3 vertices
-//		Vector3[] vertices3D = new Vector3[3];
-//		vertices3D [0] = new Vector3 (vertices2D[0].x, vertices2D[0].y, 0);
-//		vertices3D [1] = new Vector3 (vertices2D[1].x, vertices2D[1].y, 0);
-//		vertices3D [2] = new Vector3 (vertices2D[2].x, vertices2D[2].y, 0);
-//		//			Debug.Log ("Vertices3D[0] " + vertices3D [0] + ", " + vertices3D [1] + ", " + vertices3D [2]);
-//
-//		// Use the triangulator to get indices for creating triangles
-//		Triangulator tr = new Triangulator (vertices2D);
-//		int[] indices = tr.Triangulate ();
-//
-//		// create polygons
-//		MeshRenderer mRend = gObj.AddComponent<MeshRenderer>();
-//		MeshFilter filter = gObj.AddComponent<MeshFilter> ();
-//
-//		mRend.material.color = new Color (1, 0, 0);
-//		Mesh msh = new Mesh ();
-//		msh.vertices = vertices3D;
-//		msh.triangles = indices;
+
+		/* the reason the last triangle is dealt separatly is because of
+		out of bound exception (i.e., using array does not allow wrapping around
+		*/
+
+		// destroy already existing triangle
+
+		renderOneVG (vertices, Mesher);
+	}
+
+	void renderOneVG(Vector2[] vertices2D, GameObject gObj)
+	{
+
+		// Create the Vector3 vertices
+		Vector3[] vertices3D = new Vector3[vertices2D.Length];
+		for (int i = 0; i < vertices2D.Length; i++) {
+			vertices3D [i] = new Vector3 (vertices2D [i].x, vertices2D [i].y, 0);
+		}
+
+		List<Vector3> listsV3 = new List<Vector3> ();
+		for (int i = 0; i < vertices3D.Length; i++) {
+			listsV3.Add (-Vector3.forward);
+		}
+
+		Debug.Log (vertices3D.Length);
+
+		// Use the triangulator to get indices for creating triangles
+		Triangulator tr = new Triangulator (vertices2D);
+		int[] indices = tr.Triangulate ();
+
+		// create polygons
+		MeshRenderer mRend = Mesher.GetComponent<MeshRenderer>();
+		MeshFilter filter = Mesher.GetComponent<MeshFilter> ();
+
+		mRend.material.color = new Color (1, 0, 0);
+
+		Mesh msh = new Mesh ();
+		msh.vertices = vertices3D;
+		msh.triangles = indices;
 //		msh.RecalculateNormals ();
 //		msh.RecalculateBounds ();
-//
-//		filter.mesh = msh;
-//	}
-//		
-//}
+		msh.SetNormals (listsV3);
+
+		filter.mesh = msh;
+	}
+		
+}
