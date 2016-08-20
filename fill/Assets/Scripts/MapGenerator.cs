@@ -8,7 +8,7 @@ public class MapGenerator : MonoBehaviour {
 
 	public Vector2[] vertices;
 
-	int scale = 1;
+	float scale = 1f;
 
 	// Use this for initialization
 	void Start () {

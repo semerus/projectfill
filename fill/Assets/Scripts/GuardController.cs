@@ -1,47 +1,54 @@
 ﻿using UnityEngine;
 using System.Collections;
 using System.Collections.Generic;
+using System;
+using System.Linq;
 
 public class GuardController : MonoBehaviour {
-
-	const float initAngleDelta = 0.001f;
-
 	public GameObject vertexPrefab;
 	GameObject guard;
-	MapGenerator mapGenerator;
-	Vector2[] vertices;
+	GameObject vgMesh;
+	Vector2[] mapVertices2D;
 
-//	private Vector3 mousePos;
-//	private Vector3 targetPos;
-	private float distance = 30f;
+	// Setting Variables
+	private const float distance = 30f; // TODO: Rename
+	private const float angleDelta = 0.01f;
+	private Color UNHIT_RAY_COLOR = Color.black;
 
-//	ArrayList visibleVertices = new ArrayList();
-
-	GameObject Mesher;
-
-	// Use this for initialization
 	void Start () {
-		mapGenerator = GameObject.Find("Map Generator").GetComponent<MapGenerator> ();
-		vertices = mapGenerator.vertices;
+		mapVertices2D = GameObject.Find("Map Generator").GetComponent<MapGenerator> ().vertices;
 
+		/* Create GameObject for Guard */
 		guard = Instantiate (vertexPrefab) as GameObject;
-		guard.name = "guard";
+		guard.name = "Guard";
 
-		Mesher = new GameObject ("Mesher");
-		Mesher.AddComponent<MeshFilter> ();
-		Mesher.AddComponent<MeshRenderer> ();
-//		guard.transform.position = new Vector2 (0f, 0f);
+		/* Create GameObject to make VG */
+		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
+
+		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
+		mRend.material.color = new Color (1, 0, 0);
+
+		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
+		filter.mesh = new Mesh ();
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
 		Vector3 targetPos = PositionGuard ();
-		Vector2[] orderedVertices = ShootRays (targetPos);
-//		renderVG (orderedVertices);
+
+		HashSet<Vector2> unorderedVertices = ShootRays (targetPos);
+
+		Vector2[] toArray = unorderedVertices.ToArray ();
+		Array.Sort (toArray, new ClockwiseVector2Comparer (guard.transform.position));
+
+		renderVG (toArray);
 	}
 
+	/**
+	 * Get the position of the mouse and set the position of Guard Object
+	 */
 	Vector3 PositionGuard () {
 		Vector3 mousePos = Input.mousePosition;
+
 		Vector3 targetPos = Camera.main.ScreenToWorldPoint (new Vector3(mousePos.x, mousePos.y, distance));
 
 		guard.transform.position = targetPos;
@@ -49,182 +56,157 @@ public class GuardController : MonoBehaviour {
 		return targetPos;
 	}
 
-	Vector2[] ShootRays (Vector3 targetPos) {
-		Vector2[] orderedVertices = new Vector2[vertices.Length * 3];
+	/**
+	 * For every vertex in the map,
+	 * 1. Calculate Angles
+	 * 2. Shoot rays with the calculated angles
+	 * 3. Add hit point to unorderedVertices if the ray hits collider
+	*/
+	HashSet<Vector2> ShootRays (Vector3 targetPos) {
+		HashSet<Vector2> unorderedVertices = new HashSet<Vector2>();
 
-		for (int i = 0; i < vertices.Length - 1; i++) {//
-			int maxCount = 10000;
+		// add targetPos to unorderVertices if targetPos is outside polygon
+		// unorderedVertices.Add (targetPos);
 
-			Vector2 standardAngle = (vertices [i] - new Vector2(targetPos.x, targetPos.y));
+		const int maxCount = 10000; // max angle turn
 
-			Vector2 leftAngle = Quaternion.AngleAxis (initAngleDelta, Vector3.forward) * standardAngle;
+		for (int i = 0; i < mapVertices2D.Length - 1; i++) {
+
+			/* 1. Calculate Angles */
+
+			// Calculate standardAngle
+			Vector2 standardAngle = (mapVertices2D [i] - new Vector2(targetPos.x, targetPos.y));
+
+			// Calculate leftAngle
+			Vector2 leftAngle = standardAngle;
 			int count = 0;
-			float angleDelta = initAngleDelta;
-			while (leftAngle == standardAngle) {
-//				Debug.Log ("LeftAngle deltaAngle = " + angleDelta);
-				transform.Rotate (standardAngle);
-				leftAngle = Quaternion.AngleAxis (angleDelta, Vector3.forward) * standardAngle;
+			do{
+				leftAngle = Quaternion.AngleAxis (angleDelta, Vector3.forward) * leftAngle;
 				count++;
-				angleDelta *= 2;
-				if (count >= maxCount) {
-					Debug.Log ("LeftAngle passed maxCount");
-					break;
-				}
-			}
-				
-			Vector2 rightAngle = Quaternion.AngleAxis (-initAngleDelta, Vector3.forward) * leftAngle;
+			} while (leftAngle == standardAngle && count < maxCount);
+
+			// Calculate rightAngle
+			Vector2 rightAngle = standardAngle;
 			count = 0;
-			angleDelta = initAngleDelta;
-			while (rightAngle == standardAngle) {
-//				Debug.Log ("RightAngle deltaAngle = " + angleDelta);
-				rightAngle = Quaternion.AngleAxis (-angleDelta, Vector3.forward) * standardAngle;
+			do {
+				rightAngle = Quaternion.AngleAxis (-angleDelta, Vector3.forward) * rightAngle;
 				count++;
-				angleDelta *= 2;
-				if (count >= maxCount) {
-					Debug.Log ("RightAngle passed maxCount");
-					break;
-				}
-			}
+			} while (rightAngle == standardAngle && count < maxCount);
 
+			/* 2. Shoot rays with the calculated angles */
+			// Color : Left Blue, Right White
+			RaycastHit2D rightHit = raycastWithDebug (targetPos, rightAngle, Color.white);
+			RaycastHit2D leftHit = raycastWithDebug (targetPos, leftAngle, Color.blue);
+			RaycastHit2D hit = raycastWithDebug (targetPos, standardAngle, Color.red);
 
-//			if (leftAngle == standardAngle || rightAngle == standardAngle) {
-//				Debug.Log ("Same");
-//			}
-
-//			Debug.Log ("Left, Stand, Right: " + leftAngle + ", " + standardAngle + ", " + rightAngle);
-
-//			if (leftAngle == rightAngle) {
-//				Debug.Log ("Left&Right Same" + leftAngle);
-//			}
-
-//			if (leftAngle != rightAngle)
-//				Debug.Log ("diff " + leftAngle + ", " + standardAngle + ", " + rightAngle);
-//			else {
-//				Debug.Log ("same " + leftAngle + ", "  + standardAngle + ", " + rightAngle);
-//			}
-
-//			drawLine (targetPos, standardAngle, Color.red, Color.white);
-//			drawLine (targetPos, leftAngle, Color.red, Color.white);
-//			drawLine (targetPos, rightAngle, Color.red, Color.white);
-
-//			RaycastHit2D hit = Physics2D.Raycast (targetPos, standardAngle);
-//			RaycastHit2D Lhit = Physics2D.Raycast (targetPos, leftAngle);
-//			RaycastHit2D Rhit = Physics2D.Raycast (targetPos, rightAngle);
-//
-//			Debug.DrawLine (targetPos, Lhit.point, Color.red);
-//			Debug.DrawLine (targetPos, Rhit.point, Color.green);
-//			Debug.DrawLine (targetPos, hit.point, Color.white);
-
-
-			RaycastHit2D hit = drawLine (targetPos, leftAngle, Color.green);
-			RaycastHit2D leftHit = drawLine (targetPos, rightAngle, Color.blue);
-			RaycastHit2D rightHit = drawLine (targetPos, standardAngle);
-
-//			if (hit.point == new Vector2 (0, 0)) {
-////				Debug.Log (targetPos + "->" + vertices [i] );
-//				Debug.Log (hit.collider + ": " + targetPos + "->" + vertices[i]);
-//				for (int j = i; j < vertices.Length - 1; j++) {
-//					Debug.DrawLine (targetPos, vertices [j], Color.white);
-//				}
-//			} else {
-//				Debug.Log ("Else: " + hit.collider);
-//			}
-
-
-//			Debug.DrawLine (targetPos, rightHit.point, Color.cyan);
-
-			// add to 2D vertices
-			orderedVertices [i * 3 + 0] = leftHit.point;
-			orderedVertices [i * 3 + 1] = hit.point;
-			orderedVertices [i * 3 + 2] = rightHit.point;
+			/* 3. Add hit point to unorderedVertices if the ray hits collider */
+			// check if the ray is hit
+			// add to the unorderedVertices only if the ray is hit
+			if (leftHit.collider != null) {	unorderedVertices.Add (leftHit.point); }
+			if (hit.collider != null) { unorderedVertices.Add (hit.point); }
+			if (rightHit.collider != null) { unorderedVertices.Add (rightHit.point); }
 		}
+			
+		// Note.
+		// Debug.Assert (addCounted == unorderVertices.ToArray().Length);
+		// By inspecting the above Assert, which happens when the guard in on the line of Collider,
+		// we should decide wheter to allow guard on edge or not
 
-		return orderedVertices;
+		return unorderedVertices;
 	}
 
-//	void drawLine (Vector3 targetPos, Vector3 queryAngle, Color c1, Color c2)
-	RaycastHit2D drawLine (Vector3 targetPos, Vector3 queryAngle)
+	/**	
+	 * rayFrom : Vector3 
+	 * 		Position where the ray starts from.
+	 * shootAtAngle : Vector3
+	 * 		Angle (or direction in 3D vector) to indicate the direction to shoot the ray
+	 * lineColorToHitPosition : Color
+	 * 		Color of line which hits the collider. If no collider is hit, draw ray with
+	 * 		the color of the variable UNHIT_RAY_COLOR
+	 * 
+	 * Return Value:
+	 * 		Return the result of Physics2D.Raycast
+	 * 		The result is never null, instead check if the [Return Value].collider is null.
+	 */
+	RaycastHit2D raycastWithDebug (Vector3 rayFrom, Vector3 shootAtAngle, Color lineColorToHitPosition)
 	{
-		RaycastHit2D hit = Physics2D.Raycast (targetPos, queryAngle);
+		RaycastHit2D hitPosition = Physics2D.Raycast (rayFrom, shootAtAngle);
 
-		if (hit.collider != null)
-			Debug.DrawLine (targetPos, hit.point, Color.red);
+		if (hitPosition.collider != null)
+			Debug.DrawLine (rayFrom, hitPosition.point, lineColorToHitPosition);
 		else {
-			Debug.DrawRay (targetPos, queryAngle, Color.white);
+			Debug.DrawRay (rayFrom, shootAtAngle, UNHIT_RAY_COLOR);
 		}
 
-		return hit;
+		return hitPosition;
 	}
 
-	RaycastHit2D drawLine (Vector3 targetPos, Vector3 queryAngle, Color c)
+	/**
+	 * vertices2D : Vector2[]
+	 * 		Vertices to draw a polygon
+	 * 
+	 * This function sets the "mesh" of vgMesh : GameObject.
+	 */
+	void renderVG(Vector2[] vertices2D)
 	{
-		RaycastHit2D hit = Physics2D.Raycast (targetPos, queryAngle);
-
-		if (hit.collider != null)
-			Debug.DrawLine (targetPos, hit.point, c);
-		else {
-			Debug.DrawRay (targetPos, queryAngle, Color.white);
-		}
-		return hit;
-	}
-
-	void renderVG(Vector2[] orderedVertices)
-	{
-		
-//		for (int i = 0; i < orderedVertices.Length - 1; i++)
-//		{
-//			Vector2[] vertices2D = new Vector2[3];
-//			vertices2D [0] = orderedVertices[i];
-//			vertices2D [1] = guard.transform.position;
-//			vertices2D [2] = orderedVertices[i + 1];
-//			Debug.Log ("Vertices2D[0] " + vertices2D [0] + ", " + vertices2D [1] + ", " + vertices2D [2]);
-//
-//			renderOneVG (vertices2D, gObj);
-//		}
-
-		/* the reason the last triangle is dealt separatly is because of
-		out of bound exception (i.e., using array does not allow wrapping around
-		*/
-
-		// destroy already existing triangle
-
-		renderOneVG (vertices, Mesher);
-	}
-
-	void renderOneVG(Vector2[] vertices2D, GameObject gObj)
-	{
-
 		// Create the Vector3 vertices
 		Vector3[] vertices3D = new Vector3[vertices2D.Length];
 		for (int i = 0; i < vertices2D.Length; i++) {
 			vertices3D [i] = new Vector3 (vertices2D [i].x, vertices2D [i].y, 0);
 		}
 
-		List<Vector3> listsV3 = new List<Vector3> ();
-		for (int i = 0; i < vertices3D.Length; i++) {
-			listsV3.Add (-Vector3.forward);
-		}
-
-		Debug.Log (vertices3D.Length);
-
 		// Use the triangulator to get indices for creating triangles
 		Triangulator tr = new Triangulator (vertices2D);
 		int[] indices = tr.Triangulate ();
 
 		// create polygons
-		MeshRenderer mRend = Mesher.GetComponent<MeshRenderer>();
-		MeshFilter filter = Mesher.GetComponent<MeshFilter> ();
-
-		mRend.material.color = new Color (1, 0, 0);
-
-		Mesh msh = new Mesh ();
+		Mesh msh = vgMesh.GetComponent<MeshFilter> ().mesh;
+		msh.Clear ();
 		msh.vertices = vertices3D;
 		msh.triangles = indices;
-//		msh.RecalculateNormals ();
-//		msh.RecalculateBounds ();
-		msh.SetNormals (listsV3);
-
-		filter.mesh = msh;
+		msh.RecalculateNormals ();
+		msh.RecalculateBounds ();
 	}
-		
+
+	/**
+	 * This class is a IComparer<Vector2>.
+	 * When initializing the Comparer, send rayFrom : Vector2.	
+	 */
+	private class ClockwiseVector2Comparer : IComparer<Vector2>
+	{
+		private Vector2 rayFrom;
+
+		public ClockwiseVector2Comparer(Vector2 respectTo){
+			this.rayFrom = respectTo;
+		}
+
+		public int Compare(Vector2 v1, Vector2 v2)
+		{
+			// use cross product to calculate area
+			float area2 = area (rayFrom, v1, v2); 
+
+			if (area2 > 0) {
+				return 1;
+			} else if (area2 == 0) {
+				// distance used for tie breaker
+				float distComp = Vector2.Distance (rayFrom, v1) - Vector2.Distance (rayFrom, v2);
+				if (distComp > 0) {
+					return 1;
+				} else if (distComp < 0) {
+					return -1;
+				} else {
+					return 0;
+				}
+			} else {
+				return -1;
+			}
+		}
+
+		// cross product function which calculates the area bounded by 3 vertices
+		private float area(Vector2 a, Vector2 b, Vector2 c){
+			// i.e. draw ray from a to b
+			// if c is left of the extended line from a to b, then it returns a positive value
+			return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
+		}
+	}
 }
