@@ -31,6 +31,7 @@ public class MapGenerator : MonoBehaviour {
 		//	Vector2 p2 = new Vector2 (2f, 3f);
 		//	Vector2 p3 = new Vector2 (5f, 5f);
 
+		//TODO: vertices vector without the duplicate starting vertex
 		vertices = new Vector2[] {p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p0};
 //		vertices = new Vector2[] {p0, p1, p2, p3, p0};
 //		vertices = new Vector2[] {p0, p1, p2};

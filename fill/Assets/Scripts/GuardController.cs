@@ -7,13 +7,19 @@ using System.Linq;
 public class GuardController : MonoBehaviour {
 	public GameObject vertexPrefab;
 	GameObject guard;
-	GameObject vgMesh;
+	static GameObject vgMesh;
 	Vector2[] mapVertices2D;
+	Vector3 lastTargetPos;
+
+	int guardCount = 0; //
 
 	// Setting Variables
 	private const float distance = 30f; // TODO: Rename
 	private const float angleDelta = 0.01f;
 	private Color UNHIT_RAY_COLOR = Color.black;
+	private Color GUARD_MODIFYING_COLOR = new Color(1, 0, 0, 0.3f);
+	private Color GUARD_SET_COLOR = new Color(0, 0, 1, 0.3f);
+	private const float maxX = 10, maxY = 10, minX = -10, minY = -10;
 
 	void Start () {
 		mapVertices2D = GameObject.Find("Map Generator").GetComponent<MapGenerator> ().vertices;
@@ -26,7 +32,8 @@ public class GuardController : MonoBehaviour {
 		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
 
 		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
-		mRend.material.color = new Color (1, 0, 0);
+		mRend.material.color = GUARD_MODIFYING_COLOR;
+		mRend.material.shader = Shader.Find("Transparent/Diffuse");
 
 		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
 		filter.mesh = new Mesh ();
@@ -41,6 +48,11 @@ public class GuardController : MonoBehaviour {
 		Array.Sort (toArray, new ClockwiseVector2Comparer (guard.transform.position));
 
 		renderVG (toArray);
+
+		if (Input.GetMouseButtonDown (0)) {
+			createNewMesh ();
+			Instantiate (GameObject.Find ("Guard"));
+		}
 	}
 
 	/**
@@ -48,12 +60,12 @@ public class GuardController : MonoBehaviour {
 	 */
 	Vector3 PositionGuard () {
 		Vector3 mousePos = Input.mousePosition;
+		Vector3 targetPos = Camera.main.ScreenToWorldPoint (new Vector3 (mousePos.x, mousePos.y, distance));
 
-		Vector3 targetPos = Camera.main.ScreenToWorldPoint (new Vector3(mousePos.x, mousePos.y, distance));
+		if (!(targetPos.x > maxX || targetPos.y > maxY || targetPos.x < minX || targetPos.y < minY))
+			guard.transform.position = targetPos;
 
-		guard.transform.position = targetPos;
-
-		return targetPos;
+		return guard.transform.position;
 	}
 
 	/**
@@ -208,5 +220,19 @@ public class GuardController : MonoBehaviour {
 			// if c is left of the extended line from a to b, then it returns a positive value
 			return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
 		}
+	}
+
+	void createNewMesh(){
+		vgMesh.name = "VG" + guardCount++;
+		vgMesh.GetComponent <MeshRenderer> ().material.color = GUARD_SET_COLOR;
+
+		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
+
+		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
+		mRend.material.color = GUARD_MODIFYING_COLOR;
+		mRend.material.shader = Shader.Find("Transparent/Diffuse");
+
+		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
+		filter.mesh = new Mesh ();
 	}
 }

@@ -9,7 +9,7 @@ public class GameManager : MonoBehaviour {
 
 	string[] stringList;
 
-		
+
 	// Use this for initialization
 	void Start () {
 		TextAsset _coords = (TextAsset)Resources.Load("Assets/coords.csv");
