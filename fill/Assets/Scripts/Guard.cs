@@ -4,32 +4,28 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
-public class GuardController : MonoBehaviour {
-	public GameObject vertexPrefab;
-	GameObject guard;
+
+public class Guard : MonoBehaviour {
+	public bool change = false;
+
 	static GameObject vgMesh;
 	Vector2[] mapVertices2D;
-	Vector3 lastTargetPos;
-
-	int guardCount = 0; //
+	int layerMask = 1 << 8;
 
 	// Setting Variables
-	private const float distance = 30f; // TODO: Rename
 	private const float angleDelta = 0.01f;
+	private float RAY_DISTANCE = 100000f;
 	private Color UNHIT_RAY_COLOR = Color.black;
 	private Color GUARD_MODIFYING_COLOR = new Color(1, 0, 0, 0.3f);
 	private Color GUARD_SET_COLOR = new Color(0, 0, 1, 0.3f);
-	private const float maxX = 10, maxY = 10, minX = -10, minY = -10;
 
 	void Start () {
+		layerMask = ~layerMask;
 		mapVertices2D = GameObject.Find("Map Generator").GetComponent<MapGenerator> ().vertices;
-
-		/* Create GameObject for Guard */
-		guard = Instantiate (vertexPrefab) as GameObject;
-		guard.name = "Guard";
 
 		/* Create GameObject to make VG */
 		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
+		vgMesh.transform.SetParent(this.transform);
 
 		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
 		mRend.material.color = GUARD_MODIFYING_COLOR;
@@ -37,34 +33,26 @@ public class GuardController : MonoBehaviour {
 
 		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
 		filter.mesh = new Mesh ();
-	}
 
-	void Update () {
-		Vector3 targetPos = PositionGuard ();
-
-		HashSet<Vector2> unorderedVertices = ShootRays (targetPos);
-
+		//Debug.Log (mapVertices2D.Length);
+		HashSet<Vector2> unorderedVertices = ShootRays (this.transform.position, layerMask); 
+		//Debug.Log (unorderedVertices);
 		Vector2[] toArray = unorderedVertices.ToArray ();
-		Array.Sort (toArray, new ClockwiseVector2Comparer (guard.transform.position));
-
+		//Debug.Log (toArray.Length);
+		Array.Sort (toArray, new ClockwiseVector2Comparer (this.transform.position));
 		renderVG (toArray);
 
-		if (Input.GetMouseButtonDown (0)) {
-			createNewMesh ();
-			Instantiate (GameObject.Find ("Guard"));
-		}
 	}
-
-	/**
-	 * Get the position of the mouse and set the position of Guard Object
-	 */
-	Vector3 PositionGuard () {
-		Vector3 mousePos = Input.mousePosition;
-		Vector3 targetPos = Camera.main.ScreenToWorldPoint (new Vector3 (mousePos.x, mousePos.y, distance));
-
-		if (!(targetPos.x > maxX || targetPos.y > maxY || targetPos.x < minX || targetPos.y < minY))
-			guard.transform.position = targetPos;
-		return guard.transform.position;
+	
+	void Update () {
+		if (change) {
+			Debug.Log (change);
+			HashSet<Vector2> unorderedVertices = ShootRays (this.transform.position, layerMask);
+			Vector2[] toArray = unorderedVertices.ToArray ();
+			Array.Sort (toArray, new ClockwiseVector2Comparer (this.transform.position));
+			renderVG (toArray);
+			change = false;
+		}
 	}
 
 	/**
@@ -73,7 +61,7 @@ public class GuardController : MonoBehaviour {
 	 * 2. Shoot rays with the calculated angles
 	 * 3. Add hit point to unorderedVertices if the ray hits collider
 	*/
-	HashSet<Vector2> ShootRays (Vector3 targetPos) {
+	HashSet<Vector2> ShootRays (Vector3 targetPos, int layerMask) {
 		HashSet<Vector2> unorderedVertices = new HashSet<Vector2>();
 
 		// add targetPos to unorderVertices if targetPos is outside polygon
@@ -106,9 +94,9 @@ public class GuardController : MonoBehaviour {
 
 			/* 2. Shoot rays with the calculated angles */
 			// Color : Left Blue, Right White
-			RaycastHit2D rightHit = raycastWithDebug (targetPos, rightAngle, Color.white);
-			RaycastHit2D leftHit = raycastWithDebug (targetPos, leftAngle, Color.blue);
-			RaycastHit2D hit = raycastWithDebug (targetPos, standardAngle, Color.red);
+			RaycastHit2D rightHit = raycastWithDebug (targetPos, rightAngle, Color.white, layerMask);
+			RaycastHit2D leftHit = raycastWithDebug (targetPos, leftAngle, Color.blue, layerMask);
+			RaycastHit2D hit = raycastWithDebug (targetPos, standardAngle, Color.red, layerMask);
 
 			/* 3. Add hit point to unorderedVertices if the ray hits collider */
 			// check if the ray is hit
@@ -122,7 +110,6 @@ public class GuardController : MonoBehaviour {
 		// Debug.Assert (addCounted == unorderVertices.ToArray().Length);
 		// By inspecting the above Assert, which happens when the guard in on the line of Collider,
 		// we should decide wheter to allow guard on edge or not
-
 		return unorderedVertices;
 	}
 
@@ -134,21 +121,22 @@ public class GuardController : MonoBehaviour {
 	 * lineColorToHitPosition : Color
 	 * 		Color of line which hits the collider. If no collider is hit, draw ray with
 	 * 		the color of the variable UNHIT_RAY_COLOR
+	 * layerMask :  int
+	 * 		Information which layer should the ray ignore
 	 * 
 	 * Return Value:
 	 * 		Return the result of Physics2D.Raycast
 	 * 		The result is never null, instead check if the [Return Value].collider is null.
 	 */
-	RaycastHit2D raycastWithDebug (Vector3 rayFrom, Vector3 shootAtAngle, Color lineColorToHitPosition)
+	RaycastHit2D raycastWithDebug (Vector3 rayFrom, Vector3 shootAtAngle, Color lineColorToHitPosition, int layerMask)
 	{
-		RaycastHit2D hitPosition = Physics2D.Raycast (rayFrom, shootAtAngle);
+		RaycastHit2D hitPosition = Physics2D.Raycast (rayFrom, shootAtAngle, RAY_DISTANCE, layerMask);
 
 		if (hitPosition.collider != null)
 			Debug.DrawLine (rayFrom, hitPosition.point, lineColorToHitPosition);
 		else {
 			Debug.DrawRay (rayFrom, shootAtAngle, UNHIT_RAY_COLOR);
 		}
-
 		return hitPosition;
 	}
 
@@ -219,19 +207,5 @@ public class GuardController : MonoBehaviour {
 			// if c is left of the extended line from a to b, then it returns a positive value
 			return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
 		}
-	}
-
-	void createNewMesh(){
-		vgMesh.name = "VG" + guardCount++;
-		vgMesh.GetComponent <MeshRenderer> ().material.color = GUARD_SET_COLOR;
-
-		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
-
-		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
-		mRend.material.color = GUARD_MODIFYING_COLOR;
-		mRend.material.shader = Shader.Find("Transparent/Diffuse");
-
-		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
-		filter.mesh = new Mesh ();
 	}
 }
