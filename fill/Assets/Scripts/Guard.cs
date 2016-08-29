@@ -4,9 +4,8 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
-public class Guard : MonoBehaviour {
-	bool isSelected;
-	static GameObject vgMesh;
+public class Guard : MonoBehaviour{
+	GameObject vgMesh;
 	Vector2[] mapVertices2D;
 	int layerMask = 1 << 8;
 
@@ -32,16 +31,16 @@ public class Guard : MonoBehaviour {
 		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
 		filter.mesh = new Mesh ();
 
-		HashSet<Vector2> unorderedVertices = ShootRays (this.transform.position, layerMask); 
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask); 
 
 		Vector2[] toArray = unorderedVertices.ToArray ();
 
-		Array.Sort (toArray, new ClockwiseVector2Comparer (this.transform.position));
+		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
 
 		renderVG (toArray);
 	}
 	
-	void Update () {
+//	void Update () {
 //		if (change) {
 //			Debug.Log (change);
 //			HashSet<Vector2> unorderedVertices = ShootRays (this.transform.position, layerMask);
@@ -50,12 +49,17 @@ public class Guard : MonoBehaviour {
 //			renderVG (toArray);
 //			change = false;
 //		}
-
-		HashSet<Vector2> unorderedVertices = ShootRays (this.transform.position, layerMask);
-		Vector2[] toArray = unorderedVertices.ToArray ();
-		Array.Sort (toArray, new ClockwiseVector2Comparer (this.transform.position));
-		renderVG (toArray);
-	}
+//
+//		// retrieve unorderedVertices by shooting rays to vertex of map
+//		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask);
+//
+//		// sort the unorderedVertices
+//		Vector2[] toArray = unorderedVertices.ToArray ();
+//		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
+//
+//		// renderVG
+//		renderVG (toArray);
+//	}
 
 	/**
 	 * For every vertex in the map,
@@ -96,9 +100,9 @@ public class Guard : MonoBehaviour {
 
 			/* 2. Shoot rays with the calculated angles */
 			// Color : Left Blue, Right White
-			RaycastHit2D rightHit = raycastWithDebug (targetPos, rightAngle, Color.white, layerMask);
-			RaycastHit2D leftHit = raycastWithDebug (targetPos, leftAngle, Color.blue, layerMask);
-			RaycastHit2D hit = raycastWithDebug (targetPos, standardAngle, Color.red, layerMask);
+			RaycastHit2D rightHit = raycastWithoutDebug (targetPos, rightAngle, layerMask);
+			RaycastHit2D leftHit = raycastWithoutDebug (targetPos, leftAngle, layerMask);
+			RaycastHit2D hit = raycastWithoutDebug (targetPos, standardAngle, layerMask);
 
 			/* 3. Add hit point to unorderedVertices if the ray hits collider */
 			// check if the ray is hit
@@ -113,6 +117,28 @@ public class Guard : MonoBehaviour {
 		// By inspecting the above Assert, which happens when the guard in on the line of Collider,
 		// we should decide wheter to allow guard on edge or not
 		return unorderedVertices;
+	}
+
+	/**	
+	 * rayFrom : Vector3 
+	 * 		Position where the ray starts from.
+	 * shootAtAngle : Vector3
+	 * 		Angle (or direction in 3D vector) to indicate the direction to shoot the ray
+	 * lineColorToHitPosition : Color
+	 * 		Color of line which hits the collider. If no collider is hit, draw ray with
+	 * 		the color of the variable UNHIT_RAY_COLOR
+	 * layerMask :  int
+	 * 		Information which layer should the ray ignore
+	 * 
+	 * Return Value:
+	 * 		Return the result of Physics2D.Raycast
+	 * 		The result is never null, instead check if the [Return Value].collider is null.
+	 */
+	RaycastHit2D raycastWithoutDebug (Vector3 rayFrom, Vector3 shootAtAngle, int layerMask)
+	{
+		RaycastHit2D hitPosition = Physics2D.Raycast (rayFrom, shootAtAngle, RAY_DISTANCE, layerMask);
+
+		return hitPosition;
 	}
 
 	/**	
@@ -211,6 +237,16 @@ public class Guard : MonoBehaviour {
 		}
 	}
 
+//	void updateColor(){
+//		if (isSelected) {
+//			Debug.Log ("Selected: " + this);
+//			Sprite spr = (Resources.Load("SelectedVertex") as GameObject).GetComponent<SpriteRenderer>().sprite;
+//			gameObject.GetComponent<SpriteRenderer>().sprite = spr;
+//		} else {
+//			Debug.Log ("Nothing selected");
+//		}
+//	}
+
 	private Vector3 screenPoint;
 	private Vector3 offset;
 
@@ -220,6 +256,9 @@ public class Guard : MonoBehaviour {
 
 		offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
 
+		GuardManager.setSelectedGuard (gameObject);
+
+		gameObject.GetComponent<Renderer> ().material.color = GUARD_MODIFYING_COLOR;
 	}
 
 	void OnMouseDrag()
@@ -227,7 +266,22 @@ public class Guard : MonoBehaviour {
 		Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
 
 		Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) - offset;
-		transform.position = curPosition;
 
+		gameObject.transform.position = curPosition;
+
+		// retrieve unorderedVertices by shooting rays to vertex of map
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask);
+
+		// sort the unorderedVertices
+		Vector2[] toArray = unorderedVertices.ToArray ();
+		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
+
+		// renderVG
+		renderVG (toArray);
+	}
+
+	void OnMouseUp()
+	{
+		gameObject.GetComponent<Renderer> ().material.color = GUARD_SET_COLOR;
 	}
 }

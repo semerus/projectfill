@@ -59,7 +59,7 @@ public class GameManager : MonoBehaviour {
 
 		// 2. MapGenerator.createMap(MapData) should generate the map
 
-		// 3. GameState updated
+		// 3. update GameState
 		currentState = GameStateEnum.StageGenerated;
 	}
 }
