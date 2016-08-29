@@ -5,7 +5,7 @@ public class GuardManager : MonoBehaviour {
 	public GameObject guardPrefab;
 	public int guardCount = 0;
 
-	private GameObject selected;
+	private GameObject selectedGuard;
 
 	// Setting Variables
 	private const float distance = 30f; // TODO: Rename
@@ -15,34 +15,54 @@ public class GuardManager : MonoBehaviour {
 	}
 
 	void Update () {
-		ControlGuard ();
+		if (Input.GetMouseButtonDown (0)) {
+			Debug.Log (selectedGuard);
+			RaycastHit2D hitInfo = Physics2D.GetRayIntersection (Camera.main.ScreenPointToRay (Input.mousePosition));
+			if (hitInfo.collider == null) {
+				Debug.Log ("Nothing hit, creating new guard");
+				CreateGuard ();
+			} else if (hitInfo.collider.tag != "Guard"){
+				// do nothing
+				Debug.Log ("Hit but not guard, do nothing");
+			} else if (selectedGuard != null) {
+				Debug.Log ("SelectedGuard is not null");
+				MoveGuard(hitInfo);
+			}
+			else {
+				Debug.Log ("Else, selectedGuard set");
+				selectedGuard = hitInfo.collider.gameObject;
+			}
+		}
+//		else if (Input.GetMouseButtonUp(0)){
+//			selectedGuard = null;
+//		}
 	}
 
 	/**
 	 * Composition of all controls of the Guard Object
 	 * Creation, Movement, Deletion included
 	 */
+//	void ControlGuard() {
+//		if (Input.GetMouseButton (0)) {
+//			RaycastHit2D hitInfo = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition));
+//			if (hitInfo.collider == null)
+//				CreateGuard ();
+//			else if (hitInfo.transform.gameObject.tag != "Guard")
+//				CreateGuard ();
+//			else if (Input.GetMouseButtonUp (0)){
+//				Vector3 mousePos = Input.mousePosition;
+//				selectedGuard = hitInfo.collider.gameObject;
+////				selected.transform.position = Camera.main.ScreenToWorldPoint (new Vector3 (mousePos.x, mousePos.y, distance));
+////				selected.GetComponent<Guard> ().change = true;
+//			}
+//		}
+//	}
 
-	void ControlGuard() {
-		if (Input.GetMouseButtonDown (0)) {
-			RaycastHit2D hitInfo = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition));
-			if (hitInfo.collider == null)
-				CreateGuard ();
-			else if (hitInfo.transform.gameObject.tag != "Guard")
-				CreateGuard ();
-			else if (!Input.GetMouseButtonUp (0)){
-				Vector3 mousePos = Input.mousePosition;
-				selected = hitInfo.collider.gameObject;
-				selected.transform.position = Camera.main.ScreenToWorldPoint (new Vector3 (mousePos.x, mousePos.y, distance));
-				selected.GetComponent<Guard> ().change = true;
-			}
-		}
-		
-	}
 	void CreateGuard() {
-			GameObject guard = Instantiate (guardPrefab) as GameObject;
-			guard.name = "Guard" + ++guardCount;
-			guard.transform.position = PositionGuard ();
+		GameObject guard = Instantiate (guardPrefab) as GameObject;
+		guard.name = "Guard" + ++guardCount;
+		guard.transform.position = PositionGuard ();
+//		selectedGuard = guard;
 	}
 
 	void MoveGuard(RaycastHit2D hitInfo) {
@@ -55,7 +75,7 @@ public class GuardManager : MonoBehaviour {
 	}
 
 	/**
-	 * Checks position of the mouse and returns whether Guard Object all ready exists(true) or not(false)
+	 * Checks position of the mouse and returns whether Guard Object already exists(true) or not(false)
 	 */
 	/*
 	GameObject CheckGameobject() {

@@ -4,10 +4,8 @@ using System.Collections.Generic;
 using System;
 using System.Linq;
 
-
 public class Guard : MonoBehaviour {
-	public bool change = false;
-
+	bool isSelected;
 	static GameObject vgMesh;
 	Vector2[] mapVertices2D;
 	int layerMask = 1 << 8;
@@ -25,7 +23,7 @@ public class Guard : MonoBehaviour {
 
 		/* Create GameObject to make VG */
 		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
-		vgMesh.transform.SetParent(this.transform);
+//		vgMesh.transform.SetParent(this.transform);
 
 		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
 		mRend.material.color = GUARD_MODIFYING_COLOR;
@@ -34,25 +32,29 @@ public class Guard : MonoBehaviour {
 		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
 		filter.mesh = new Mesh ();
 
-		//Debug.Log (mapVertices2D.Length);
 		HashSet<Vector2> unorderedVertices = ShootRays (this.transform.position, layerMask); 
-		//Debug.Log (unorderedVertices);
-		Vector2[] toArray = unorderedVertices.ToArray ();
-		//Debug.Log (toArray.Length);
-		Array.Sort (toArray, new ClockwiseVector2Comparer (this.transform.position));
-		renderVG (toArray);
 
+		Vector2[] toArray = unorderedVertices.ToArray ();
+
+		Array.Sort (toArray, new ClockwiseVector2Comparer (this.transform.position));
+
+		renderVG (toArray);
 	}
 	
 	void Update () {
-		if (change) {
-			Debug.Log (change);
-			HashSet<Vector2> unorderedVertices = ShootRays (this.transform.position, layerMask);
-			Vector2[] toArray = unorderedVertices.ToArray ();
-			Array.Sort (toArray, new ClockwiseVector2Comparer (this.transform.position));
-			renderVG (toArray);
-			change = false;
-		}
+//		if (change) {
+//			Debug.Log (change);
+//			HashSet<Vector2> unorderedVertices = ShootRays (this.transform.position, layerMask);
+//			Vector2[] toArray = unorderedVertices.ToArray ();
+//			Array.Sort (toArray, new ClockwiseVector2Comparer (this.transform.position));
+//			renderVG (toArray);
+//			change = false;
+//		}
+
+		HashSet<Vector2> unorderedVertices = ShootRays (this.transform.position, layerMask);
+		Vector2[] toArray = unorderedVertices.ToArray ();
+		Array.Sort (toArray, new ClockwiseVector2Comparer (this.transform.position));
+		renderVG (toArray);
 	}
 
 	/**
@@ -207,5 +209,25 @@ public class Guard : MonoBehaviour {
 			// if c is left of the extended line from a to b, then it returns a positive value
 			return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
 		}
+	}
+
+	private Vector3 screenPoint;
+	private Vector3 offset;
+
+	void OnMouseDown()
+	{
+		screenPoint = Camera.main.WorldToScreenPoint(gameObject.transform.position);
+
+		offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
+
+	}
+
+	void OnMouseDrag()
+	{
+		Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
+
+		Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) - offset;
+		transform.position = curPosition;
+
 	}
 }
