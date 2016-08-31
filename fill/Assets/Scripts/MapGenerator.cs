@@ -14,7 +14,6 @@ public class MapGenerator : MonoBehaviour {
 	void Start () {
 		Camera.main.orthographicSize *= scale; 
 
-		//GameObject line;
 		Vector2 p0 = new Vector2 (0f, -7f) * scale;
 		Vector2 p1 = new Vector2 (8f, -10f) * scale;
 		Vector2 p2 = new Vector2 (3f, -3f) * scale;
@@ -36,18 +35,18 @@ public class MapGenerator : MonoBehaviour {
 //		vertices = new Vector2[] {p0, p1, p2, p3, p0};
 //		vertices = new Vector2[] {p0, p1, p2};
 
-		CreateMap (vertices);
+		createMap (vertices);
 	}
 
 	//creating map using the vertices
-	void CreateMap (Vector2[] vertices) {
+	public void createMap (MapData md) {
 		// assert there are at least 3 vertices
 		if (vertices.Length < 3) {
 			Debug.LogError ("not enough vertices");
 		}
 
 		GameObject temp = new GameObject("Line Renderer");
-//		GameObject temp = Instantiate (linePrefab) as GameObject;
+		//		GameObject temp = Instantiate (linePrefab) as GameObject;
 		LineRenderer lineRenderer = temp.AddComponent<LineRenderer> ();
 		lineRenderer.SetWidth (0.1f * scale, 0.1f * scale);
 		lineRenderer.SetColors (Color.white, Color.black);
@@ -58,8 +57,27 @@ public class MapGenerator : MonoBehaviour {
 			lineRenderer.SetPosition (i, vertices[i]);
 		}
 
-		// add last vertex
-//		lineRenderer.SetPosition (vertices.Length, vertices[0]);
+		CreateEdgeCollider ();
+	}
+
+	//creating map using the vertices
+	void createMap (Vector2[] vertices) {
+		// assert there are at least 3 vertices
+		if (vertices.Length < 3) {
+			Debug.LogError ("not enough vertices");
+		}
+
+		GameObject temp = new GameObject("Line Renderer");
+
+		LineRenderer lineRenderer = temp.AddComponent<LineRenderer> ();
+		lineRenderer.SetWidth (0.1f * scale, 0.1f * scale);
+		lineRenderer.SetColors (Color.white, Color.black);
+		lineRenderer.SetVertexCount (vertices.Length);
+
+		// add vertices
+		for (int i = 0; i < vertices.Length; i++) {
+			lineRenderer.SetPosition (i, vertices[i]);
+		}
 
 //		CreateVertex (vertices);
 		CreateEdgeCollider ();

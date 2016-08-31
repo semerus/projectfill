@@ -16,7 +16,6 @@ public class GuardManager : MonoBehaviour {
 
 	void Update () {
 		if (Input.GetMouseButtonDown (0)) {
-//			Debug.Log (selectedGuard);
 			RaycastHit2D hitInfo = Physics2D.GetRayIntersection (Camera.main.ScreenPointToRay (Input.mousePosition));
 			if (hitInfo.collider == null) {
 //				Debug.Log ("Nothing hit, creating new guard");
