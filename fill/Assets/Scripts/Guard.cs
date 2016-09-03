@@ -283,5 +283,10 @@ public class Guard : MonoBehaviour{
 	void OnMouseUp()
 	{
 		gameObject.GetComponent<Renderer> ().material.color = GUARD_SET_COLOR;
+		Debug.Log (gameObject.transform.position);
+	}
+
+	public void DestoryGuard() {
+		Destroy (gameObject);
 	}
 }
