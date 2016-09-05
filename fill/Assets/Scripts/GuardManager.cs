@@ -72,10 +72,6 @@ public class GuardManager : MonoBehaviour {
 		
 	}
 
-	public static void setSelectedGuard(GameObject newlySelected){
-		selectedGuard = newlySelected;
-	}
-
 	/**
 	 * Checks position of the mouse and returns whether Guard Object already exists(true) or not(false)
 	 */

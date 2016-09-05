@@ -3,11 +3,12 @@ using System.Collections;
 using System.Collections.Generic;
 using System;
 using System.Linq;
+using UnityEngine.EventSystems;
 
-public class Guard : MonoBehaviour{
-	GameObject vgMesh;
+public class Guard : MonoBehaviour, IDragHandler{
+	public GameObject vgMesh;
+	public int layerMask = 1 << 8;
 	Vector2[] mapVertices2D;
-	int layerMask = 1 << 8;
 
 	// Setting Variables
 	private const float angleDelta = 0.01f;
@@ -22,7 +23,8 @@ public class Guard : MonoBehaviour{
 
 		/* Create GameObject to make VG */
 		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
-//		vgMesh.transform.SetParent(this.transform);
+		vgMesh.transform.SetParent(transform);
+
 
 		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
 		mRend.material.color = GUARD_MODIFYING_COLOR;
@@ -32,34 +34,34 @@ public class Guard : MonoBehaviour{
 		filter.mesh = new Mesh ();
 
 		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask); 
-
 		Vector2[] toArray = unorderedVertices.ToArray ();
-
 		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
-
 		renderVG (toArray);
 	}
-	
-//	void Update () {
-//		if (change) {
-//			Debug.Log (change);
-//			HashSet<Vector2> unorderedVertices = ShootRays (this.transform.position, layerMask);
-//			Vector2[] toArray = unorderedVertices.ToArray ();
-//			Array.Sort (toArray, new ClockwiseVector2Comparer (this.transform.position));
-//			renderVG (toArray);
-//			change = false;
-//		}
-//
-//		// retrieve unorderedVertices by shooting rays to vertex of map
-//		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask);
-//
-//		// sort the unorderedVertices
-//		Vector2[] toArray = unorderedVertices.ToArray ();
-//		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
-//
-//		// renderVG
-//		renderVG (toArray);
-//	}
+
+	void LateUpdate () {
+		vgMesh.transform.position = Vector3.zero;
+	}
+
+	#region IDragHandler implementation
+	public void OnDrag (PointerEventData eventData)
+	{
+		Vector3 nextPos;
+		nextPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f));
+		transform.position = nextPos;
+
+		// retrieve unorderedVertices by shooting rays to vertex of map
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask);
+
+		// sort the unorderedVertices
+		Vector2[] toArray = unorderedVertices.ToArray ();
+		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
+
+		// renderVG
+		renderVG (toArray);
+	}
+	#endregion
+
 
 	/**
 	 * For every vertex in the map,
@@ -237,16 +239,7 @@ public class Guard : MonoBehaviour{
 		}
 	}
 
-//	void updateColor(){
-//		if (isSelected) {
-//			Debug.Log ("Selected: " + this);
-//			Sprite spr = (Resources.Load("SelectedVertex") as GameObject).GetComponent<SpriteRenderer>().sprite;
-//			gameObject.GetComponent<SpriteRenderer>().sprite = spr;
-//		} else {
-//			Debug.Log ("Nothing selected");
-//		}
-//	}
-
+/*
 	private Vector3 screenPoint;
 	private Vector3 offset;
 
@@ -284,9 +277,8 @@ public class Guard : MonoBehaviour{
 	{
 		gameObject.GetComponent<Renderer> ().material.color = GUARD_SET_COLOR;
 		Debug.Log (gameObject.transform.position);
-	}
 
-	public void DestoryGuard() {
-		Destroy (gameObject);
+
 	}
+*/
 }
