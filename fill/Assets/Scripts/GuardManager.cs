@@ -35,41 +35,12 @@ public class GuardManager : MonoBehaviour {
 		}
 	}
 
-	/**
-	 * Composition of all controls of the Guard Object
-	 * Creation, Movement, Deletion included
-	 */
-//	void ControlGuard() {
-//		if (Input.GetMouseButton (0)) {
-//			RaycastHit2D hitInfo = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition));
-//			if (hitInfo.collider == null)
-//				CreateGuard ();
-//			else if (hitInfo.transform.gameObject.tag != "Guard")
-//				CreateGuard ();
-//			else if (Input.GetMouseButtonUp (0)){
-//				Vector3 mousePos = Input.mousePosition;
-//				selectedGuard = hitInfo.collider.gameObject;
-////				selected.transform.position = Camera.main.ScreenToWorldPoint (new Vector3 (mousePos.x, mousePos.y, distance));
-////				selected.GetComponent<Guard> ().change = true;
-//			}
-//		}
-//	}
-
 	void CreateGuard() {
 //		GameObject guard = Instantiate (guardPrefab) as GameObject;
 		GameObject guard = Instantiate (Resources.Load("Vertex") as GameObject);
 		guard.name = "Guard" + ++guardCount;
 		guard.transform.position = PositionGuard ();
 //		selectedGuard = guard;
-	}
-
-//	void MoveGuard(RaycastHit2D hitInfo) {
-//		Transform transform = hitInfo.collider.GetComponentInParent<Transform> ();
-//		transform.position = PositionGuard ();
-//	}
-
-	void DeleteGuard() {
-		
 	}
 
 	/**
