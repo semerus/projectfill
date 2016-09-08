@@ -6,28 +6,23 @@ public class GameManager : MonoBehaviour {
 	/*****************************************************************/
 	/* Variables */
 	// for singleton design
-	private static GameManager instance;
+	private static GameManager instance = null;
 	private static GameStateEnum currentState;
-
-	/*****************************************************************/
-	/* Constructor */
-	// private constructor
-	private GameManager(){
-	}
+	public static int loadLevel;
 
 	/*****************************************************************/
 	/* Functions */
-	// getter for singleton
-	public static GameManager getInstance(){
-		if (instance == null) {
-			instance = new GameManager ();
-		}
-		return instance;
+	// checks for singleton
+	void Awake () {
+		if (instance == null)
+			instance = this;
+		else if (instance != null)
+			Destroy (gameObject);
+		DontDestroyOnLoad (gameObject);
 	}
 
 	/*****************************************************************/
-	/* MonoBehaviour */
-	// Use this for initialization
+	/*MonoBehaviour
 	void Start () {
 		// add disabled guardManager as component
 		GuardManager guardManager = gameObject.AddComponent<GuardManager> ();
@@ -35,8 +30,7 @@ public class GameManager : MonoBehaviour {
 
 
 	}
-	
-	// Update is called once per frame
+
 	void Update () {
 		string filepath = "~/Desktop/temp.map";
 
@@ -67,5 +61,5 @@ public class GameManager : MonoBehaviour {
 
 		// 2. Enable the GuardManager
 		GetComponent<GuardManager>().enabled = true;
-	}
+	}*/
 }

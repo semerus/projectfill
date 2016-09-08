@@ -8,6 +8,7 @@ public class TrashHandler : MonoBehaviour, IDropHandler {
 	public void OnDrop (PointerEventData eventData)
 	{
 		Destroy (eventData.pointerDrag);
+		GuardManager.guardCount--;
 	}
 
 	#endregion

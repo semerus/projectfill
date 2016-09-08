@@ -3,16 +3,14 @@ using System.Collections;
 using UnityEngine.UI;
 
 public class GuardRecord : MonoBehaviour {
+//	this script is used to display number of guards on screen
 	Text guardNum;
-	GuardManager gm;
 
 	void Start() {
 		guardNum = GetComponentInChildren<Text> ();
-		gm = GameObject.Find ("Guard Manager").GetComponent<GuardManager> ();
 	}
 
 	void Update() {
-		Debug.Log (gm.guardCount);
-		guardNum.text = "Number of Guards "+gm.guardCount.ToString();
+		guardNum.text = "Number of Guards "+GuardManager.guardCount.ToString();
 	}
 }

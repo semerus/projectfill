@@ -3,15 +3,20 @@ using System.Collections;
 
 public class GuardManager : MonoBehaviour {
 	public GameObject guardPrefab;
-	public int guardCount = 0;
+	public static int guardCount = 0;
 
+	public static GuardManager instance = null;
 	private static GameObject selectedGuard;
 
 	// Setting Variables
 	private const float distance = 30f; // TODO: Rename
 	private const float maxX = 10, maxY = 10, minX = -10, minY = -10;
 
-	void Start () {
+	void Awake () {
+		if (instance == null)
+			instance = this;
+		else if (instance != null)
+			Destroy (gameObject);
 	}
 
 	void Update () {
