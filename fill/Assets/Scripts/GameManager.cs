@@ -48,7 +48,8 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Update () {
-		string filepath = "./GameLevels/Empire";
+//		string filepath = "./GameLevels/Empire";
+		string filepath = Application.dataPath + "/Resources/Maps.json";
 
 		switch (currentState) {
 		case GameStateEnum.StageSelected:
@@ -62,8 +63,10 @@ public class GameManager : MonoBehaviour {
 
 	void generateStage(string filepath){
 		// 1. read map data from file
-		FileManager fm = FileManager.getInstance ();
-		md = fm.readMap (filepath);
+//		FileManager fm = FileManager.getInstance ();
+//		md = fm.readMap (filepath);
+		JsonManager jm = JsonManager.getInstance ();
+		md = jm.readMap (filepath, "Buildings", 1);
 
 		// 2. MapGenerator.createMap(MapData) should generate the map
 		new MapGenerator().createMap(md);

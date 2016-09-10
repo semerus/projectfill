@@ -3,10 +3,8 @@ using System.Collections;
 
 public class MapGenerator {
 
-	public GameObject linePrefab;
+//	public GameObject linePrefab;
 	public GameObject vertexPrefab;
-
-//	public Vector2[] vertices;
 
 	float scale = 1f;
 
@@ -48,7 +46,6 @@ public class MapGenerator {
 		}
 
 		GameObject temp = new GameObject("Line Renderer" + "outer");
-		//		GameObject temp = Instantiate (linePrefab) as GameObject;
 		LineRenderer lineRenderer = temp.AddComponent<LineRenderer> ();
 		lineRenderer.SetWidth (0.1f * scale, 0.1f * scale);
 		lineRenderer.SetColors (Color.white, Color.black);
@@ -69,7 +66,6 @@ public class MapGenerator {
 			}
 
 			GameObject temp_hole = new GameObject("Line Renderer" + "hole" + i);
-			//		GameObject temp = Instantiate (linePrefab) as GameObject;
 			LineRenderer lineRenderer_hole = temp_hole.AddComponent<LineRenderer> ();
 			lineRenderer_hole.SetWidth (0.1f * scale, 0.1f * scale);
 			lineRenderer_hole.SetColors (Color.white, Color.black);
@@ -81,8 +77,6 @@ public class MapGenerator {
 			}
 			CreateEdgeCollider (hole_vertices);
 		}
-
-//		CreateEdgeCollider (vertices);
 	}
 
 	//creating map using the vertices

@@ -8,19 +8,21 @@ using UnityEngine.EventSystems;
 public class Guard : MonoBehaviour, IDragHandler{
 	public GameObject vgMesh;
 	public int layerMask = 1 << 8;
-	Vector2[] mapVertices2D;
+	MapData md = GameManager.getInstance().getMapData();
+//	Vector2[] mapVertices2D;
 
 	// Setting Variables
 	private const float angleDelta = 0.01f;
 	private float RAY_DISTANCE = 100000f;
 	private Color UNHIT_RAY_COLOR = Color.black;
-	private Color GUARD_MODIFYING_COLOR = new Color(1, 0, 0, 0.3f);
+	private Color GUARD_BASIC_COLOR;
 	private Color GUARD_SET_COLOR = new Color(0, 0, 1, 0.3f);
+	private Color VG_COLOR;
 
 	void Start () {
 		layerMask = ~layerMask;
-//		mapVertices2D = GameObject.Find("Map Generator").GetComponent<MapGenerator> ().vertices;
-//		mapVertices2D = GetComponent<GameManager> ().getMapVertices2D ();
+		GUARD_BASIC_COLOR = md.getGuardBasicColor ();
+		VG_COLOR = md.getVgColor ();
 
 		/* Create GameObject to make VG */
 		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
@@ -28,7 +30,7 @@ public class Guard : MonoBehaviour, IDragHandler{
 
 
 		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
-		mRend.material.color = GUARD_MODIFYING_COLOR;
+		mRend.material.color = VG_COLOR;
 		mRend.material.shader = Shader.Find("Transparent/Diffuse");
 
 		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
