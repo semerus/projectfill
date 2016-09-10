@@ -10,29 +10,45 @@ public class GameManager : MonoBehaviour {
 	private static GameStateEnum currentState;
 	public static int loadLevel;
 
+	// for saving the map information
+	private static MapData md;
+
+	/*****************************************************************/
+	/* Constructor */
+	// private constructor
+	private GameManager(){
+	}
+
 	/*****************************************************************/
 	/* Functions */
 	// checks for singleton
-	void Awake () {
-		if (instance == null)
-			instance = this;
-		else if (instance != null)
-			Destroy (gameObject);
-		DontDestroyOnLoad (gameObject);
+//	void Awake () {
+//		if (instance == null)
+//			instance = this;
+//		else if (instance != null)
+//			Destroy (gameObject);
+//		DontDestroyOnLoad (gameObject);
+//	}
+
+	public static GameManager getInstance(){
+		if(instance == null){
+			instance = new GameManager();
+		}
+		return instance;
 	}
 
 	/*****************************************************************/
-	/*MonoBehaviour
+	/*MonoBehaviour*/
 	void Start () {
+		currentState = GameStateEnum.StageSelected;
+
 		// add disabled guardManager as component
 		GuardManager guardManager = gameObject.AddComponent<GuardManager> ();
 		guardManager.enabled = false;
-
-
 	}
 
 	void Update () {
-		string filepath = "~/Desktop/temp.map";
+		string filepath = "./Game Levels/Empire";
 
 		switch (currentState) {
 		case GameStateEnum.StageSelected:
@@ -47,7 +63,7 @@ public class GameManager : MonoBehaviour {
 	void generateStage(string filepath){
 		// 1. read map data from file
 		FileManager fm = FileManager.getInstance ();
-		MapData md = fm.readMap (filepath);
+		md = fm.readMap (filepath);
 
 		// 2. MapGenerator.createMap(MapData) should generate the map
 		new MapGenerator().createMap(md);
@@ -61,5 +77,9 @@ public class GameManager : MonoBehaviour {
 
 		// 2. Enable the GuardManager
 		GetComponent<GuardManager>().enabled = true;
-	}*/
+	}
+
+	public MapData getMapData(){
+		return md;
+	}
 }

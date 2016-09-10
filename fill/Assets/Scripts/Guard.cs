@@ -19,7 +19,8 @@ public class Guard : MonoBehaviour, IDragHandler{
 
 	void Start () {
 		layerMask = ~layerMask;
-		mapVertices2D = GameObject.Find("Map Generator").GetComponent<MapGenerator> ().vertices;
+//		mapVertices2D = GameObject.Find("Map Generator").GetComponent<MapGenerator> ().vertices;
+//		mapVertices2D = GetComponent<GameManager> ().getMapVertices2D ();
 
 		/* Create GameObject to make VG */
 		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
@@ -33,7 +34,7 @@ public class Guard : MonoBehaviour, IDragHandler{
 		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
 		filter.mesh = new Mesh ();
 
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask); 
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getInstance().getMapData()); 
 		Vector2[] toArray = unorderedVertices.ToArray ();
 		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
 		renderVG (toArray);
@@ -51,7 +52,7 @@ public class Guard : MonoBehaviour, IDragHandler{
 		transform.position = nextPos;
 
 		// retrieve unorderedVertices by shooting rays to vertex of map
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask);
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getInstance().getMapData());
 
 		// sort the unorderedVertices
 		Vector2[] toArray = unorderedVertices.ToArray ();
@@ -69,11 +70,30 @@ public class Guard : MonoBehaviour, IDragHandler{
 	 * 2. Shoot rays with the calculated angles
 	 * 3. Add hit point to unorderedVertices if the ray hits collider
 	*/
-	HashSet<Vector2> ShootRays (Vector3 targetPos, int layerMask) {
+	HashSet<Vector2> ShootRays (Vector3 targetPos, int layerMask, MapData md) {
 		HashSet<Vector2> unorderedVertices = new HashSet<Vector2>();
 
 		// add targetPos to unorderVertices if targetPos is outside polygon
 		// unorderedVertices.Add (targetPos);
+		Vector2[] outer = md.getOuter().getVertices();
+		SimplePolygon2D[] holes = md.getHoles();
+
+		int totalCount = outer.Length;
+		for(int i = 0; i < holes.Length; i++){
+			totalCount += holes [i].getVertices ().Length;
+		}
+
+		Vector2[] mapVertices2D = new Vector2[totalCount];
+		int currentIndex = 0;
+		for (int i = 0; i < outer.Length; i++) {
+			mapVertices2D [currentIndex++] = outer [i];
+		}
+
+		for (int i = 0; i < holes.Length; i++) {
+			for (int j = 0; j < holes [i].getVertices ().Length; j++) {
+				mapVertices2D [currentIndex++] = holes [i].getVertices () [j];
+			}
+		}
 
 		const int maxCount = 10000; // max angle turn
 
@@ -102,9 +122,9 @@ public class Guard : MonoBehaviour, IDragHandler{
 
 			/* 2. Shoot rays with the calculated angles */
 			// Color : Left Blue, Right White
-			RaycastHit2D rightHit = raycastWithoutDebug (targetPos, rightAngle, layerMask);
-			RaycastHit2D leftHit = raycastWithoutDebug (targetPos, leftAngle, layerMask);
-			RaycastHit2D hit = raycastWithoutDebug (targetPos, standardAngle, layerMask);
+			RaycastHit2D rightHit = raycastWithDebug (targetPos, rightAngle, Color.white, layerMask);
+			RaycastHit2D leftHit = raycastWithDebug (targetPos, leftAngle, Color.blue, layerMask);
+			RaycastHit2D hit = raycastWithDebug (targetPos, standardAngle, Color.red, layerMask);
 
 			/* 3. Add hit point to unorderedVertices if the ray hits collider */
 			// check if the ray is hit
@@ -249,21 +269,24 @@ public class Guard : MonoBehaviour, IDragHandler{
 
 		offset = gameObject.transform.position - Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z));
 
-		GuardManager.setSelectedGuard (gameObject);
+//		GuardManager.setSelectedGuard (gameObject);
 
 		gameObject.GetComponent<Renderer> ().material.color = GUARD_MODIFYING_COLOR;
+
+		Debug.Log (offset);
 	}
 
 	void OnMouseDrag()
 	{
 		Vector3 curScreenPoint = new Vector3(Input.mousePosition.x, Input.mousePosition.y, screenPoint.z);
 
-		Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) - offset;
+		Vector3 curPosition = Camera.main.ScreenToWorldPoint(curScreenPoint) + offset;
 
-		gameObject.transform.position = curPosition;
+		if(GuardManager.JudgeBounds(curPosition))
+			gameObject.transform.position = curPosition;
 
 		// retrieve unorderedVertices by shooting rays to vertex of map
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask);
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getInstance().getMapData());
 
 		// sort the unorderedVertices
 		Vector2[] toArray = unorderedVertices.ToArray ();

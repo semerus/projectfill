@@ -1,2 +1,6 @@
 #ignore all files in the Practice/ directory
-[Pp]ractice/
+# [Pp]ractice means ignore either a folder named "Practice" or "practice" so in our case
+# it is better to specify it to be "Practice"
+Practice/
+DrawPolygonTest/
+.DS_Store

@@ -1,51 +1,53 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class MapGenerator : MonoBehaviour {
+public class MapGenerator {
 
 	public GameObject linePrefab;
 	public GameObject vertexPrefab;
 
-	public Vector2[] vertices;
+//	public Vector2[] vertices;
 
 	float scale = 1f;
 
 	// Use this for initialization
-	void Start () {
-		Camera.main.orthographicSize *= scale; 
-
-		Vector2 p0 = new Vector2 (0f, -7f) * scale;
-		Vector2 p1 = new Vector2 (8f, -10f) * scale;
-		Vector2 p2 = new Vector2 (3f, -3f) * scale;
-		Vector2 p3 = new Vector2 (8f, 5f) * scale;
-		Vector2 p4 = new Vector2 (3f, 3f) * scale;
-		Vector2 p5 = new Vector2 (0f, 10f) * scale;
-		Vector2 p6 = new Vector2 (-3f, 3f) * scale;
-		Vector2 p7 = new Vector2 (-8f, 5f) * scale;
-		Vector2 p8 = new Vector2 (-3f, -3f) * scale;
-		Vector2 p9 = new Vector2 (-8f, -10f) * scale;
-
-		//	Vector2 p0 = new Vector2 (-5f, 5f);
-		//	Vector2 p1 = new Vector2 (-5f, -5f);
-		//	Vector2 p2 = new Vector2 (2f, 3f);
-		//	Vector2 p3 = new Vector2 (5f, 5f);
-
-		//TODO: vertices vector without the duplicate starting vertex
-		vertices = new Vector2[] {p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p0};
-//		vertices = new Vector2[] {p0, p1, p2, p3, p0};
-//		vertices = new Vector2[] {p0, p1, p2};
-
-		createMap (vertices);
-	}
+//	void Start () {
+//		Camera.main.orthographicSize *= scale; 
+//
+////		Vector2 p0 = new Vector2 (0f, -7f) * scale;
+////		Vector2 p1 = new Vector2 (8f, -10f) * scale;
+////		Vector2 p2 = new Vector2 (3f, -3f) * scale;
+////		Vector2 p3 = new Vector2 (8f, 5f) * scale;
+////		Vector2 p4 = new Vector2 (3f, 3f) * scale;
+////		Vector2 p5 = new Vector2 (0f, 10f) * scale;
+////		Vector2 p6 = new Vector2 (-3f, 3f) * scale;
+////		Vector2 p7 = new Vector2 (-8f, 5f) * scale;
+////		Vector2 p8 = new Vector2 (-3f, -3f) * scale;
+////		Vector2 p9 = new Vector2 (-8f, -10f) * scale;
+//
+//		//	Vector2 p0 = new Vector2 (-5f, 5f);
+//		//	Vector2 p1 = new Vector2 (-5f, -5f);
+//		//	Vector2 p2 = new Vector2 (2f, 3f);
+//		//	Vector2 p3 = new Vector2 (5f, 5f);
+//
+//		//TODO: vertices vector without the duplicate starting vertex
+////		vertices = new Vector2[] {p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p0};
+////		vertices = new Vector2[] {p0, p1, p2, p3, p0};
+////		vertices = new Vector2[] {p0, p1, p2};
+//
+////		createMap (vertices);
+//	}
 
 	//creating map using the vertices
 	public void createMap (MapData md) {
 		// assert there are at least 3 vertices
+		Vector2[] vertices = md.getOuter().getVertices();
+
 		if (vertices.Length < 3) {
 			Debug.LogError ("not enough vertices");
 		}
 
-		GameObject temp = new GameObject("Line Renderer");
+		GameObject temp = new GameObject("Line Renderer" + "outer");
 		//		GameObject temp = Instantiate (linePrefab) as GameObject;
 		LineRenderer lineRenderer = temp.AddComponent<LineRenderer> ();
 		lineRenderer.SetWidth (0.1f * scale, 0.1f * scale);
@@ -56,8 +58,31 @@ public class MapGenerator : MonoBehaviour {
 		for (int i = 0; i < vertices.Length; i++) {
 			lineRenderer.SetPosition (i, vertices[i]);
 		}
+		CreateEdgeCollider (vertices);
 
-		CreateEdgeCollider ();
+		SimplePolygon2D[] holes = md.getHoles ();
+		for (int i = 0; i < holes.Length; i++) {
+			Vector2[] hole_vertices = holes[i].getVertices();
+
+			if (hole_vertices.Length < 3) {
+				Debug.LogError ("not enough vertices");
+			}
+
+			GameObject temp_hole = new GameObject("Line Renderer" + "hole" + i);
+			//		GameObject temp = Instantiate (linePrefab) as GameObject;
+			LineRenderer lineRenderer_hole = temp_hole.AddComponent<LineRenderer> ();
+			lineRenderer_hole.SetWidth (0.1f * scale, 0.1f * scale);
+			lineRenderer_hole.SetColors (Color.white, Color.black);
+			lineRenderer_hole.SetVertexCount (hole_vertices.Length);
+
+			// add vertices
+			for (int j = 0; j < hole_vertices.Length; j++) {
+				lineRenderer_hole.SetPosition (j, hole_vertices[j]);
+			}
+			CreateEdgeCollider (hole_vertices);
+		}
+
+//		CreateEdgeCollider (vertices);
 	}
 
 	//creating map using the vertices
@@ -80,7 +105,7 @@ public class MapGenerator : MonoBehaviour {
 		}
 
 //		CreateVertex (vertices);
-		CreateEdgeCollider ();
+		CreateEdgeCollider (vertices);
 	}
 
 //	//creating a dot sprite for each vertex to render round corners
@@ -94,7 +119,7 @@ public class MapGenerator : MonoBehaviour {
 //	}
 
 	//creating EdgeCollider2D by connecting the vertices of the polygon
-	void CreateEdgeCollider () {
+	void CreateEdgeCollider (Vector2[] vertices) {
 		GameObject edge = new GameObject ("Edge Collider");
 
 		EdgeCollider2D edgeCollider = edge.AddComponent<EdgeCollider2D> ();

@@ -27,8 +27,6 @@ public class FileManager {
 	}
 
 	public MapData readMap(string pathToDirectory){
-		MapData toReturn;
-
 		SimplePolygon2D outer;
 		SimplePolygon2D[] holes;
 
@@ -38,7 +36,7 @@ public class FileManager {
 		//2. verify file names
 		// for outer file
 		string outerFilename = "";
-		Regex regexForOuterFilename = new Regex(".*_\\d\\d_outer.csv");
+		Regex regexForOuterFilename = new Regex(".*_\\d\\d_Outer.txt");
 		for (int i = 0; i < fullFileList.Length; i++) {
 			Match matchOuter = regexForOuterFilename.Match(fullFileList[i]);
 			if (matchOuter.Success) {
@@ -53,14 +51,14 @@ public class FileManager {
 
 		// for hole files
 		ArrayList holeFileList = new ArrayList();
-		Regex regexForHoleFilename = new Regex(".*_\\d\\d_hole\\d\\d.csv");
+		Regex regexForHoleFilename = new Regex(".*_\\d\\d_Hole\\d\\d.txt");
 		for (int i = 0; i < fullFileList.Length; i++) {
-			Match matchHole = regexForOuterFilename.Match(fullFileList[i]);
+			Match matchHole = regexForHoleFilename.Match(fullFileList[i]);
 			if (matchHole.Success) {
 				holeFileList.Add (matchHole.Value);
 			}
 		}
-		string[] holeFilenames = (string[]) holeFileList.ToArray ();
+		object[] holeFilenames = holeFileList.ToArray ();
 
 		//3. Read files
 		string outerString = readFile(outerFilename);
@@ -68,7 +66,7 @@ public class FileManager {
 		//     for every filename read, save to holeStrings[i]
 		string[] holeStrings = new String[holeFilenames.Length];
 		for (int i = 0; i < holeFilenames.Length; i++){ 
-			holeStrings [i] = readFile (holeFilenames[i]);
+			holeStrings [i] = readFile ((string) holeFilenames[i]);
 		}
 
 		//4. Change to SimplePolygon2D
@@ -86,8 +84,9 @@ public class FileManager {
 	 * This function reads file and converts to string
 	*/
 	private string readFile(string filepath){
-		//TODO
-		return null;
+		string retString = File.ReadAllText(filepath);
+
+		return retString;
 	}
 
 	/**
@@ -99,12 +98,13 @@ public class FileManager {
 		string[] stringPerVertex = mapString.Split (new string[] { Environment.NewLine }, StringSplitOptions.None);
 
 		for (int i = 0; i < stringPerVertex.Length; i++) {
-			string[] coordinate = stringPerVertex[i].Split(new string[] { "\t" } , StringSplitOptions.None);	
+			string[] coordinate = stringPerVertex[i].Split(new string[] { "\t" } , StringSplitOptions.None);
 			Vector2 newVertex = new Vector2 (float.Parse (coordinate [0]), float.Parse (coordinate [1]));	
+			Debug.Log (newVertex);
 			if (!polygonToReturn.addVertex (newVertex)) {
 				Debug.LogError ("polygon.addVertex(newVertex) failed!");
 			}
-		}		
+		}
 
 		return polygonToReturn;
 	}

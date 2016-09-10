@@ -48,6 +48,11 @@ public class GuardManager : MonoBehaviour {
 //		selectedGuard = guard;
 	}
 
+
+//	public static void setSelectedGuard(GameObject newlySelected){
+//		selectedGuard = newlySelected;
+//	}
+
 	/**
 	 * Checks position of the mouse and returns whether Guard Object already exists(true) or not(false)
 	 */
@@ -76,10 +81,30 @@ public class GuardManager : MonoBehaviour {
 		}
 	}
 
-	bool JudgeBounds (Vector3 pos) {
-		if (!(pos.x > maxX || pos.y > maxY || pos.x < minX || pos.y < minY))
-			return true;
-		else
-			return false;
+	public static bool JudgeBounds (Vector3 pos) {
+//		if (!(pos.x > maxX || pos.y > maxY || pos.x < minX || pos.y < minY))
+//			return true;
+//		else
+//			return false;
+		return isValidPosition(pos, GameManager.getInstance().getMapData());
 	}
+
+	static bool isValidPosition(Vector3 position, MapData md){
+		//guard has to be inside outer, but outside holes
+
+		// first check if the position is inside outer
+		if (!md.getOuter ().isInsidePolygon (position)) {
+			return false;
+		}
+
+		// check if the position is outside of every hole
+		SimplePolygon2D[] holes = md.getHoles();
+		for (int i = 0; i < holes.Length; i++) {
+			if (holes [i].isInsidePolygon (position))
+				return false;
+		}
+
+		return true;
+	}
+		
 }
