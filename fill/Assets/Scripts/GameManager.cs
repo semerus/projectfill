@@ -48,7 +48,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Update () {
-		string filepath = "./Game Levels/Empire";
+		string filepath = "./GameLevels/Empire";
 
 		switch (currentState) {
 		case GameStateEnum.StageSelected:
