@@ -5,23 +5,27 @@ using System;
 using System.Linq;
 using UnityEngine.EventSystems;
 
-public class Guard : MonoBehaviour, IDragHandler{
+public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler{
 	public GameObject vgMesh;
 	public int layerMask = 1 << 8;
 	MapData md = GameManager.getInstance().getMapData();
-//	Vector2[] mapVertices2D;
 
 	// Setting Variables
 	private const float angleDelta = 0.01f;
 	private float RAY_DISTANCE = 100000f;
 	private Color UNHIT_RAY_COLOR = Color.black;
 	private Color GUARD_BASIC_COLOR;
-	private Color GUARD_SET_COLOR = new Color(0, 0, 1, 0.3f);
+	private Color GUARD_SELECTED_COLOR;
 	private Color VG_COLOR;
+	private Vector3 currentPosition;
 
 	void Start () {
 		layerMask = ~layerMask;
+
+		/* Set colors*/
+		gameObject.GetComponent<SpriteRenderer> ().color = md.getGuardBasicColor ();
 		GUARD_BASIC_COLOR = md.getGuardBasicColor ();
+		GUARD_SELECTED_COLOR = md.getGuardSeletedColor ();
 		VG_COLOR = md.getVgColor ();
 
 		/* Create GameObject to make VG */
@@ -42,14 +46,27 @@ public class Guard : MonoBehaviour, IDragHandler{
 		renderVG (toArray);
 	}
 
+	// fixing the position of vg, so it does not follow its parent position
 	void LateUpdate () {
 		vgMesh.transform.position = Vector3.zero;
 	}
 
+	#region IBeginDragHandler implementation
+
+	public void OnBeginDrag (PointerEventData eventData)
+	{
+		GetComponent<SpriteRenderer> ().color = GUARD_SELECTED_COLOR;
+	}
+
+	#endregion
+
+	// work on this
 	#region IDragHandler implementation
 	public void OnDrag (PointerEventData eventData)
 	{
 		Vector3 nextPos;
+		bool firstTime = false;
+		currentPosition = transform.position;
 		nextPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f));
 		transform.position = nextPos;
 
@@ -60,9 +77,21 @@ public class Guard : MonoBehaviour, IDragHandler{
 		Vector2[] toArray = unorderedVertices.ToArray ();
 		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
 
+		if (!GuardManager.JudgeBounds (nextPos) && !firstTime)
+			
+
 		// renderVG
 		renderVG (toArray);
 	}
+	#endregion
+
+	#region IEndDragHandler implementation
+
+	public void OnEndDrag (PointerEventData eventData)
+	{
+		GetComponent<SpriteRenderer> ().color = GUARD_BASIC_COLOR;
+	}
+
 	#endregion
 
 

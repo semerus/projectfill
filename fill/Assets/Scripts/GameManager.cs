@@ -30,10 +30,11 @@ public class GameManager : MonoBehaviour {
 //		DontDestroyOnLoad (gameObject);
 //	}
 
+	void Awake () {
+		if(instance == null)
+			instance = this;
+	}
 	public static GameManager getInstance(){
-		if(instance == null){
-			instance = new GameManager();
-		}
 		return instance;
 	}
 
