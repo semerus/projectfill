@@ -22,18 +22,14 @@ public class GameManager : MonoBehaviour {
 	/*****************************************************************/
 	/* Functions */
 	// checks for singleton
-//	void Awake () {
-//		if (instance == null)
-//			instance = this;
-//		else if (instance != null)
-//			Destroy (gameObject);
-//		DontDestroyOnLoad (gameObject);
-//	}
-
 	void Awake () {
-		if(instance == null)
+		if (instance == null)
 			instance = this;
+		else if (instance != null)
+			Destroy (gameObject);
+		DontDestroyOnLoad (gameObject);
 	}
+
 	public static GameManager getInstance(){
 		return instance;
 	}
@@ -46,6 +42,15 @@ public class GameManager : MonoBehaviour {
 		// add disabled guardManager as component
 		GuardManager guardManager = gameObject.AddComponent<GuardManager> ();
 		guardManager.enabled = false;
+	}
+
+	void OnLevelWasLoaded(int level) {
+		if (level == 1) {
+			currentState = GameStateEnum.StageSelected;
+		}
+		if (level != 1) {
+			currentState = GameStateEnum.StageSelection;
+		}
 	}
 
 	void Update () {
@@ -67,7 +72,7 @@ public class GameManager : MonoBehaviour {
 //		FileManager fm = FileManager.getInstance ();
 //		md = fm.readMap (filepath);
 		JsonManager jm = JsonManager.getInstance ();
-		md = jm.readMap (filepath, "Buildings", 1);
+		md = jm.readMap (filepath, "Buildings", loadLevel);
 
 		// 2. MapGenerator.createMap(MapData) should generate the map
 		new MapGenerator().createMap(md);
@@ -86,4 +91,8 @@ public class GameManager : MonoBehaviour {
 	public MapData getMapData(){
 		return md;
 	}
+
+//	public static void setCurrentState(GameStateEnum gameState) {
+//		currentState = gameState;
+//	}
 }

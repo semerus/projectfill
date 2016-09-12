@@ -75,10 +75,7 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 
 		// sort the unorderedVertices
 		Vector2[] toArray = unorderedVertices.ToArray ();
-		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
-
-		if (!GuardManager.JudgeBounds (nextPos) && !firstTime)
-			
+		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));			
 
 		// renderVG
 		renderVG (toArray);
