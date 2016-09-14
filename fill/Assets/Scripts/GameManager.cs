@@ -48,7 +48,8 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Update () {
-		string filepath = "./GameLevels/Empire";
+//		string filepath = "./GameLevels/star_with_hole";
+		string filepath = "./GameLevels/star";
 
 		switch (currentState) {
 		case GameStateEnum.StageSelected:
@@ -77,6 +78,12 @@ public class GameManager : MonoBehaviour {
 
 		// 2. Enable the GuardManager
 		GetComponent<GuardManager>().enabled = true;
+
+		bool filled = DecisionAlgorithm.isFilled (GuardManager.getGuards (), md);
+		if (filled)
+			Debug.Log ("Filled");
+		else
+			Debug.Log ("Not Filled");
 	}
 
 	public MapData getMapData(){

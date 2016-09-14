@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using System.Collections.Generic;
 
 public class MapData
 {
@@ -14,7 +15,15 @@ public class MapData
 	}
 
 	/*Functions*/
+	public int getSize(){
+		int N = 0;
+		N += outer.getVertices().Length;
+		for (int i = 0; i < holes.Length; i++) {
+			N += holes [i].getVertices ().Length;
+		}
 
+		return N;
+	}
 
 	/*Getters*/
 	public SimplePolygon2D getOuter(){
@@ -23,5 +32,13 @@ public class MapData
 
 	public SimplePolygon2D[] getHoles(){
 		return holes;
+	}
+
+	public List<Edge> getTotalEdges(){
+		List<Edge> toRet = outer.getEdges ();
+		for (int i = 0; i < holes.Length; i++) {
+			toRet.AddRange (holes [i].getEdges ());
+		}
+		return toRet;
 	}
 }

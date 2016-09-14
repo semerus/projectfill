@@ -106,5 +106,13 @@ public class GuardManager : MonoBehaviour {
 
 		return true;
 	}
+
+	public static Vector2[] getGuards(){
+		Vector2[] guards = new Vector2[1];
+
+		guards [0] = new Vector2 (0, 0); // hard coded guard
+
+		return guards;
+	}
 		
 }
