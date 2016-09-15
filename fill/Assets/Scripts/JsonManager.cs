@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
 using LitJson;
 
@@ -22,6 +23,18 @@ public class JsonManager {
 			instance = new JsonManager ();
 		}
 		return instance;
+	}
+
+	public List<SimpleData> readMapList (string pathToFile, string theme) {
+		string jsonString = File.ReadAllText (pathToFile);
+		JsonData jsonData = JsonMapper.ToObject (jsonString);
+
+		List<SimpleData> sdl = new List<SimpleData> ();
+		for (int i = 0; i < jsonData [theme].Count; i++) {
+			SimpleData sd = new SimpleData (readId(jsonData, theme, i), readName(jsonData, theme, i), readFilePath(jsonData, theme, i));
+			sdl.Add(sd);
+		}
+		return sdl;
 	}
 
 	public MapData readMap (string pathToFile, string theme, int order) {
@@ -59,6 +72,11 @@ public class JsonManager {
 	private int readId(JsonData data, string theme, int order) {
 		int id =(int)data [theme] [order] ["id"];
 		return id;
+	}
+
+	private string readFilePath(JsonData data, string theme, int order) {
+		string path = data [theme] [order] ["filePath"].ToString ();
+		return path;
 	}
 
 	// for outer

@@ -1,12 +1,16 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 
 public class GuardManager : MonoBehaviour {
-	public GameObject guardPrefab;
 	public static int guardCount = 0;
 
 	public static GuardManager instance = null;
-	private static GameObject selectedGuard;
+	public static List<Guard> guardList = new List<Guard>();
+
+//	foreach (KeyValuePair<int, Guard> kv in GuardManager.guardDic) {
+//		Debug.Log("Key: " + kv.Key + "Pos: " + kv.Value.transform.position);
+//	}
 
 	// Setting Variables
 	private const float distance = 30f; // TODO: Rename
@@ -23,48 +27,19 @@ public class GuardManager : MonoBehaviour {
 		if (Input.GetMouseButtonDown (0)) {
 			RaycastHit2D hitInfo = Physics2D.GetRayIntersection (Camera.main.ScreenPointToRay (Input.mousePosition));
 			if (hitInfo.collider == null) {
-//				Debug.Log ("Nothing hit, creating new guard");
 				CreateGuard ();
 			}
-//			} else if (hitInfo.collider.tag != "Guard"){
-//				// do nothing
-//				Debug.Log ("Hit but not guard, do nothing");
-//			} else if (selectedGuard != null) {
-//				Debug.Log ("SelectedGuard is not null");
-//				MoveGuard(hitInfo);
-//			}
-//			else {
-//				Debug.Log ("Else, selectedGuard set");
-//				selectedGuard = hitInfo.collider.gameObject;
-//			}
 		}
 	}
 
+	/*****************************************************************/
 	void CreateGuard() {
-//		GameObject guard = Instantiate (guardPrefab) as GameObject;
-		GameObject guard = Instantiate (Resources.Load("Vertex") as GameObject);
-		guard.name = "Guard" + ++guardCount;
-		guard.transform.position = PositionGuard ();
-//		selectedGuard = guard;
+		if (JudgeBounds (PositionGuard ())) {
+			GameObject guard = Instantiate (Resources.Load ("Vertex") as GameObject);
+			guard.name = "Guard" + ++guardCount;
+			guard.transform.position = PositionGuard ();
+		}
 	}
-
-
-//	public static void setSelectedGuard(GameObject newlySelected){
-//		selectedGuard = newlySelected;
-//	}
-
-	/**
-	 * Checks position of the mouse and returns whether Guard Object already exists(true) or not(false)
-	 */
-	/*
-	GameObject CheckGameobject() {
-		RaycastHit2D hitInfo = Physics2D.GetRayIntersection(Camera.main.ScreenPointToRay(Input.mousePosition));
-		if (hitInfo.transform.gameObject != null)
-			return hitInfo.transform.gameObject;
-		else
-			return new GameObject();
-	}
-	*/
 
 	/**
 	 * Get the position of the mouse and set the position of Guard Object
@@ -72,13 +47,7 @@ public class GuardManager : MonoBehaviour {
 	Vector3 PositionGuard () {
 		Vector3 mousePos = Input.mousePosition;
 		Vector3 targetPos = Camera.main.ScreenToWorldPoint (new Vector3 (mousePos.x, mousePos.y, distance));
-
-		if (JudgeBounds (targetPos)) {
-			return targetPos;
-		} else {
-			Debug.LogError ("Outside Bounds");
-			return new Vector3 ();
-		}
+		return targetPos;
 	}
 
 	public static bool JudgeBounds (Vector3 pos) {
@@ -106,5 +75,13 @@ public class GuardManager : MonoBehaviour {
 
 		return true;
 	}
-		
+
+	// returns array of current guard positions
+	public static Vector3[] getPositionList () {
+		Vector3[] list = new Vector3[guardList.Count];
+		for (int i = 0; i < guardList.Count; i++) {
+			list [i] = guardList [i].transform.position;
+		}
+		return list;
+	}
 }

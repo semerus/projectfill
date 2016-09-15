@@ -1,10 +1,15 @@
 ﻿using UnityEngine;
 using System.Collections;
+using System.Collections.Generic;
 using System.IO;
+using UnityEngine.SceneManagement;
 
 public class GameManager : MonoBehaviour {
 	/*****************************************************************/
 	/* Variables */
+	// path for json file
+	private string filePath; 
+
 	// for singleton design
 	private static GameManager instance = null;
 	private static GameStateEnum currentState;
@@ -12,6 +17,7 @@ public class GameManager : MonoBehaviour {
 
 	// for saving the map information
 	private static MapData md;
+	private static List<SimpleData> mapList = new List<SimpleData> ();
 
 	/*****************************************************************/
 	/* Constructor */
@@ -19,9 +25,31 @@ public class GameManager : MonoBehaviour {
 	private GameManager(){
 	}
 
+	/* Getter and Setter */
+	public static GameManager getInstance(){
+		return instance;
+	}
+
+	public static GameStateEnum CurrentState {
+		get {
+			return currentState;
+		}
+		set {
+			currentState = value;
+			if (currentState != GameStateEnum.PlayGame_Playing)
+				GameManager.getInstance ().GetComponent<GuardManager> ().enabled = false;
+		}
+	}
+
+	public MapData getMapData() {
+		return md;
+	}
+
+	public List<SimpleData> getMapList() {
+		return mapList;
+	}
 	/*****************************************************************/
-	/* Functions */
-	// checks for singleton
+	/*MonoBehaviour*/
 	void Awake () {
 		if (instance == null)
 			instance = this;
@@ -30,36 +58,39 @@ public class GameManager : MonoBehaviour {
 		DontDestroyOnLoad (gameObject);
 	}
 
-	public static GameManager getInstance(){
-		return instance;
-	}
-
-	/*****************************************************************/
-	/*MonoBehaviour*/
 	void Start () {
+		filePath = Application.dataPath + "/Resources/Maps.json";
 		currentState = GameStateEnum.StageSelected;
+		// readfile to make mapList
+		mapList = JsonManager.getInstance().readMapList(filePath, "Buildings");
 
 		// add disabled guardManager as component
 		GuardManager guardManager = gameObject.AddComponent<GuardManager> ();
 		guardManager.enabled = false;
 	}
 
-	void OnLevelWasLoaded(int level) {
-		if (level == 1) {
+	void OnEnable () {
+		SceneManager.sceneLoaded += OnSceneLoad;
+	}
+
+	void OnDisable () {
+		SceneManager.sceneLoaded -= OnSceneLoad;
+	}
+
+	void OnSceneLoad (Scene scene, LoadSceneMode mode) {
+		if (scene.buildIndex == 1) {
 			currentState = GameStateEnum.StageSelected;
 		}
-		if (level != 1) {
+		if (scene.buildIndex != 1) {
 			currentState = GameStateEnum.StageSelection;
+			GetComponent<GuardManager> ().enabled = false;
 		}
 	}
 
 	void Update () {
-//		string filepath = "./GameLevels/Empire";
-		string filepath = Application.dataPath + "/Resources/Maps.json";
-
 		switch (currentState) {
 		case GameStateEnum.StageSelected:
-			generateStage (filepath);
+			generateStage (filePath);
 			break;
 		case GameStateEnum.StageGenerated:
 			playGame ();
@@ -67,6 +98,8 @@ public class GameManager : MonoBehaviour {
 		}
 	}
 
+	/*****************************************************************/
+	/* Functions */
 	void generateStage(string filepath){
 		// 1. read map data from file
 //		FileManager fm = FileManager.getInstance ();
@@ -82,17 +115,9 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void playGame(){
-		// 1. Load play scene
-
+		// 1. update GameState
+		currentState = GameStateEnum.PlayGame_Playing;
 		// 2. Enable the GuardManager
 		GetComponent<GuardManager>().enabled = true;
 	}
-
-	public MapData getMapData(){
-		return md;
-	}
-
-//	public static void setCurrentState(GameStateEnum gameState) {
-//		currentState = gameState;
-//	}
 }

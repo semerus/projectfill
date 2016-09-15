@@ -7,6 +7,7 @@ public class TrashHandler : MonoBehaviour, IDropHandler {
 
 	public void OnDrop (PointerEventData eventData)
 	{
+		GuardManager.guardList.Remove (eventData.pointerDrag.GetComponent<Guard> ());
 		Destroy (eventData.pointerDrag);
 		GuardManager.guardCount--;
 	}

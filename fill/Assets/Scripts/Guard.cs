@@ -17,10 +17,11 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 	private Color GUARD_BASIC_COLOR;
 	private Color GUARD_SELECTED_COLOR;
 	private Color VG_COLOR;
-	private Vector3 currentPosition;
 
 	void Start () {
 		layerMask = ~layerMask;
+
+		GuardManager.guardList.Add (GetComponent<Guard> ());
 
 		/* Set colors*/
 		gameObject.GetComponent<SpriteRenderer> ().color = md.getGuardBasicColor ();
@@ -31,7 +32,6 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 		/* Create GameObject to make VG */
 		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
 		vgMesh.transform.SetParent(transform);
-
 
 		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
 		mRend.material.color = VG_COLOR;
@@ -65,8 +65,6 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 	public void OnDrag (PointerEventData eventData)
 	{
 		Vector3 nextPos;
-		bool firstTime = false;
-		currentPosition = transform.position;
 		nextPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f));
 		transform.position = nextPos;
 
