@@ -133,6 +133,12 @@ public class GameManager : MonoBehaviour {
 		currentState = GameStateEnum.PlayGame_Playing;
 		// 2. Enable the GuardManager
 		GetComponent<GuardManager>().enabled = true;
+
+		bool filled = DecisionAlgorithm.isFilled (GuardManager.getGuards (), md);
+		if (filled)
+			Debug.Log ("Filled");
+		else
+			Debug.Log ("Not Filled");
 	}
 */
 }
