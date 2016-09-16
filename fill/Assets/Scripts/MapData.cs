@@ -6,12 +6,31 @@ public class MapData
 {
 	private SimplePolygon2D outer;
 	private SimplePolygon2D[] holes;
+	private float minX, minY, maxX, maxY;
 
 	/*Constructor*/
 	public MapData (SimplePolygon2D outer, SimplePolygon2D[] holes)
 	{
 		this.outer = outer;
-		this.holes = holes;		
+		this.holes = holes;
+
+		minX = float.MaxValue;
+		minY = float.MaxValue;
+		maxX = float.MinValue;
+		maxY = float.MinValue;
+
+		Vector2[] outerVertices = outer.getVertices ();
+		for(int i = 0; i < outerVertices.Length; i++){
+			if (outerVertices [i].x < minX)
+				minX = outerVertices [i].x;
+			if (outerVertices [i].y < minY)
+				minY = outerVertices [i].y;
+			if (outerVertices [i].x > maxX)
+				maxX = outerVertices [i].x;
+			if (outerVertices [i].y > maxY)
+				maxY = outerVertices [i].y;
+		}
+			
 	}
 
 	/*Functions*/
@@ -23,6 +42,22 @@ public class MapData
 		}
 
 		return N;
+	}
+
+	public float getMinX(){
+		return minX;
+	}
+
+	public float getMinY(){
+		return minY;
+	}
+
+	public float getMaxX(){
+		return maxX;
+	}
+
+	public float getMaxY(){
+		return maxY;
 	}
 
 	/*Getters*/
