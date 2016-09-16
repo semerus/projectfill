@@ -8,7 +8,7 @@ using UnityEngine.EventSystems;
 public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler{
 	public GameObject vgMesh;
 	public int layerMask = 1 << 8;
-	MapData md = GameManager.getInstance().getMapData();
+	MapData md = GameManager.getMapData();
 	private Vector3 previousPos;
 	private int guardId = -1; // pls do not touch
 
@@ -68,7 +68,7 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
 		filter.mesh = new Mesh ();
 
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getInstance().getMapData()); 
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getMapData()); 
 		Vector2[] toArray = unorderedVertices.ToArray ();
 		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
 		renderVG (toArray);
@@ -106,7 +106,7 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 		transform.position = nextPos;
 
 		// retrieve unorderedVertices by shooting rays to vertex of map
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getInstance().getMapData());
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getMapData());
 
 		// sort the unorderedVertices
 		Vector2[] toArray = unorderedVertices.ToArray ();

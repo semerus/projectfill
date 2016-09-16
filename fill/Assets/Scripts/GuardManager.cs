@@ -61,6 +61,12 @@ public class GuardManager : MonoBehaviour {
 				CreateGuard ();
 			}
 		}
+
+		bool filled = DecisionAlgorithm.isFilled (GuardManager.getPositionList (), GameManager.getMapData());
+		if (filled)
+			Debug.Log ("Filled");
+		else
+			Debug.Log ("Not Filled");
 	}
 
 	/*****************************************************************/
@@ -95,7 +101,7 @@ public class GuardManager : MonoBehaviour {
 //			return true;
 //		else
 //			return false;
-		return isValidPosition(pos, GameManager.getInstance().getMapData());
+		return isValidPosition(pos, GameManager.getMapData());
 	}
 
 	static bool isValidPosition(Vector3 position, MapData md){

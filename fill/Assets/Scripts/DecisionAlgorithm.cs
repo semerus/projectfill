@@ -8,7 +8,7 @@ public class DecisionAlgorithm
 	{
 	}
 
-	public static bool isFilled(Vector2[] guards, MapData md){
+	public static bool isFilled(Vector3[] guards, MapData md){
 		Vector2[] vertices = getPoinsToCheck(md);
 		Edge[] edges = md.getTotalEdges ().ToArray ();
 		for(int i = 0; i < vertices.Length - 1; i++){

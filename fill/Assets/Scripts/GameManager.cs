@@ -48,11 +48,11 @@ public class GameManager : MonoBehaviour {
 				break;
 			}
 			if (currentState != GameStateEnum.PlayGame_Playing)
-				getInstance().GetComponent<GuardManager> ().enabled = false;
+				getInstance ().GetComponent<GuardManager> ().enabled = false;
 		}
 	}
 
-	public MapData getMapData() {
+	public static MapData getMapData() {
 		return md;
 	}
 
@@ -100,7 +100,7 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Update () {
-		/*
+//		/*
 		switch (currentState) {
 		case GameStateEnum.StageSelected:
 			generateStage (filePath);
@@ -109,7 +109,7 @@ public class GameManager : MonoBehaviour {
 			playGame ();
 			break;
 		}
-		*/
+//		*/
 	}
 
 	/*****************************************************************/
@@ -127,18 +127,18 @@ public class GameManager : MonoBehaviour {
 		// 3. update GameState
 		GameManager.CurrentState = GameStateEnum.StageGenerated;
 	}
-/*
+///*
 	void playGame(){
 		// 1. update GameState
 		currentState = GameStateEnum.PlayGame_Playing;
 		// 2. Enable the GuardManager
 		GetComponent<GuardManager>().enabled = true;
 
-		bool filled = DecisionAlgorithm.isFilled (GuardManager.getGuards (), md);
+		bool filled = DecisionAlgorithm.isFilled (GuardManager.getPositionList (), md);
 		if (filled)
 			Debug.Log ("Filled");
 		else
 			Debug.Log ("Not Filled");
 	}
-*/
+//*/
 }
