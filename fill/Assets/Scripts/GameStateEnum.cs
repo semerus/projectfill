@@ -1,6 +1,5 @@
 using System;
 
-
 public enum GameStateEnum
 {
 //	MainMenuScene, LevelSelectionScene, StageSelectionScene, StageCreationState, PlayGame_Submit, PlayGame_FinalScore, ScoreBoardScene

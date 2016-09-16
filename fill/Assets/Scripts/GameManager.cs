@@ -36,8 +36,19 @@ public class GameManager : MonoBehaviour {
 		}
 		set {
 			currentState = value;
+			switch (currentState) {
+			case GameStateEnum.StageSelected:
+				getInstance().generateStage (getInstance().filePath);
+				break;
+			case GameStateEnum.StageGenerated:
+				GameManager.CurrentState = GameStateEnum.PlayGame_Playing;
+				break;
+			case GameStateEnum.PlayGame_Playing:
+				getInstance().GetComponent<GuardManager> ().enabled = true;
+				break;
+			}
 			if (currentState != GameStateEnum.PlayGame_Playing)
-				GameManager.getInstance ().GetComponent<GuardManager> ().enabled = false;
+				getInstance().GetComponent<GuardManager> ().enabled = false;
 		}
 	}
 
@@ -56,17 +67,18 @@ public class GameManager : MonoBehaviour {
 		else if (instance != null)
 			Destroy (gameObject);
 		DontDestroyOnLoad (gameObject);
-	}
 
-	void Start () {
 		filePath = Application.dataPath + "/Resources/Maps.json";
-		currentState = GameStateEnum.StageSelected;
-		// readfile to make mapList
-		mapList = JsonManager.getInstance().readMapList(filePath, "Buildings");
 
 		// add disabled guardManager as component
 		GuardManager guardManager = gameObject.AddComponent<GuardManager> ();
 		guardManager.enabled = false;
+	}
+
+	void Start () {
+		GameManager.CurrentState = GameStateEnum.StageSelected;
+		// readfile to make mapList
+		mapList = JsonManager.getInstance().readMapList(filePath, "Buildings");
 	}
 
 	void OnEnable () {
@@ -79,15 +91,16 @@ public class GameManager : MonoBehaviour {
 
 	void OnSceneLoad (Scene scene, LoadSceneMode mode) {
 		if (scene.buildIndex == 1) {
-			currentState = GameStateEnum.StageSelected;
+			GameManager.CurrentState = GameStateEnum.StageSelected;
 		}
 		if (scene.buildIndex != 1) {
-			currentState = GameStateEnum.StageSelection;
+			GameManager.CurrentState = GameStateEnum.StageSelection;
 			GetComponent<GuardManager> ().enabled = false;
 		}
 	}
 
 	void Update () {
+		/*
 		switch (currentState) {
 		case GameStateEnum.StageSelected:
 			generateStage (filePath);
@@ -96,6 +109,7 @@ public class GameManager : MonoBehaviour {
 			playGame ();
 			break;
 		}
+		*/
 	}
 
 	/*****************************************************************/
@@ -111,13 +125,14 @@ public class GameManager : MonoBehaviour {
 		new MapGenerator().createMap(md);
 
 		// 3. update GameState
-		currentState = GameStateEnum.StageGenerated;
+		GameManager.CurrentState = GameStateEnum.StageGenerated;
 	}
-
+/*
 	void playGame(){
 		// 1. update GameState
 		currentState = GameStateEnum.PlayGame_Playing;
 		// 2. Enable the GuardManager
 		GetComponent<GuardManager>().enabled = true;
 	}
+*/
 }

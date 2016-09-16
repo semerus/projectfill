@@ -3,24 +3,55 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class GuardManager : MonoBehaviour {
-	public static int guardCount = 0;
-
-	public static GuardManager instance = null;
+	private static GuardManager instance = null;
+	public static int guardCount = 0; //number of current guards
+	private static int guardIdCount = 0; //generates guardId for each Guard
+	private static Stack<HistoryData> historyList = new Stack<HistoryData>(); //stack storing action history data
+	private static Dictionary<int, Guard> guardDic = new Dictionary<int, Guard>(); //dictionary storing with guardId as key, Guard as value
 	public static List<Guard> guardList = new List<Guard>();
 
-//	foreach (KeyValuePair<int, Guard> kv in GuardManager.guardDic) {
-//		Debug.Log("Key: " + kv.Key + "Pos: " + kv.Value.transform.position);
-//	}
+//	private const float maxX = 10, maxY = 10, minX = -10, minY = -10;
 
-	// Setting Variables
-	private const float distance = 30f; // TODO: Rename
-	private const float maxX = 10, maxY = 10, minX = -10, minY = -10;
+	/*****************************************************************/
+	/*Getters and Setters*/
+	public static GuardManager Instance {
+		get {
+			return instance;
+		}
+	}
 
+	public static int GuardIdCount {
+		get {
+			return guardIdCount;
+		}
+		set {
+			guardIdCount = value;
+		}
+	}
+
+	public static Stack<HistoryData> HistoryList {
+		get {
+			return historyList;
+		}
+	}
+
+	public static Dictionary<int, Guard> GuardDic {
+		get {
+			return guardDic;
+		}
+	}
+
+	/*****************************************************************/
+	/*MonoBehaviour*/
 	void Awake () {
 		if (instance == null)
 			instance = this;
 		else if (instance != null)
 			Destroy (gameObject);
+	}
+
+	void Start () {
+		historyList.Push (new HistoryData (HistoryState.Start));
 	}
 
 	void Update () {
@@ -33,7 +64,8 @@ public class GuardManager : MonoBehaviour {
 	}
 
 	/*****************************************************************/
-	void CreateGuard() {
+	/*Functions*/
+	public void CreateGuard() {
 		if (JudgeBounds (PositionGuard ())) {
 			GameObject guard = Instantiate (Resources.Load ("Vertex") as GameObject);
 			guard.name = "Guard" + ++guardCount;
@@ -41,12 +73,20 @@ public class GuardManager : MonoBehaviour {
 		}
 	}
 
+	public void CreateGuardForReverse(Vector3 pos, int guardId) {
+		GameObject guard = Instantiate (Resources.Load ("Vertex") as GameObject);
+		guard.name = "Guard" + ++guardCount;
+		guard.transform.position = pos;
+		guard.GetComponent<Guard> ().GuardId = guardId;
+	}
+
 	/**
 	 * Get the position of the mouse and set the position of Guard Object
 	 */
 	Vector3 PositionGuard () {
 		Vector3 mousePos = Input.mousePosition;
-		Vector3 targetPos = Camera.main.ScreenToWorldPoint (new Vector3 (mousePos.x, mousePos.y, distance));
+		Vector3 targetPos = Camera.main.ScreenToWorldPoint (new Vector3 (mousePos.x, mousePos.y, 
+			-Camera.main.transform.position.z));
 		return targetPos;
 	}
 
