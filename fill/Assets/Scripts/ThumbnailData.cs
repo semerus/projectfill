@@ -1,12 +1,12 @@
 ﻿using UnityEngine;
 using System.Collections;
 
-public class SimpleData {
+public class ThumbnailData {
 	private int id;
 	private string name;
 	private string imgPath;
 
-	public SimpleData (int id, string name, string imgPath) {
+	public ThumbnailData (int id, string name, string imgPath) {
 		this.id = id;
 		this.name = name;
 		this.imgPath = imgPath;

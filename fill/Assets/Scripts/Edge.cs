@@ -50,8 +50,8 @@ public class Edge{
 	private static bool Xor(bool x, bool y){
 		return !x ^ !y;
 	}
-
-	public virtual string ToString(){
+		
+	public override string ToString(){
 		return "Edge[a, b] = " + a + ", " + b;
 	}
 }

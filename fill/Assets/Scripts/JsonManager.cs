@@ -25,13 +25,13 @@ public class JsonManager {
 		return instance;
 	}
 
-	public List<SimpleData> readMapList (string pathToFile, string theme) {
+	public List<ThumbnailData> readMapList (string pathToFile, string theme) {
 		string jsonString = File.ReadAllText (pathToFile);
 		JsonData jsonData = JsonMapper.ToObject (jsonString);
 
-		List<SimpleData> sdl = new List<SimpleData> ();
+		List<ThumbnailData> sdl = new List<ThumbnailData> ();
 		for (int i = 0; i < jsonData [theme].Count; i++) {
-			SimpleData sd = new SimpleData (readId(jsonData, theme, i), readName(jsonData, theme, i), readFilePath(jsonData, theme, i));
+			ThumbnailData sd = new ThumbnailData (readId(jsonData, theme, i), readName(jsonData, theme, i), readFilePath(jsonData, theme, i));
 			sdl.Add(sd);
 		}
 		return sdl;

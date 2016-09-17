@@ -17,7 +17,7 @@ public class GameManager : MonoBehaviour {
 
 	// for saving the map information
 	private static MapData md;
-	private static List<SimpleData> mapList = new List<SimpleData> ();
+	private static List<ThumbnailData> mapList = new List<ThumbnailData> ();
 
 	/*****************************************************************/
 	/* Constructor */
@@ -56,7 +56,7 @@ public class GameManager : MonoBehaviour {
 		return md;
 	}
 
-	public List<SimpleData> getMapList() {
+	public List<ThumbnailData> getMapList() {
 		return mapList;
 	}
 	/*****************************************************************/
