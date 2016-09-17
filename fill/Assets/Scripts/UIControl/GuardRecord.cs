@@ -11,6 +11,6 @@ public class GuardRecord : MonoBehaviour {
 	}
 
 	void Update() {
-		guardNum.text = "Number of Guards "+GuardManager.guardCount.ToString();
+		guardNum.text = "Number of Guards "+ GuardManager.guardCount.ToString();
 	}
 }

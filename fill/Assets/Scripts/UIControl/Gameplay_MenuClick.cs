@@ -17,10 +17,13 @@ public class Gameplay_MenuClick : MonoBehaviour, IPointerClickHandler {
 
 	public void OnPointerClick (PointerEventData eventData)
 	{
-		if (!menuList.activeSelf)
+		if (!menuList.activeSelf) {
+			GameManager.CurrentState = GameStateEnum.PlayGame_Menu;
 			menuList.SetActive (true);
-		else
+		} else {
+			GameManager.CurrentState = GameStateEnum.PlayGame_Playing;
 			menuList.SetActive (false);
+		}
 	}
 
 	#endregion

@@ -8,6 +8,7 @@ public class Gameplay_MenuList_SelectionMenu : MonoBehaviour, IPointerClickHandl
 
 	public void OnPointerClick (PointerEventData eventData)
 	{
+		GuardManager.guardCount = 0;
 		SceneManager.LoadScene ("StageSelect");
 	}
 

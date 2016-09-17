@@ -3,55 +3,22 @@ using System.Collections;
 using UnityEngine;
 
 /*SimplePolygon is a polygon that has no edge crossing*/
+using System.Collections.Generic;
+
+
 public class SimplePolygon2D
 {
 	/*Variables*/
 	// Vector2[] is ordered such that polygon[i] has an undirected edge to polygon[i+1]
-	private Stack polygon;
-
-	class Edge{
-		Vector2 a, b;
-		public Edge(Vector2 from, Vector2 to){
-			a = from;
-			b = to;
-		}
-
-		/**
-		 * Returns
-		 * 		true : if this edge crosses with target edge
-		 * 		false : if this edge does not cross with target edge
-		*/
-		public bool isCross(Edge target){
-			Vector2 c, d;
-			c = target.a;
-			d = target.b;
-			if (collinear (a, b, c) ||
-				collinear (a, b, d) ||
-				collinear (c, d, a) ||
-				collinear (c, d, b))
-				return false;
-
-			return Xor (Left (a, b, c), Left(a, b, d)) &&
-				Xor (Left (c, d, a), Left(c, d, b));
-		}
-
-		private static bool collinear(Vector2 a, Vector2 b, Vector2 c){
-			return false;
-		}
-
-		private static bool Left(Vector2 a, Vector2 b, Vector2 c){
-			return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y) > 0;
-		}
-
-		private static bool Xor(bool x, bool y){
-			return !x ^ !y;
-		}
-	}
+	private Stack<Vector2> polygon;
+	private List<Edge> edges;
+	private Vector2 lastAdded = new Vector2(-100, -100);
 
 	/*Constructor*/
 	public SimplePolygon2D ()
 	{
-		polygon = new Stack ();
+		polygon = new Stack<Vector2> ();
+		edges = new List<Edge> ();
 	}
 
 	/*Functions*/
@@ -60,13 +27,16 @@ public class SimplePolygon2D
 	 * This function fails when there exists a self intersection. 
 	*/
 	public bool addVertex(Vector2 newVertex){
-		polygon.Push (newVertex);
-		return true;
 //		if (validateNewVertex (newVertex)) {
-//			return false;
+			// must add edge first, before pushing in to stack
+			if (lastAdded.x != -100 && lastAdded.y != -100) { // TODO: find better way to do this
+				edges.Add(new Edge(lastAdded, newVertex));
+			}
+			lastAdded = newVertex;
+			polygon.Push (newVertex);
+			return true;
 //		} else {
-//			polygon.Push (newVertex);
-//			return true;
+//			return false;
 //		}
 	}
 
@@ -86,7 +56,7 @@ public class SimplePolygon2D
 		Edge newEdge = new Edge(newVertex, (Vector2) polygon.Peek());
 			
 		// for every edge check if the new edge forms an intersection
-		object[] toArray = (object[]) polygon.ToArray();
+		Vector2[] toArray = polygon.ToArray();
 
 		for (int i = 0; i < toArray.Length - 1; i++) { // Note. toArray.Length - 1 to avoid indexOutOfRange
 			// check if newEdge crosses with any of the existing edges
@@ -101,11 +71,11 @@ public class SimplePolygon2D
 	 * @return Returns Vector2[] of the vertices in which they form a polygon
 	*/
 	public Vector2[] getVertices(){
-		object[] oArray = polygon.ToArray ();
+		Vector2[] oArray = polygon.ToArray ();
 		Vector2[] toRet = new Vector2[polygon.Count];
 
 		for (int i = 0; i < polygon.Count; i++) {
-			toRet [i] = (Vector2)oArray [i];
+			toRet [i] = oArray [i];
 		}
 
 		return toRet;
@@ -132,5 +102,14 @@ public class SimplePolygon2D
 		}
 
 		return (count % 2 == 1);
+	}
+
+	/**
+	 * @return
+	 * 		Returns edges ordered from start to end
+	*/
+	public List<Edge> getEdges(){
+		
+		return edges;
 	}
 }

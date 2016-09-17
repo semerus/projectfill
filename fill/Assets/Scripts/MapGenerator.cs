@@ -3,10 +3,8 @@ using System.Collections;
 
 public class MapGenerator {
 
-	public GameObject linePrefab;
+//	public GameObject linePrefab;
 	public GameObject vertexPrefab;
-
-//	public Vector2[] vertices;
 
 	float scale = 1f;
 
@@ -47,12 +45,12 @@ public class MapGenerator {
 			Debug.LogError ("not enough vertices");
 		}
 
-		GameObject temp = new GameObject("Line Renderer" + "outer");
-		//		GameObject temp = Instantiate (linePrefab) as GameObject;
+		GameObject temp = new GameObject("Line Renderer " + "Outer");
 		LineRenderer lineRenderer = temp.AddComponent<LineRenderer> ();
-		lineRenderer.SetWidth (0.1f * scale, 0.1f * scale);
-		lineRenderer.SetColors (Color.white, Color.black);
+		lineRenderer.SetWidth (0.2f * scale, 0.2f * scale);
+		lineRenderer.SetColors (md.getLineColor(), md.getLineColor());
 		lineRenderer.SetVertexCount (vertices.Length);
+		lineRenderer.material = new Material(Shader.Find("Particles/Alpha Blended"));
 
 		// add vertices
 		for (int i = 0; i < vertices.Length; i++) {
@@ -68,11 +66,11 @@ public class MapGenerator {
 				Debug.LogError ("not enough vertices");
 			}
 
-			GameObject temp_hole = new GameObject("Line Renderer" + "hole" + i);
-			//		GameObject temp = Instantiate (linePrefab) as GameObject;
+			GameObject temp_hole = new GameObject("Line Renderer " + "Hole" + i);
 			LineRenderer lineRenderer_hole = temp_hole.AddComponent<LineRenderer> ();
-			lineRenderer_hole.SetWidth (0.1f * scale, 0.1f * scale);
-			lineRenderer_hole.SetColors (Color.white, Color.black);
+			lineRenderer_hole.SetWidth (0.2f * scale, 0.2f * scale);
+			lineRenderer_hole.SetColors (md.getLineColor(), md.getLineColor());
+			lineRenderer_hole.material = new Material (Shader.Find ("Particles/Alpha Blended"));
 			lineRenderer_hole.SetVertexCount (hole_vertices.Length);
 
 			// add vertices
@@ -81,8 +79,6 @@ public class MapGenerator {
 			}
 			CreateEdgeCollider (hole_vertices);
 		}
-
-//		CreateEdgeCollider (vertices);
 	}
 
 	//creating map using the vertices

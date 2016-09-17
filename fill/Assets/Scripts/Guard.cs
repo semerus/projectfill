@@ -5,65 +5,130 @@ using System;
 using System.Linq;
 using UnityEngine.EventSystems;
 
-public class Guard : MonoBehaviour, IDragHandler{
+public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler{
 	public GameObject vgMesh;
 	public int layerMask = 1 << 8;
-	Vector2[] mapVertices2D;
+	MapData md = GameManager.getMapData();
+	private Vector3 previousPos;
+	private int guardId = -1; // pls do not touch
 
 	// Setting Variables
 	private const float angleDelta = 0.01f;
 	private float RAY_DISTANCE = 100000f;
 	private Color UNHIT_RAY_COLOR = Color.black;
-	private Color GUARD_MODIFYING_COLOR = new Color(1, 0, 0, 0.3f);
-	private Color GUARD_SET_COLOR = new Color(0, 0, 1, 0.3f);
+	private Color GUARD_BASIC_COLOR;
+	private Color GUARD_SELECTED_COLOR;
+	private Color VG_COLOR;
 
+	/*****************************************************************/
+	/*Getters and Setters*/
+	public Vector3 PreviousPos {
+		get {
+			return previousPos;
+		}
+	}
+
+	public int GuardId {
+		get {
+			return guardId;
+		}
+		set {
+			guardId = value;
+		}
+	}
+
+	/*****************************************************************/
+	/*Monobehaviour*/
 	void Start () {
 		layerMask = ~layerMask;
-//		mapVertices2D = GameObject.Find("Map Generator").GetComponent<MapGenerator> ().vertices;
-//		mapVertices2D = GetComponent<GameManager> ().getMapVertices2D ();
+
+		if (guardId == -1) { //normal creation
+			guardId = GuardManager.GuardIdCount++;
+			GuardManager.GuardDic.Add (guardId, this);
+			GuardManager.HistoryList.Push (new HistoryData (HistoryState.Destroy, guardId, transform.position));
+		} else { //reverse creation
+			GuardManager.GuardDic.Add (guardId, this);
+		}
+		GuardManager.guardList.Add (GetComponent<Guard> ());
+
+		/* Set colors*/
+		gameObject.GetComponent<SpriteRenderer> ().color = md.getGuardBasicColor ();
+		GUARD_BASIC_COLOR = md.getGuardBasicColor ();
+		GUARD_SELECTED_COLOR = md.getGuardSeletedColor ();
+		VG_COLOR = md.getVgColor ();
 
 		/* Create GameObject to make VG */
 		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
 		vgMesh.transform.SetParent(transform);
 
-
 		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
-		mRend.material.color = GUARD_MODIFYING_COLOR;
+		mRend.material.color = VG_COLOR;
 		mRend.material.shader = Shader.Find("Transparent/Diffuse");
 
 		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
 		filter.mesh = new Mesh ();
 
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getInstance().getMapData()); 
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getMapData()); 
 		Vector2[] toArray = unorderedVertices.ToArray ();
 		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
 		renderVG (toArray);
 	}
 
+	// fixing the position of vg, so it does not follow its parent position
 	void LateUpdate () {
 		vgMesh.transform.position = Vector3.zero;
 	}
 
+	void OnDestroy () {
+		GuardManager.GuardDic.Remove (guardId);
+		GuardManager.guardList.Remove (this);
+		GuardManager.guardCount--;
+	}
+
+	/*****************************************************************/
+	/*Eventsystem Interface*/
+	#region IBeginDragHandler implementation
+
+	public void OnBeginDrag (PointerEventData eventData)
+	{
+		previousPos = transform.position;
+		GetComponent<SpriteRenderer> ().color = GUARD_SELECTED_COLOR;
+	}
+
+	#endregion
+
+	// work on this
 	#region IDragHandler implementation
 	public void OnDrag (PointerEventData eventData)
 	{
 		Vector3 nextPos;
-		nextPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, 10f));
+		nextPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
 		transform.position = nextPos;
 
 		// retrieve unorderedVertices by shooting rays to vertex of map
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getInstance().getMapData());
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getMapData());
 
 		// sort the unorderedVertices
 		Vector2[] toArray = unorderedVertices.ToArray ();
-		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
+		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));	
 
 		// renderVG
 		renderVG (toArray);
 	}
 	#endregion
 
+	#region IEndDragHandler implementation
 
+	public void OnEndDrag (PointerEventData eventData)
+	{
+		GetComponent<SpriteRenderer> ().color = GUARD_BASIC_COLOR;
+		GuardManager.HistoryList.Push (new HistoryData (HistoryState.Move, guardId, previousPos));
+	}
+
+	#endregion
+
+	/*****************************************************************/
+	/*Functions*/
 	/**
 	 * For every vertex in the map,
 	 * 1. Calculate Angles
@@ -74,7 +139,6 @@ public class Guard : MonoBehaviour, IDragHandler{
 		HashSet<Vector2> unorderedVertices = new HashSet<Vector2>();
 
 		// add targetPos to unorderVertices if targetPos is outside polygon
-		// unorderedVertices.Add (targetPos);
 		Vector2[] outer = md.getOuter().getVertices();
 		SimplePolygon2D[] holes = md.getHoles();
 
