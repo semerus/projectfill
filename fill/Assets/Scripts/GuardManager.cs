@@ -64,9 +64,11 @@ public class GuardManager : MonoBehaviour {
 
 		bool filled = DecisionAlgorithm.isFilled (GuardManager.getPositionList (), GameManager.getMapData());
 		if (filled)
-			Debug.Log ("Filled");
+			GameObject.Find ("Submit").GetComponent<Gameplay_Submit> ().enabled = true;
+			//Debug.Log ("Filled");
 		else
-			Debug.Log ("Not Filled");
+			GameObject.Find ("Submit").GetComponent<Gameplay_Submit> ().enabled = false;
+			//Debug.Log ("Not Filled");
 	}
 
 	/*****************************************************************/
