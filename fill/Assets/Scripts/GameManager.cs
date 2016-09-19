@@ -76,7 +76,7 @@ public class GameManager : MonoBehaviour {
 			Destroy (gameObject);
 		DontDestroyOnLoad (gameObject);
 
-		filePath = Application.dataPath + "/Resources/Maps.json";
+		filePath = Application.dataPath + "/StreamingAssets/Maps.json";
 
 		// add disabled guardManager as component
 		GuardManager guardManager = gameObject.AddComponent<GuardManager> ();
@@ -84,9 +84,8 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void Start () {
-		GameManager.CurrentState = GameStateEnum.StageSelected;
 		// readfile to make mapList
-		mapList = JsonManager.getInstance().readMapList(filePath, "Buildings");
+		mapList = JsonManager.readMapList(filePath, "Buildings");
 	}
 
 	void OnEnable () {
@@ -98,14 +97,12 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void OnSceneLoad (Scene scene, LoadSceneMode mode) {
-		if (scene.buildIndex == 0) {
-			GameManager.CurrentState = GameStateEnum.StageSelected;
-		}
-		if (scene.buildIndex != 0) {
+		if (scene.buildIndex == 1) 
 			GameManager.CurrentState = GameStateEnum.StageSelection;
-			GetComponent<GuardManager> ().enabled = false;
-		}
+		if (scene.buildIndex == 0)
+			GameManager.CurrentState = GameStateEnum.StageSelected;
 	}
+
 
 	/*****************************************************************/
 	/* Functions */
@@ -113,8 +110,7 @@ public class GameManager : MonoBehaviour {
 		// 1. read map data from file
 //		FileManager fm = FileManager.getInstance ();
 //		md = fm.readMap (filepath);
-		JsonManager jm = JsonManager.getInstance ();
-		mapData = jm.readMap (filepath, "Buildings", loadLevel);
+		mapData = JsonManager.readMap (filepath, "Buildings", loadLevel);
 
 		// 2. MapGenerator.createMap(MapData) should generate the map
 		new MapGenerator().createMap(mapData);

@@ -19,7 +19,7 @@ public class DecisionAlgorithm
 				for(int k = 0; k < edges.Length; k++){
 					if (check.isCrossEasy (edges [k])) {
 						visible = false;
-						Debug.Log ("Vertex : " + vertices[i] + " Not visible by guard " + j + ": " + guards[j] + " because of edge: " + edges [k].ToString());
+						//Debug.Log ("Vertex : " + vertices[i] + " Not visible by guard " + j + ": " + guards[j] + " because of edge: " + edges [k].ToString());
 						break;
 					}
 				}

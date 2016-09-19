@@ -75,13 +75,6 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 		renderVG (toArray);
 	}
 
-	void Update () {
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.MapData);
-		Vector2[] toArray = unorderedVertices.ToArray ();
-		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));	
-		renderVG (toArray);
-	}
-
 	// fixing the position of vg, so it does not follow its parent position
 	void LateUpdate () {
 		vgMesh.transform.position = Vector3.zero;
@@ -115,6 +108,12 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 		if (GuardManager.JudgeBounds (nextPos))
 			maxInboundPos = nextPos;
 		transform.position = nextPos;
+
+
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.MapData);
+		Vector2[] toArray = unorderedVertices.ToArray ();
+		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));	
+		renderVG (toArray);
 	}
 
 	#endregion
