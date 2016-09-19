@@ -8,8 +8,9 @@ using UnityEngine.EventSystems;
 public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler{
 	public GameObject vgMesh;
 	public int layerMask = 1 << 8;
-	MapData md = GameManager.getMapData();
-	private Vector3 previousPos;
+	MapData md = GameManager.MapData;
+	private Vector3 previousPos; // for reverse function, saved on drag start
+	private Vector3 maxInboundPos; // for in-boundary tracking, saved every frame on drag
 	private int guardId = -1; // pls do not touch
 
 	// Setting Variables
@@ -68,9 +69,16 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
 		filter.mesh = new Mesh ();
 
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getMapData()); 
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.MapData); 
 		Vector2[] toArray = unorderedVertices.ToArray ();
 		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
+		renderVG (toArray);
+	}
+
+	void Update () {
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.MapData);
+		Vector2[] toArray = unorderedVertices.ToArray ();
+		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));	
 		renderVG (toArray);
 	}
 
@@ -92,35 +100,30 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 	public void OnBeginDrag (PointerEventData eventData)
 	{
 		previousPos = transform.position;
+		maxInboundPos = transform.position;
 		GetComponent<SpriteRenderer> ().color = GUARD_SELECTED_COLOR;
 	}
 
 	#endregion
 
-	// work on this
 	#region IDragHandler implementation
+
 	public void OnDrag (PointerEventData eventData)
 	{
-		Vector3 nextPos;
-		nextPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
+		
+		Vector3 nextPos = Camera.main.ScreenToWorldPoint (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
+		if (GuardManager.JudgeBounds (nextPos))
+			maxInboundPos = nextPos;
 		transform.position = nextPos;
-
-		// retrieve unorderedVertices by shooting rays to vertex of map
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getMapData());
-
-		// sort the unorderedVertices
-		Vector2[] toArray = unorderedVertices.ToArray ();
-		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));	
-
-		// renderVG
-		renderVG (toArray);
 	}
+
 	#endregion
 
 	#region IEndDragHandler implementation
 
 	public void OnEndDrag (PointerEventData eventData)
 	{
+		transform.position = maxInboundPos;
 		GetComponent<SpriteRenderer> ().color = GUARD_BASIC_COLOR;
 		GuardManager.HistoryList.Push (new HistoryData (HistoryState.Move, guardId, previousPos));
 	}

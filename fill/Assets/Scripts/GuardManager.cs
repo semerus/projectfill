@@ -62,7 +62,7 @@ public class GuardManager : MonoBehaviour {
 			}
 		}
 
-		bool filled = DecisionAlgorithm.isFilled (GuardManager.getPositionList (), GameManager.getMapData());
+		bool filled = DecisionAlgorithm.isFilled (GuardManager.getPositionList (), GameManager.MapData);
 		if (filled)
 			GameObject.Find ("Submit").GetComponent<Gameplay_Submit> ().enabled = true;
 			//Debug.Log ("Filled");
@@ -103,7 +103,7 @@ public class GuardManager : MonoBehaviour {
 //			return true;
 //		else
 //			return false;
-		return isValidPosition(pos, GameManager.getMapData());
+		return isValidPosition(pos, GameManager.MapData);
 	}
 
 	static bool isValidPosition(Vector3 position, MapData md){

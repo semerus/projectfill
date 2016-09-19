@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour {
 	/*****************************************************************/
 	/* Variables */
 	// path for json file
-	private string filePath; 
+	private static string filePath; 
 
 	// for singleton design
 	private static GameManager instance = null;
@@ -16,7 +16,7 @@ public class GameManager : MonoBehaviour {
 	public static int loadLevel;
 
 	// for saving the map information
-	private static MapData md;
+	private static MapData mapData;
 	private static List<ThumbnailData> mapList = new List<ThumbnailData> ();
 
 	/*****************************************************************/
@@ -25,9 +25,12 @@ public class GameManager : MonoBehaviour {
 	private GameManager(){
 	}
 
+
 	/* Getter and Setter */
-	public static GameManager getInstance(){
-		return instance;
+	public static GameManager Instance {
+		get {
+			return instance;
+		}
 	}
 
 	public static GameStateEnum CurrentState {
@@ -38,27 +41,32 @@ public class GameManager : MonoBehaviour {
 			currentState = value;
 			switch (currentState) {
 			case GameStateEnum.StageSelected:
-				getInstance().generateStage (getInstance().filePath);
+				generateStage (filePath);
 				break;
 			case GameStateEnum.StageGenerated:
 				GameManager.CurrentState = GameStateEnum.PlayGame_Playing;
 				break;
 			case GameStateEnum.PlayGame_Playing:
-				getInstance().GetComponent<GuardManager> ().enabled = true;
+				GuardManager.Instance.enabled = true;
 				break;
 			}
 			if (currentState != GameStateEnum.PlayGame_Playing)
-				getInstance ().GetComponent<GuardManager> ().enabled = false;
+				GuardManager.Instance.enabled = false;
 		}
 	}
 
-	public static MapData getMapData() {
-		return md;
+	public static MapData MapData {
+		get {
+			return mapData;
+		}
 	}
 
-	public List<ThumbnailData> getMapList() {
-		return mapList;
+	public static List<ThumbnailData> MapList {
+		get {
+			return mapList;
+		}
 	}
+
 	/*****************************************************************/
 	/*MonoBehaviour*/
 	void Awake () {
@@ -90,39 +98,26 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void OnSceneLoad (Scene scene, LoadSceneMode mode) {
-		if (scene.buildIndex == 1) {
+		if (scene.buildIndex == 0) {
 			GameManager.CurrentState = GameStateEnum.StageSelected;
 		}
-		if (scene.buildIndex != 1) {
+		if (scene.buildIndex != 0) {
 			GameManager.CurrentState = GameStateEnum.StageSelection;
 			GetComponent<GuardManager> ().enabled = false;
 		}
 	}
 
-	void Update () {
-//		/*
-		switch (currentState) {
-		case GameStateEnum.StageSelected:
-			generateStage (filePath);
-			break;
-		case GameStateEnum.StageGenerated:
-			playGame ();
-			break;
-		}
-//		*/
-	}
-
 	/*****************************************************************/
 	/* Functions */
-	void generateStage(string filepath){
+	static void generateStage(string filepath){
 		// 1. read map data from file
 //		FileManager fm = FileManager.getInstance ();
 //		md = fm.readMap (filepath);
 		JsonManager jm = JsonManager.getInstance ();
-		md = jm.readMap (filepath, "Buildings", loadLevel);
+		mapData = jm.readMap (filepath, "Buildings", loadLevel);
 
 		// 2. MapGenerator.createMap(MapData) should generate the map
-		new MapGenerator().createMap(md);
+		new MapGenerator().createMap(mapData);
 
 		// 3. update GameState
 		GameManager.CurrentState = GameStateEnum.StageGenerated;
@@ -134,7 +129,7 @@ public class GameManager : MonoBehaviour {
 		// 2. Enable the GuardManager
 		GetComponent<GuardManager>().enabled = true;
 
-		bool filled = DecisionAlgorithm.isFilled (GuardManager.getPositionList (), md);
+		bool filled = DecisionAlgorithm.isFilled (GuardManager.getPositionList (), mapData);
 		if (filled)
 			Debug.Log ("Filled");
 		else

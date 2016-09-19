@@ -7,10 +7,10 @@ using UnityEngine.UI;
 public class SelectionMenu_Stage : MonoBehaviour, IPointerClickHandler {
 
 	void Start () {
-		if (transform.GetSiblingIndex () < GameManager.getInstance ().getMapList ().Count) {
-			GetComponentInChildren<Text> ().text = GameManager.getInstance ().getMapList () [transform.GetSiblingIndex ()].Name;
-			transform.GetChild(0).GetComponent<Image> ().sprite = Resources.Load<Sprite> (GameManager.getInstance ().getMapList () [transform.GetSiblingIndex ()].ImgPath);
-			Debug.Log (GameManager.getInstance ().getMapList () [transform.GetSiblingIndex ()].ImgPath);
+		if (transform.GetSiblingIndex () < GameManager.MapList.Count) {
+			GetComponentInChildren<Text> ().text = GameManager.MapList [transform.GetSiblingIndex ()].Name;
+			transform.GetChild(0).GetComponent<Image> ().sprite = Resources.Load<Sprite> (GameManager.MapList [transform.GetSiblingIndex ()].ImgPath);
+			Debug.Log (GameManager.MapList [transform.GetSiblingIndex ()].ImgPath);
 		}
 		else {
 			GetComponentInChildren<Text> ().text = "NoData";
@@ -21,7 +21,7 @@ public class SelectionMenu_Stage : MonoBehaviour, IPointerClickHandler {
 	#region IPointerClickHandler implementation
 	public void OnPointerClick (PointerEventData eventData)
 	{
-		if (!(transform.GetSiblingIndex () < GameManager.getInstance ().getMapList ().Count)) {
+		if (!(transform.GetSiblingIndex () < GameManager.MapList.Count)) {
 			Debug.LogError ("No data in JSON file");
 			return;
 		}
