@@ -4,13 +4,24 @@ using System.Collections.Generic;
 
 public class DecisionAlgorithm
 {
-	public DecisionAlgorithm ()
-	{
+	MapData md;
+	Vector2[] vertices;
+	Edge[] edges;
+	List<Vector2>[] guardingInfo;
+
+	public DecisionAlgorithm(MapData md){
+		this.md = md;
+
+		// fixed vertices to guard
+		vertices = getPointsToCheck(md);
+
+		// fixed edges to check if hindering the visibility
+		edges = md.getTotalEdges ().ToArray ();
+
+		guardingInfo = new List<Vector2>[vertices.Length];
 	}
 
-	public static bool isFilled(Vector3[] guards, MapData md){
-		Vector2[] vertices = getPoinsToCheck(md);
-		Edge[] edges = md.getTotalEdges ().ToArray ();
+	public bool isFilled(Vector3[] guards){
 		for(int i = 0; i < vertices.Length - 1; i++){
 			bool vertexVisible = false;
 			for(int j = 0; j < guards.Length; j++){
@@ -41,7 +52,7 @@ public class DecisionAlgorithm
 
 	/**
 	 * This function returns a Vector2[] that will be checked by the guard*/
-	private static Vector2[] getPoinsToCheck(MapData md){
+	private static Vector2[] getPointsToCheck(MapData md){
 		int N = md.getSize ();
 		Vector2[] toRet = new Vector2[N];
 

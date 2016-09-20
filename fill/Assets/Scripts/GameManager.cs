@@ -19,6 +19,15 @@ public class GameManager : MonoBehaviour {
 	private static MapData mapData;
 	private static List<ThumbnailData> mapList = new List<ThumbnailData> ();
 
+	// for decision algorithm for this map
+	private static DecisionAlgorithm da;
+
+	public static DecisionAlgorithm DA{
+		get {
+			return da;
+		}
+	}
+
 	/*****************************************************************/
 	/* Constructor */
 	// private constructor
@@ -117,6 +126,9 @@ public class GameManager : MonoBehaviour {
 
 		// 3. update GameState
 		GameManager.CurrentState = GameStateEnum.StageGenerated;
+
+		// 4. create DecisionAlgorithm
+		da = new DecisionAlgorithm(mapData);
 	}
 ///*
 	void playGame(){
@@ -125,7 +137,7 @@ public class GameManager : MonoBehaviour {
 		// 2. Enable the GuardManager
 		GetComponent<GuardManager>().enabled = true;
 
-		bool filled = DecisionAlgorithm.isFilled (GuardManager.getPositionList (), mapData);
+		bool filled = da.isFilled (GuardManager.getPositionList ());
 		if (filled)
 			Debug.Log ("Filled");
 		else
