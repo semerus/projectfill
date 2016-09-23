@@ -5,7 +5,7 @@ public class MapGenerator {
 
 //	public GameObject linePrefab;
 	public GameObject vertexPrefab;
-	float scale = 1f;
+	float scale = 2f;
 
 	// Use this for initialization
 //	void Start () {

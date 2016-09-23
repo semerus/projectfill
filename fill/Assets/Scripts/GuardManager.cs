@@ -63,12 +63,20 @@ public class GuardManager : MonoBehaviour {
 		}
 
 		bool filled = GameManager.DA.isFilled (GuardManager.getPositionList ());
-		if (filled)
+		if (filled) {
 			GameObject.Find ("Submit").GetComponent<Gameplay_Submit> ().enabled = true;
-			//Debug.Log ("Filled");
-		else
+
+			double score = 0;
+			for (int i = 1; i <= guardCount; i++) {
+				Mesh meshArray = GameObject.Find ("Guard" + i).transform.Find ("VGMesher").GetComponent<MeshFilter> ().mesh;
+				double area = ScoreAlgorithm.calculateArea (meshArray.vertices, meshArray.triangles);
+				score += area;
+			}
+			Debug.Log ("Score is " + (int) score);
+
+		} else {
 			GameObject.Find ("Submit").GetComponent<Gameplay_Submit> ().enabled = false;
-			//Debug.Log ("Not Filled");
+		}
 	}
 
 	/*****************************************************************/
