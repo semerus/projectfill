@@ -33,8 +33,7 @@ public class GameManager : MonoBehaviour {
 	// private constructor
 	private GameManager(){
 	}
-
-
+		
 	/* Getter and Setter */
 	public static GameManager Instance {
 		get {
@@ -86,10 +85,6 @@ public class GameManager : MonoBehaviour {
 		DontDestroyOnLoad (gameObject);
 
 		filePath = Application.dataPath + "/StreamingAssets/Maps.json";
-
-		// add disabled guardManager as component
-		GuardManager guardManager = gameObject.AddComponent<GuardManager> ();
-		guardManager.enabled = false;
 	}
 
 	void Start () {
@@ -106,10 +101,14 @@ public class GameManager : MonoBehaviour {
 	}
 
 	void OnSceneLoad (Scene scene, LoadSceneMode mode) {
-		if (scene.buildIndex == 1) 
-			GameManager.CurrentState = GameStateEnum.StageSelection;
-		if (scene.buildIndex == 0)
+		if (scene.buildIndex == 0) {
 			GameManager.CurrentState = GameStateEnum.StageSelected;
+			GetComponent<SelectionMenu_Swipe> ().enabled = false;
+		}
+		if (scene.buildIndex == 1) {
+			GameManager.CurrentState = GameStateEnum.StageSelection;
+			GetComponent<SelectionMenu_Swipe> ().enabled = true;
+		}
 	}
 
 

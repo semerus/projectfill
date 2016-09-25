@@ -8,7 +8,7 @@ public class JsonManager {
 	/*****************************************************************/
 	/* Variables */
 	// for singleton design
-	private static JsonManager instance;
+	//private static JsonManager instance;
 
 	/*****************************************************************/
 	/* Constructor */
@@ -18,11 +18,6 @@ public class JsonManager {
 	/*****************************************************************/
 	/* Functions */
 	//getter for singleton
-	public static JsonManager Instance {
-		get {
-			return instance;
-		}
-	}
 
 	public static List<ThumbnailData> readMapList (string pathToFile, string theme) {
 		string jsonString = File.ReadAllText (pathToFile);

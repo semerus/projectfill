@@ -10,6 +10,7 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 	public int layerMask = 1 << 8;
 	MapData md = GameManager.MapData;
 	private Vector3 previousPos; // for reverse function, saved on drag start
+	private Vector3 maxBoundPos;
 	private int guardId = -1; // pls do not touch
 
 	// Setting Variables
@@ -63,7 +64,7 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 
 		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
 		mRend.material.color = VG_COLOR;
-		mRend.material.shader = Shader.Find("Transparent/Diffuse");
+		mRend.material.shader = Shader.Find ("Sprites/Default");
 
 		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
 		filter.mesh = new Mesh ();
@@ -74,14 +75,19 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 		renderVG (toArray);
 	}
 
-	// fixing the position of vg, so it does not follow its parent position
-	void LateUpdate () {
-		vgMesh.transform.position = Vector3.zero;
 
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.MapData);
-		Vector2[] toArray = unorderedVertices.ToArray ();
-		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));	
-		renderVG (toArray);
+	void LateUpdate () {
+		vgMesh.transform.position = Vector3.zero; // fixing the position of vg, so it does not follow its parent position
+
+		if (GuardManager.JudgeBounds (transform.position)) {
+			transform.GetComponentInChildren<MeshRenderer> ().enabled = true;
+			HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.MapData);
+			Vector2[] toArray = unorderedVertices.ToArray ();
+			Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));	
+			renderVG (toArray);
+		} else {
+			transform.GetComponentInChildren<MeshRenderer> ().enabled = false;
+		}
 	}
 
 	void OnDestroy () {
@@ -97,6 +103,7 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 	public void OnBeginDrag (PointerEventData eventData)
 	{
 		previousPos = transform.position;
+		maxBoundPos = transform.position;
 		GetComponent<SpriteRenderer> ().color = GUARD_SELECTED_COLOR;
 	}
 
@@ -108,9 +115,9 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 	{
 		
 		Vector3 nextPos = Camera.main.ScreenToWorldPoint (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
-//		if (GuardManager.JudgeBounds (nextPos))
-//			maxInboundPos = nextPos;
 		transform.position = nextPos;
+		if (GuardManager.JudgeBounds (nextPos))
+			maxBoundPos = nextPos;
 	}
 
 	#endregion
@@ -121,11 +128,11 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 	{
 		Vector3 offset = new Vector3 (0.01f, 0.01f);
 		if (!GuardManager.JudgeBounds (transform.position)) {
-			RaycastHit2D hitInfo = Physics2D.Linecast(previousPos, transform.position, layerMask);
-			Debug.DrawLine (previousPos, transform.position);
-			if (previousPos.x - transform.position.x < 0)
+			RaycastHit2D hitInfo = Physics2D.Linecast(maxBoundPos, transform.position, layerMask);
+			Debug.DrawLine (maxBoundPos, transform.position);
+			if (maxBoundPos.x - transform.position.x < 0)
 				offset.x = offset.x * -1f;
-			if (previousPos.y - transform.position.y < 0)
+			if (maxBoundPos.y - transform.position.y < 0)
 				offset.y = offset.y * -1f;
 			transform.position = new Vector3(hitInfo.point.x, hitInfo.point.y, 0f) + offset;
 		}

@@ -7,34 +7,6 @@ public class MapGenerator {
 	public GameObject vertexPrefab;
 	float scale = 2f;
 
-	// Use this for initialization
-//	void Start () {
-//		Camera.main.orthographicSize *= scale; 
-//
-////		Vector2 p0 = new Vector2 (0f, -7f) * scale;
-////		Vector2 p1 = new Vector2 (8f, -10f) * scale;
-////		Vector2 p2 = new Vector2 (3f, -3f) * scale;
-////		Vector2 p3 = new Vector2 (8f, 5f) * scale;
-////		Vector2 p4 = new Vector2 (3f, 3f) * scale;
-////		Vector2 p5 = new Vector2 (0f, 10f) * scale;
-////		Vector2 p6 = new Vector2 (-3f, 3f) * scale;
-////		Vector2 p7 = new Vector2 (-8f, 5f) * scale;
-////		Vector2 p8 = new Vector2 (-3f, -3f) * scale;
-////		Vector2 p9 = new Vector2 (-8f, -10f) * scale;
-//
-//		//	Vector2 p0 = new Vector2 (-5f, 5f);
-//		//	Vector2 p1 = new Vector2 (-5f, -5f);
-//		//	Vector2 p2 = new Vector2 (2f, 3f);
-//		//	Vector2 p3 = new Vector2 (5f, 5f);
-//
-//		//TODO: vertices vector without the duplicate starting vertex
-////		vertices = new Vector2[] {p0, p1, p2, p3, p4, p5, p6, p7, p8, p9, p0};
-////		vertices = new Vector2[] {p0, p1, p2, p3, p0};
-////		vertices = new Vector2[] {p0, p1, p2};
-//
-////		createMap (vertices);
-//	}
-
 	//creating map using the vertices
 	public void createMap (MapData md) {
 		// assert there are at least 3 vertices
@@ -49,7 +21,7 @@ public class MapGenerator {
 		lineRenderer.SetWidth (0.2f * scale, 0.2f * scale);
 		lineRenderer.SetColors (md.getLineColor(), md.getLineColor());
 		lineRenderer.SetVertexCount (vertices.Length);
-		lineRenderer.material = new Material(Shader.Find("Particles/Alpha Blended"));
+		lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
 
 		// add vertices
 		for (int i = 0; i < vertices.Length; i++) {
@@ -69,7 +41,7 @@ public class MapGenerator {
 			LineRenderer lineRenderer_hole = temp_hole.AddComponent<LineRenderer> ();
 			lineRenderer_hole.SetWidth (0.2f * scale, 0.2f * scale);
 			lineRenderer_hole.SetColors (md.getLineColor(), md.getLineColor());
-			lineRenderer_hole.material = new Material (Shader.Find ("Particles/Alpha Blended"));
+			lineRenderer_hole.material = new Material (Shader.Find ("Sprites/Default"));
 			lineRenderer_hole.SetVertexCount (hole_vertices.Length);
 
 			// add vertices

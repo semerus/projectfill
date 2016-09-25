@@ -67,8 +67,8 @@ public class GuardManager : MonoBehaviour {
 			GameObject.Find ("Submit").GetComponent<Gameplay_Submit> ().enabled = true;
 
 			double score = 0;
-			for (int i = 1; i <= guardCount; i++) {
-				Mesh meshArray = GameObject.Find ("Guard" + i).transform.Find ("VGMesher").GetComponent<MeshFilter> ().mesh;
+			for (int i = 0; i < guardList.Count; i++) {
+				Mesh meshArray = guardList[i].GetComponentInChildren<MeshFilter> ().mesh;
 				double area = ScoreAlgorithm.calculateArea (meshArray.vertices, meshArray.triangles);
 				score += area;
 			}
