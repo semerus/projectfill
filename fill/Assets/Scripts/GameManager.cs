@@ -84,7 +84,7 @@ public class GameManager : MonoBehaviour {
 			Destroy (gameObject);
 		DontDestroyOnLoad (gameObject);
 
-		filePath = Application.dataPath + "/StreamingAssets/Maps.json";
+		filePath = Application.dataPath + "/StreamingAssets/Maps2.json";
 	}
 
 	void Start () {

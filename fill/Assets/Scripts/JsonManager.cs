@@ -41,7 +41,7 @@ public class JsonManager {
 		outer = readVertices (jsonData, theme, order, "outerVertices");
 		holes = new SimplePolygon2D[jsonData [theme] [order] ["holes"].Count];
 		for (int i = 0; i < holes.Length; i++) {
-			holes [i] = readVertices (jsonData, theme, order, "holes", "innerVertices");
+			holes [i] = readVertices (jsonData, theme, order, "holes", i, "innerVertices");
 		}
 
 		MapData mapData = new MapData(
@@ -74,25 +74,23 @@ public class JsonManager {
 	}
 
 	// for outer
-	private static SimplePolygon2D readVertices(JsonData data, string theme, int order, string outorhole) {
+	private static SimplePolygon2D readVertices(JsonData data, string theme, int order, string outerhole) {
 		SimplePolygon2D polygon = new SimplePolygon2D ();
-		for (int i = 0; i < data [theme] [order] [outorhole].Count; i++) {
-			double x = (double)data [theme] [order] [outorhole] [i] ["x"];
-			double y = (double)data [theme] [order] [outorhole] [i] ["y"];
+		for (int i = 0; i < data [theme] [order] [outerhole].Count; i++) {
+			double x = (double)data [theme] [order] [outerhole] [i] ["x"];
+			double y = (double)data [theme] [order] [outerhole] [i] ["y"];
 			polygon.addVertex(new Vector2((float) x, (float) y));
 			}
 		return polygon;
 	}
 
 	// overloading for holes
-	private static SimplePolygon2D readVertices(JsonData data, string theme, int order, string outorhole, string component) {
+	private static SimplePolygon2D readVertices(JsonData data, string theme, int order, string innerhole, int holeNum, string component) {
 		SimplePolygon2D polygon = new SimplePolygon2D ();
-		for (int i = 0; i < data [theme] [order] [outorhole].Count; i++) {
-			for (int j = 0; j < data [theme] [order] [outorhole] [i] [component].Count; j++) {
-				double x = (double)data [theme] [order] [outorhole] [i] [component] [j] ["x"];
-				double y = (double)data [theme] [order] [outorhole] [i] [component] [j] ["y"];
-				polygon.addVertex (new Vector2 ((float)x, (float)y));
-			}
+		for (int i = 0; i < data [theme] [order] [innerhole] [holeNum] [component].Count; i++) {
+			double x = (double)data [theme] [order] [innerhole] [holeNum] [component] [i] ["x"];
+			double y = (double)data [theme] [order] [innerhole] [holeNum] [component] [i] ["y"];
+			polygon.addVertex (new Vector2 ((float)x, (float)y));
 		}
 		return polygon;
 	}
