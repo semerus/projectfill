@@ -103,11 +103,9 @@ public class GameManager : MonoBehaviour {
 	void OnSceneLoad (Scene scene, LoadSceneMode mode) {
 		if (scene.buildIndex == 0) {
 			GameManager.CurrentState = GameStateEnum.StageSelected;
-			GetComponent<SelectionMenu_Swipe> ().enabled = false;
 		}
 		if (scene.buildIndex == 1) {
 			GameManager.CurrentState = GameStateEnum.StageSelection;
-			GetComponent<SelectionMenu_Swipe> ().enabled = true;
 		}
 	}
 

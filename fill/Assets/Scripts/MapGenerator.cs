@@ -9,6 +9,11 @@ public class MapGenerator {
 
 	//creating map using the vertices
 	public void createMap (MapData md) {
+		// Change Background Color
+		GameObject bg = GameObject.Find("Background");
+		bg.GetComponent<MeshRenderer> ().material = new Material (Shader.Find ("Sprites/Default"));
+		bg.GetComponent<MeshRenderer> ().material.color = md.getBackgroundColor();
+
 		// assert there are at least 3 vertices
 		Vector2[] vertices = md.getOuter().getVertices();
 
@@ -18,7 +23,7 @@ public class MapGenerator {
 
 		GameObject temp = new GameObject("Line Renderer " + "Outer");
 		LineRenderer lineRenderer = temp.AddComponent<LineRenderer> ();
-		lineRenderer.SetWidth (0.2f * scale, 0.2f * scale);
+		lineRenderer.SetWidth (0.1f * scale, 0.1f * scale);
 		lineRenderer.SetColors (md.getLineColor(), md.getLineColor());
 		lineRenderer.SetVertexCount (vertices.Length);
 		lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
@@ -39,7 +44,7 @@ public class MapGenerator {
 
 			GameObject temp_hole = new GameObject("Line Renderer " + "Hole" + i);
 			LineRenderer lineRenderer_hole = temp_hole.AddComponent<LineRenderer> ();
-			lineRenderer_hole.SetWidth (0.2f * scale, 0.2f * scale);
+			lineRenderer_hole.SetWidth (0.1f * scale, 0.1f * scale);
 			lineRenderer_hole.SetColors (md.getLineColor(), md.getLineColor());
 			lineRenderer_hole.material = new Material (Shader.Find ("Sprites/Default"));
 			lineRenderer_hole.SetVertexCount (hole_vertices.Length);
