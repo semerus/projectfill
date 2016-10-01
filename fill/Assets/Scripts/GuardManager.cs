@@ -62,11 +62,21 @@ public class GuardManager : MonoBehaviour {
 			}
 		}
 
-		bool filled = DecisionAlgorithm.isFilled (GuardManager.getPositionList (), GameManager.getMapData());
-		if (filled)
-			Debug.Log ("Filled");
-		else
-			Debug.Log ("Not Filled");
+		bool filled = GameManager.DA.isFilled (GuardManager.getPositionList ());
+		if (filled) {
+			GameObject.Find ("Submit").GetComponent<Gameplay_Submit> ().enabled = true;
+
+			double score = 0;
+			for (int i = 0; i < guardList.Count; i++) {
+				Mesh meshArray = guardList[i].GetComponentInChildren<MeshFilter> ().mesh;
+				double area = ScoreAlgorithm.calculateArea (meshArray.vertices, meshArray.triangles);
+				score += area;
+			}
+			Debug.Log ("Score is " + (int) score);
+
+		} else {
+			GameObject.Find ("Submit").GetComponent<Gameplay_Submit> ().enabled = false;
+		}
 	}
 
 	/*****************************************************************/
@@ -101,7 +111,7 @@ public class GuardManager : MonoBehaviour {
 //			return true;
 //		else
 //			return false;
-		return isValidPosition(pos, GameManager.getMapData());
+		return isValidPosition(pos, GameManager.MapData);
 	}
 
 	static bool isValidPosition(Vector3 position, MapData md){
