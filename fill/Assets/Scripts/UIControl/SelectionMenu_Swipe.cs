@@ -13,12 +13,13 @@ public class SelectionMenu_Swipe : MonoBehaviour {
 	private float startTime;
 	private bool onSwipe = false;
 	private bool movePanel = false;
-	private Vector2 stageDesPos; // panel movement destination
+	private Vector2 stageDesPos; // panel movement destination(for each panel)
 	private Vector2 themeDesPos;
-	private int moveDir; // directions (+/-)
+	private int moveDir; // directions (+1/-1)
 
-	// Update is called once per frame
 	void Update () {
+		/***** UnityEditor *****/
+		#if UNITY_EDITOR
 		if (Input.GetMouseButtonDown(0)) {
 			startPos = Input.mousePosition;
 			onSwipe = true;
@@ -52,6 +53,45 @@ public class SelectionMenu_Swipe : MonoBehaviour {
 				Debug.Log("Swipe Fail");
 			}
 		}
+
+		/***** Touchscreen *****/
+		#elif UNITY_ANDROID
+		if (Input.touchCount > 0 && Input.GetTouch (0).phase == TouchPhase.Began) {
+			startPos = Input.GetTouch (0).position;
+			onSwipe = true;
+			startTime = Time.time;
+		}
+		if (Input.GetTouch (0).phase == TouchPhase.Moved) {
+			if (Mathf.Abs(Input.GetTouch(0).position.x - startPos.x) > 200f)
+				onSwipe = false;
+		}
+		if (Input.GetTouch(0).phase == TouchPhase.Ended) {
+			if (Time.time - startTime > 2f)
+				onSwipe = false;
+			if (Mathf.Abs(Input.GetTouch(0).position.y - startPos.y) < 60f)
+				onSwipe = false;
+			if (onSwipe == true) {
+				if (Input.GetTouch(0).position.y - startPos.y > 0) { //swipe up
+					themeDesPos = new Vector2 (0f, 1080f);
+					stageDesPos = new Vector2 (0f, 0f);
+					moveDir = 1;
+					movePanel = true;
+					Debug.Log("Swipe Sucessful Up");
+				} else if (Input.GetTouch(0).position.y - startPos.y < 0) { //swipe down
+					themeDesPos = new Vector2 (0f, 	0f);
+					stageDesPos = new Vector2 (0f, -1080f);
+					moveDir = -1;
+					movePanel = true;
+					Debug.Log("Swipe Sucessful Down");
+				}
+				onSwipe = false;
+			} else {
+				Debug.Log("Swipe Fail");
+			}
+		}
+		#endif
+
+		/***** Panel Animation *****/
 		if (movePanel) {
 			AnimatePanel (stagePanel, stageDesPos, speed * moveDir);
 			AnimatePanel (themePanel, themeDesPos, speed * moveDir);

@@ -19,8 +19,10 @@ public class JsonManager {
 	/* Functions */
 	//getter for singleton
 
-	public static List<ThumbnailData> readMapList (string pathToFile, string theme) {
-		string jsonString = File.ReadAllText (pathToFile);
+	public static List<ThumbnailData> readMapList (string fileName, string theme) {
+		//string jsonString = File.ReadAllText (fileName);
+		TextAsset file = Resources.Load(fileName) as TextAsset;
+		string jsonString = file.ToString ();
 		JsonData jsonData = JsonMapper.ToObject (jsonString);
 
 		List<ThumbnailData> tnl = new List<ThumbnailData> ();
@@ -31,11 +33,13 @@ public class JsonManager {
 		return tnl;
 	}
 
-	public static MapData readMap (string pathToFile, string theme, int order) {
+	public static MapData readMap (string fileName, string theme, int order) {
 		SimplePolygon2D outer;
 		SimplePolygon2D[] holes;
 
-		string jsonString = File.ReadAllText (pathToFile);
+		//string jsonString = File.ReadAllText (fileName);
+		TextAsset file = Resources.Load(fileName) as TextAsset;
+		string jsonString = file.ToString ();
 		JsonData jsonData = JsonMapper.ToObject (jsonString);
 
 		outer = readVertices (jsonData, theme, order, "outerVertices");

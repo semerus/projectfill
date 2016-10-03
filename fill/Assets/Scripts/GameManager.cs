@@ -8,7 +8,7 @@ public class GameManager : MonoBehaviour {
 	/*****************************************************************/
 	/* Variables */
 	// path for json file
-	private static string filePath; 
+	private static string fileName; 
 
 	// for singleton design
 	private static GameManager instance = null;
@@ -49,7 +49,7 @@ public class GameManager : MonoBehaviour {
 			currentState = value;
 			switch (currentState) {
 			case GameStateEnum.StageSelected:
-				generateStage (filePath);
+				generateStage (fileName);
 				break;
 			case GameStateEnum.StageGenerated:
 				GameManager.CurrentState = GameStateEnum.PlayGame_Playing;
@@ -84,12 +84,12 @@ public class GameManager : MonoBehaviour {
 			Destroy (gameObject);
 		DontDestroyOnLoad (gameObject);
 
-		filePath = Application.dataPath + "/StreamingAssets/Maps2.json";
+		fileName = "Maps2";
 	}
 
 	void Start () {
 		// readfile to make mapList
-		mapList = JsonManager.readMapList(filePath, "Buildings");
+		mapList = JsonManager.readMapList(fileName, "Buildings");
 	}
 
 	void OnEnable () {
