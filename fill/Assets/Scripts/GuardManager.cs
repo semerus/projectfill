@@ -9,6 +9,7 @@ public class GuardManager : MonoBehaviour {
 	private static Stack<HistoryData> historyList = new Stack<HistoryData>(); //stack storing action history data
 	private static Dictionary<int, Guard> guardDic = new Dictionary<int, Guard>(); //dictionary storing with guardId as key, Guard as value
 	public static List<Guard> guardList = new List<Guard>();
+	public static double currentScore;
 
 //	private const float maxX = 10, maxY = 10, minX = -10, minY = -10;
 
@@ -72,7 +73,8 @@ public class GuardManager : MonoBehaviour {
 				double area = ScoreAlgorithm.calculateArea (meshArray.vertices, meshArray.triangles);
 				score += area;
 			}
-			Debug.Log ("Score is " + (int) score);
+
+			currentScore = score;
 
 		} else {
 			GameObject.Find ("Submit").GetComponent<Gameplay_Submit> ().enabled = false;
