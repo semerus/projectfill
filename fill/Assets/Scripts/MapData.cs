@@ -2,9 +2,9 @@
 using UnityEngine;
 using System.Collections.Generic;
 
-
 public class MapData
 {
+	static int NORTH = 0, SOUTH = 1, EAST = 2, WEST = 3;
 	private string name;
 	private int id;
 	private SimplePolygon2D outer;
@@ -125,5 +125,45 @@ public class MapData
 			toRet.AddRange (holes [i].getEdges ());
 		}
 		return toRet;
+	}
+
+	/*Extreme points*/
+	public Vector2[] getExtremePoints(){
+		Vector2[] extreme = new Vector2[4];
+
+		extreme [NORTH] = new Vector2 (0, float.MinValue);
+		extreme [SOUTH] = new Vector2 (0, float.MaxValue);
+		extreme [EAST] = new Vector2 (float.MinValue, 0);
+		extreme [WEST] = new Vector2 (float.MaxValue, 0);
+
+		Vector2[] vertices = getOuter ().getVertices ();
+		for (int i = 0; i < vertices.Length; i++) {
+			if (extreme [NORTH].y < vertices [i].y)
+				extreme [NORTH] = vertices [i];
+			
+			if (extreme [SOUTH].y > vertices [i].y)
+				extreme [SOUTH] = vertices [i];
+			
+			if (extreme [EAST].x < vertices [i].x)
+				extreme [EAST] = vertices [i];
+			
+			if (extreme [WEST].x > vertices [i].x)
+				extreme [WEST] = vertices [i];
+		}
+
+		return extreme;
+	}
+
+	public bool isInsideMap(float x, float y){
+		Vector3 tmp = new Vector3 (x, y, 0);
+		if (!outer.isInsidePolygon (tmp))
+			return false;
+
+		for (int i = 0; i < holes.Length; i++) {
+			if (holes [i].isInsidePolygon(tmp))
+				return false;
+		}
+
+		return true;
 	}
 }

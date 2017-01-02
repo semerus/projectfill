@@ -5,7 +5,7 @@ public class MapGenerator {
 
 //	public GameObject linePrefab;
 	public GameObject vertexPrefab;
-	float scale = 2f;
+	float scale = 0.1f;
 
 	//creating map using the vertices
 	public void createMap (MapData md) {
