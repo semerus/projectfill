@@ -12,8 +12,9 @@ public class SubmissionMenu_Continue : MonoBehaviour, IPointerClickHandler {
 	{
 		SceneManager.LoadScene ("room");
 		ServerConnection server = new ServerConnection ();
-		server.SendGameInfo ();
-		server.ReceiveScoreInfo ();
+//		server.SendGameInfo ();
+		server.SendScore(100);
+//		server.ReceiveScoreInfo ();
 	}
 
 	#endregion
