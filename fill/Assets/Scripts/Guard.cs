@@ -8,8 +8,9 @@ using UnityEngine.EventSystems;
 public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler{
 	public GameObject vgMesh;
 	public int layerMask = 1 << 8;
-	MapData md = GameManager.getMapData();
-	private Vector3 previousPos;
+	MapData md = GameManager.MapData;
+	private Vector3 previousPos; // for reverse function, saved on drag start
+	private Vector3 maxBoundPos;
 	private int guardId = -1; // pls do not touch
 
 	// Setting Variables
@@ -63,20 +64,30 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 
 		MeshRenderer mRend = vgMesh.AddComponent<MeshRenderer> ();
 		mRend.material.color = VG_COLOR;
-		mRend.material.shader = Shader.Find("Transparent/Diffuse");
+		mRend.material.shader = Shader.Find ("Sprites/Default");
 
 		MeshFilter filter = vgMesh.AddComponent<MeshFilter> () as MeshFilter;
 		filter.mesh = new Mesh ();
 
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getMapData()); 
+		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.MapData); 
 		Vector2[] toArray = unorderedVertices.ToArray ();
 		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));
 		renderVG (toArray);
 	}
 
-	// fixing the position of vg, so it does not follow its parent position
+
 	void LateUpdate () {
-		vgMesh.transform.position = Vector3.zero;
+		vgMesh.transform.position = Vector3.zero; // fixing the position of vg, so it does not follow its parent position
+
+		if (GuardManager.JudgeBounds (transform.position)) {
+			transform.GetComponentInChildren<MeshRenderer> ().enabled = true;
+			HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.MapData);
+			Vector2[] toArray = unorderedVertices.ToArray ();
+			Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));	
+			renderVG (toArray);
+		} else {
+			transform.GetComponentInChildren<MeshRenderer> ().enabled = false;
+		}
 	}
 
 	void OnDestroy () {
@@ -92,35 +103,39 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 	public void OnBeginDrag (PointerEventData eventData)
 	{
 		previousPos = transform.position;
+		maxBoundPos = transform.position;
 		GetComponent<SpriteRenderer> ().color = GUARD_SELECTED_COLOR;
 	}
 
 	#endregion
 
-	// work on this
 	#region IDragHandler implementation
+
 	public void OnDrag (PointerEventData eventData)
 	{
-		Vector3 nextPos;
-		nextPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
+		
+		Vector3 nextPos = Camera.main.ScreenToWorldPoint (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
 		transform.position = nextPos;
-
-		// retrieve unorderedVertices by shooting rays to vertex of map
-		HashSet<Vector2> unorderedVertices = ShootRays (gameObject.transform.position, layerMask, GameManager.getMapData());
-
-		// sort the unorderedVertices
-		Vector2[] toArray = unorderedVertices.ToArray ();
-		Array.Sort (toArray, new ClockwiseVector2Comparer (gameObject.transform.position));	
-
-		// renderVG
-		renderVG (toArray);
+		if (GuardManager.JudgeBounds (nextPos))
+			maxBoundPos = nextPos;
 	}
+
 	#endregion
 
 	#region IEndDragHandler implementation
 
 	public void OnEndDrag (PointerEventData eventData)
 	{
+		Vector3 offset = new Vector3 (0.01f, 0.01f);
+		if (!GuardManager.JudgeBounds (transform.position)) {
+			RaycastHit2D hitInfo = Physics2D.Linecast(maxBoundPos, transform.position, layerMask);
+			Debug.DrawLine (maxBoundPos, transform.position);
+			if (maxBoundPos.x - transform.position.x < 0)
+				offset.x = offset.x * -1f;
+			if (maxBoundPos.y - transform.position.y < 0)
+				offset.y = offset.y * -1f;
+			transform.position = new Vector3(hitInfo.point.x, hitInfo.point.y, 0f) + offset;
+		}
 		GetComponent<SpriteRenderer> ().color = GUARD_BASIC_COLOR;
 		GuardManager.HistoryList.Push (new HistoryData (HistoryState.Move, guardId, previousPos));
 	}
@@ -186,9 +201,13 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 
 			/* 2. Shoot rays with the calculated angles */
 			// Color : Left Blue, Right White
-			RaycastHit2D rightHit = raycastWithDebug (targetPos, rightAngle, Color.white, layerMask);
-			RaycastHit2D leftHit = raycastWithDebug (targetPos, leftAngle, Color.blue, layerMask);
-			RaycastHit2D hit = raycastWithDebug (targetPos, standardAngle, Color.red, layerMask);
+//			RaycastHit2D rightHit = raycastWithDebug (targetPos, rightAngle, Color.white, layerMask);
+//			RaycastHit2D leftHit = raycastWithDebug (targetPos, leftAngle, Color.blue, layerMask);
+//			RaycastHit2D hit = raycastWithDebug (targetPos, standardAngle, Color.red, layerMask);
+
+			RaycastHit2D rightHit = raycastWithoutDebug (targetPos, rightAngle, layerMask);
+			RaycastHit2D leftHit = raycastWithoutDebug (targetPos, leftAngle, layerMask);
+			RaycastHit2D hit = raycastWithoutDebug (targetPos, standardAngle, layerMask);
 
 			/* 3. Add hit point to unorderedVertices if the ray hits collider */
 			// check if the ray is hit

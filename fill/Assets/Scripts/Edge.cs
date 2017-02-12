@@ -36,7 +36,7 @@ public class Edge{
 	}
 
 	private static bool collinear(Vector2 a, Vector2 b, Vector2 c){
-		return false;
+		return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y) == 0;
 	}
 
 	private static bool Left(Vector2 a, Vector2 b, Vector2 c){

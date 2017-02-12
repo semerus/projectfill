@@ -9,6 +9,7 @@ public class GuardManager : MonoBehaviour {
 	private static Stack<HistoryData> historyList = new Stack<HistoryData>(); //stack storing action history data
 	private static Dictionary<int, Guard> guardDic = new Dictionary<int, Guard>(); //dictionary storing with guardId as key, Guard as value
 	public static List<Guard> guardList = new List<Guard>();
+	public static double currentScore;
 
 //	private const float maxX = 10, maxY = 10, minX = -10, minY = -10;
 
@@ -62,11 +63,22 @@ public class GuardManager : MonoBehaviour {
 			}
 		}
 
-		bool filled = DecisionAlgorithm.isFilled (GuardManager.getPositionList (), GameManager.getMapData());
-		if (filled)
-			Debug.Log ("Filled");
-		else
-			Debug.Log ("Not Filled");
+		bool filled = GameManager.DA.isFilled (GuardManager.getPositionList ());
+		if (filled) {
+			GameObject.Find ("Submit").GetComponent<Gameplay_Submit> ().enabled = true;
+
+			double score = 0;
+			for (int i = 0; i < guardList.Count; i++) {
+				Mesh meshArray = guardList[i].GetComponentInChildren<MeshFilter> ().mesh;
+				double area = ScoreAlgorithm.calculateArea (meshArray.vertices, meshArray.triangles);
+				score += area;
+			}
+
+			currentScore = score;
+
+		} else {
+			GameObject.Find ("Submit").GetComponent<Gameplay_Submit> ().enabled = false;
+		}
 	}
 
 	/*****************************************************************/
@@ -101,7 +113,7 @@ public class GuardManager : MonoBehaviour {
 //			return true;
 //		else
 //			return false;
-		return isValidPosition(pos, GameManager.getMapData());
+		return isValidPosition(pos, GameManager.MapData);
 	}
 
 	static bool isValidPosition(Vector3 position, MapData md){
