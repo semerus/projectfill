@@ -27,6 +27,6 @@ public class ServerConnection : MonoBehaviour {
 	}
 
 	public ScoreSet ReceiveScoreInfo(){
-		
+		return null;
 	}
 }

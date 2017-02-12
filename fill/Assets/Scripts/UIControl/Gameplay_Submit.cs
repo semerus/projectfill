@@ -23,9 +23,11 @@ public class Gameplay_Submit : MonoBehaviour, IPointerClickHandler {
 	public void OnPointerClick (PointerEventData eventData)
 	{
 		SceneManager.LoadScene ("Submission", LoadSceneMode.Additive);
-		var sample = new GameObject ();
-		sample.AddComponent (typeof(RESTTest));
-		sample.AddComponent (typeof(GUIText));
+//		var sample = new GameObject ();
+//		sample.AddComponent (typeof(WWWTopScore));
+//		sample.AddComponent (typeof(RESTTest));
+//		sample.AddComponent (typeof(GUIText));
+//		sample.AddComponent (typeof(GUIText));
 	}
 
 	#endregion

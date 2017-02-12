@@ -2,7 +2,7 @@ CREATE TABLE User(
 		UserId int AUTO_INCREMENT,
 		DeviceId int NOT NULL,
 		Email char(100),
-		Pwd char(512), -- hashed value
+		Pwd char(255), -- hashed value
 		PRIMARY KEY (UserId)
 );
 
@@ -38,10 +38,10 @@ CREATE TABLE GameInfo(
 		GameId int,
 		UserId int,
 		Submission int,
-		NumOfGuards int,
-		GuardLocation varchar(2000), -- json formatted information
-		GameHash char(512), -- hash created about the game w/o GameInfo, to validate user's play
-		Score float,
+		NumOfGuards int NOT NULL,
+		GuardLocation varchar(2000) NOT NULL, -- json formatted information
+		GameHash char(255) NOT NULL, -- hash created about the game w/o GameInfo, to validate user's play
+		Score float NOT NULL,
 		FOREIGN KEY (GameId)
 				REFERENCES Game(GameId)
 				ON UPDATE CASCADE ON DELETE NO ACTION,

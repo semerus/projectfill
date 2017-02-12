@@ -11,9 +11,9 @@ public class SubmissionMenu_Continue : MonoBehaviour, IPointerClickHandler {
 	public void OnPointerClick (PointerEventData eventData)
 	{
 		SceneManager.LoadScene ("room");
-		ServerConnection server = new ServerConnection ();
+//		ServerConnection server = new ServerConnection ();
 //		server.SendGameInfo ();
-		server.SendScore(100);
+//		server.SendScore(100);
 //		server.ReceiveScoreInfo ();
 	}
 
