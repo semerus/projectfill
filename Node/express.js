@@ -56,7 +56,7 @@ app.post('/top_scores', function(req, res) {
 
 	console.log(numberGameId);
 
-	if (numberGameId == NaN) {
+	if (isNaN(numberGameId)) {
 		res.end("Error: GameId is invalid!");
 	} else {
 
@@ -75,6 +75,25 @@ app.post('/top_scores', function(req, res) {
 			res.end('{\n' + ret_guards + ",\n" + ret_scores + "\n}");
 		});
 	}
+});
+
+const submit_insert = 'INSERT INTO GameInfo (GameId, UserId, Submission, NumOfGuards, GuardLocation, GameHash, Score) VALUES (?, ?, ?, ?, ?, ?, ?)'
+const submit_query_submission = 'SELECT MAX(Submission) AS Max FROM GameInfo WHERE GameId = ? AND UserId = ?;'
+
+app.post('/submit', function(req, res) {
+
+	console.log("Submit received");
+
+	var GameId = parseInt(req.body.GameId, 10);
+	var UserId = parseInt(req.body.UserId, 10);
+	var NumOfGuards = parseInt(req.body.NumOfGuards, 10);
+	var GuardLocation = String(req.body.GuardLocation);
+	var GameHash = String(req.body.GameHash);
+	var Score = parseFloat(req.body.Score);
+
+	submitGI(GameId, UserId, NumOfGuards, GuardLocation, GameHash, Score, function() {
+		res.end("Submitted");
+	});
 });
 
 var doQueries = function(numberGameId, ret_scores, ret_guards, callback) {
@@ -120,6 +139,22 @@ var doQueries = function(numberGameId, ret_scores, ret_guards, callback) {
 			console.log('Print result of bot_score_query for GameId=' + numberGameId);
 
 			callback(null, ret_guards, ret_scores);
+		});
+	});
+}
+
+var submitGI = function(GameId, UserId, NumOfGuards, GuardLocation, GameHash, Score, callback) {
+	connection.query(submit_query_submission, [GameId, UserId], function(err, rows, fields) {
+		if (err)
+			throw err;
+
+		var Submission = parseInt(rows[0].Max);
+
+		connection.query(submit_insert, [GameId, UserId, Submission + 1, NumOfGuards, GuardLocation, GameHash, Score], function(err, rows, fields) {
+			if (err)
+				throw err;
+
+			callback();
 		});
 	});
 }
