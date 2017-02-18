@@ -91,9 +91,13 @@ app.post('/submit', function(req, res) {
 	var GameHash = String(req.body.GameHash);
 	var Score = parseFloat(req.body.Score);
 
-	submitGI(GameId, UserId, NumOfGuards, GuardLocation, GameHash, Score, function() {
-		res.end("Submitted");
-	});
+	if (isNaN(GameId) || isNaN(UserId) || isNaN(NumOfGuards) || isNaN(Score))
+		res.end("Error: invalid field");
+	else {
+		submitGI(GameId, UserId, NumOfGuards, GuardLocation, GameHash, Score, function() {
+			res.end("Submitted");
+		});
+	}
 });
 
 var doQueries = function(numberGameId, ret_scores, ret_guards, callback) {
