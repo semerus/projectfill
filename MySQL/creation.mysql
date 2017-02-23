@@ -3,6 +3,7 @@ CREATE TABLE User(
 		DeviceId int NOT NULL,
 		Email char(100),
 		Pwd char(255), -- hashed value
+		UserName char(100),
 		PRIMARY KEY (UserId)
 );
 

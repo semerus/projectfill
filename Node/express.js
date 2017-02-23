@@ -163,6 +163,28 @@ var submitGI = function(GameId, UserId, NumOfGuards, GuardLocation, GameHash, Sc
 	});
 }
 
+const checkUser = 'SELECT * FROM User WHERE DeviceId = ?'
+const updateUser = 'UPDATE User SET Email=?, Pwd=?, UserName=? WHERE DeviceId=?'
+const registerUser = 'INSERT INTO User (DeviceId, Email, Pwd, UserName) WHERE (?, ?, ?, ?)'
+
+var user = function(DeviceId, Email, Pwd, UserName) {
+	connection.query(checkUser, [DeviceId], function(err, rows, fields) {
+		// if the updateUser returns rows not null, then you have to update
+		if (rows[0] != null) {
+			connection.query(updateUser, [Email, Pwd, UserName, DeviceId], function(err, rows, fields)) {
+				if(err)
+					throw err;
+			}
+		} else {
+			connection.query(registerUser, [DeviceId, Email, Pwd, UserName], function(err, rows, fields)) {
+				if (err)
+					throw err;
+			}
+		}
+	});
+
+}
+
 app.listen(server_port, function() {
 	console.log(new_line_string);
 	console.log('Server running at ' + server_ip_addr + ':' + server_port + '/');
