@@ -149,14 +149,24 @@ var doQueries = function(numberGameId, ret_scores, ret_guards, callback) {
 
 var submitGI = function(GameId, UserId, NumOfGuards, GuardLocation, GameHash, Score, callback) {
 	connection.query(submit_query_submission, [GameId, UserId], function(err, rows, fields) {
-		if (err)
+		if (err) {
+			console.log("query error: " + top_score_query);
+			console.log(err);
+
+			res.end("Error:" + err);
 			throw err;
+		}
 
 		var Submission = parseInt(rows[0].Max);
 
 		connection.query(submit_insert, [GameId, UserId, Submission + 1, NumOfGuards, GuardLocation, GameHash, Score], function(err, rows, fields) {
-			if (err)
+			if (err) {
+				console.log("query error: " + top_score_query);
+				console.log(err);
+
+				res.end("Error:" + err);
 				throw err;
+			}
 
 			callback();
 		});
@@ -169,16 +179,29 @@ const registerUser = 'INSERT INTO User (DeviceId, Email, Pwd, UserName) WHERE (?
 
 var user = function(DeviceId, Email, Pwd, UserName) {
 	connection.query(checkUser, [DeviceId], function(err, rows, fields) {
-		// if the updateUser returns rows not null, then you have to update
+		console.log("CheckUser returned" + rows);
+		// if the checkUser returns rows not null, then you have to update
 		if (rows[0] != null) {
 			connection.query(updateUser, [Email, Pwd, UserName, DeviceId], function(err, rows, fields)) {
-				if(err)
+				if (err) {
+					console.log("query error: " + top_score_query);
+					console.log(err);
+
+					res.end("Error:" + err);
 					throw err;
+				}
+
+				console.log()
 			}
 		} else {
 			connection.query(registerUser, [DeviceId, Email, Pwd, UserName], function(err, rows, fields)) {
-				if (err)
+				if (err) {
+					console.log("query error: " + top_score_query);
+					console.log(err);
+
+					res.end("Error:" + err);
 					throw err;
+				}
 			}
 		}
 	});
