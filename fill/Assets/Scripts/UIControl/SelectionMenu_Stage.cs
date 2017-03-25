@@ -27,7 +27,7 @@ public class SelectionMenu_Stage : MonoBehaviour, IPointerClickHandler {
 		}
 			
 		GameManager.loadLevel = transform.GetSiblingIndex();
-		SceneManager.LoadScene ("room");
+		SceneManager.LoadScene ("Room");
 	}
 	#endregion
 }

@@ -4,17 +4,13 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
-public class SubmissionMenu_Continue : MonoBehaviour, IPointerClickHandler {
+public class Submission_Return : MonoBehaviour, IPointerClickHandler {
 
 	#region IPointerClickHandler implementation
 
 	public void OnPointerClick (PointerEventData eventData)
 	{
 		SceneManager.LoadScene ("Room");
-//		ServerConnection server = new ServerConnection ();
-//		server.SendGameInfo ();
-//		server.SendScore(100);
-//		server.ReceiveScoreInfo ();
 	}
 
 	#endregion

@@ -17,7 +17,7 @@ public class ChangeScene : MonoBehaviour {
 
 	void Update () {
 		if (Input.GetKeyUp ("k")) {
-			SceneManager.LoadScene ("room");
+			SceneManager.LoadScene ("Room");
 		}
 		if (Input.GetKeyUp ("l")) {
 			SceneManager.LoadScene ("StageSelect");
