@@ -8,50 +8,49 @@ public class DecisionAlgorithm
 	static float scale = 0.1f;
 
 	MapData md;
-	Vector2[] vertices;
-	Edge[] edges;
+	Vector2[] visibilityCheckpoints;
+	Edge[] mapEdges;
 	List<Vector2>[] guardingInfo;
 
 	public DecisionAlgorithm(MapData md){
 		this.md = md;
 
 		// fixed vertices to guard
-		vertices = getPointsToCheck(md);
+		visibilityCheckpoints = getVisibilityCheckpoints(md);
 
 		// fixed edges to check if hindering the visibility
-		edges = md.getTotalEdges ().ToArray ();
+		mapEdges = md.getMapEdges ().ToArray ();
 
-		guardingInfo = new List<Vector2>[vertices.Length];
+		guardingInfo = new List<Vector2>[visibilityCheckpoints.Length];
 	}
 
 	public bool isFilled(Vector3[] guards){
-		Debug.Log ("Checking " + vertices.Length + " number of points\n");
-		for(int i = 0; i < vertices.Length; i++){
-			bool vertexVisible = false;
+		Debug.Log ("Checking " + visibilityCheckpoints.Length + " number of points\n");
+		for(int i = 0; i < visibilityCheckpoints.Length; i++){
+			bool isCheckpointCovered = false;
 			for(int j = 0; j < guards.Length; j++){
-				bool visible = true;
-				Edge check = new Edge (vertices [i], guards [j]);
-				for(int k = 0; k < edges.Length; k++){
-					if (check.isCross (edges [k])) {
-						visible = false;
+				bool isCheckpointVisible = true;
+				Edge check = new Edge (visibilityCheckpoints [i], guards [j]);
+				for(int k = 0; k < mapEdges.Length; k++){
+					if (check.isCross (mapEdges [k])) {
+						isCheckpointVisible = false;
 //						Debug.Log ("Vertex #" + i + "/" + vertices.Length + ": " + vertices [i] + " Not visible by guard " + j + ": " + guards [j] + " because of edge: " + edges [k].ToString ());
-
 						break;
 					} else {
 //						Debug.DrawLine (vertices [i], guards [j], Color.green);
 					}
 				}
 
-				// if a guard can see that vertex, then that vertex is visible and move on to next one
-				if (visible) {
-					vertexVisible = true;
+				// if a guard can see that vertex, then that vertex is covered and move on to next one
+				if (isCheckpointVisible) {
+					isCheckpointCovered = true;
 					continue;
 				} 
 			}
 
-			if (!vertexVisible) {
+			if (!isCheckpointCovered) {
 				for(int j = 0; j < guards.Length; j++){
-					Debug.DrawLine (vertices [i], guards [j], Color.red);
+					Debug.DrawLine (visibilityCheckpoints [i], guards [j], Color.red);
 				}
 				return false;
 			}
@@ -62,7 +61,7 @@ public class DecisionAlgorithm
 
 	/**
 	 * This function returns a Vector2[] that will be checked by the guard*/
-	private static Vector2[] getPointsToCheck(MapData md){
+	private static Vector2[] getVisibilityCheckpoints(MapData md){
 //		int N = md.getSize ();
 //		Vector2[] toRet = new Vector2[N];
 		List<Vector2> toRet = new List<Vector2>();
@@ -84,10 +83,9 @@ public class DecisionAlgorithm
 
 		Vector2[] extreme = md.getExtremePoints ();
 		Debug.Log ("North: " + extreme[NORTH].ToString () + "\n");
-		Debug.Log ("SOUTH: " + extreme[SOUTH].ToString () + "\n");
+		Debug.Log ("South: " + extreme[SOUTH].ToString () + "\n");
 		Debug.Log ("West: " + extreme[WEST].ToString () + "\n");
 		Debug.Log ("East: " + extreme[EAST].ToString () + "\n");
-
 
 		for (float y = extreme [SOUTH].y; y < extreme [NORTH].y; y += scale) {
 			for (float x = extreme [WEST].x; x < extreme [EAST].x; x += scale) {

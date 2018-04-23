@@ -119,7 +119,7 @@ public class MapData
 		return vgColor;
 	}
 
-	public List<Edge> getTotalEdges(){
+	public List<Edge> getMapEdges(){
 		List<Edge> toRet = outer.getEdges ();
 		for (int i = 0; i < holes.Length; i++) {
 			toRet.AddRange (holes [i].getEdges ());
