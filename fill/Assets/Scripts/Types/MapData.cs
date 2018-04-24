@@ -120,9 +120,9 @@ public class MapData
 	}
 
 	public List<Edge> getMapEdges(){
-		List<Edge> toRet = outer.getEdges ();
+		List<Edge> toRet = outer.GetEdges ();
 		for (int i = 0; i < holes.Length; i++) {
-			toRet.AddRange (holes [i].getEdges ());
+			toRet.AddRange (holes [i].GetEdges ());
 		}
 		return toRet;
 	}
@@ -156,11 +156,11 @@ public class MapData
 
 	public bool isInsideMap(float x, float y){
 		Vector3 tmp = new Vector3 (x, y, 0);
-		if (!outer.isInsidePolygon (tmp))
+		if (!outer.IsInsidePolygon (tmp))
 			return false;
 
 		for (int i = 0; i < holes.Length; i++) {
-			if (holes [i].isInsidePolygon(tmp))
+			if (holes [i].IsInsidePolygon(tmp))
 				return false;
 		}
 

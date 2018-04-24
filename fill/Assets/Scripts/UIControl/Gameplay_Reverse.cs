@@ -11,7 +11,7 @@ public class Gameplay_Reverse : MonoBehaviour, IPointerClickHandler {
 		switch (hd.State) {
 		case HistoryState.Create:
 			{
-				GuardManager.Instance.CreateGuardForReverse (hd.Position, hd.GuardId);
+				GuardManager.Instance().CreateGuardForReverse (hd.Position, hd.GuardId);
 				break;
 			}
 		case HistoryState.Destroy:

@@ -7,12 +7,12 @@ using UnityEngine.SceneManagement;
 public class GameManager : MonoBehaviour {
 	/*****************************************************************/
 	/* Variables */
-	// path for json file
-	private static string fileName; 
-
 	// for singleton design
-	private static GameManager instance = null;
-	private static GameStateEnum currentState;
+	private static GameManager _instance = null;
+
+	// path for json file
+	private static string fileName;
+	private static GameState currentState;
 	public static int loadLevel;
 
 	// for saving the map information
@@ -31,35 +31,40 @@ public class GameManager : MonoBehaviour {
 	/*****************************************************************/
 	/* Constructor */
 	// private constructor
-	private GameManager(){
+	private GameManager()
+	{
 	}
 		
 	/* Getter and Setter */
-	public static GameManager Instance {
-		get {
-			return instance;
+	public static GameManager GetInstance()
+	{
+		if( _instance == null)
+		{
+			_instance = new GameManager();
 		}
+
+		return _instance;
 	}
 
-	public static GameStateEnum CurrentState {
+	public static GameState CurrentState {
 		get {
 			return currentState;
 		}
 		set {
 			currentState = value;
 			switch (currentState) {
-			case GameStateEnum.StageSelected:
+			case GameState.StageSelected:
 				generateStage (fileName);
 				break;
-			case GameStateEnum.StageGenerated:
-				GameManager.CurrentState = GameStateEnum.PlayGame_Playing;
+			case GameState.StageGenerated:
+				GameManager.CurrentState = GameState.PlayGame_Playing;
 				break;
-			case GameStateEnum.PlayGame_Playing:
-				GuardManager.Instance.enabled = true;
+			case GameState.PlayGame_Playing:
+				GuardManager.Instance().enabled = true;
 				break;
 			}
-			if (currentState != GameStateEnum.PlayGame_Playing)
-				GuardManager.Instance.enabled = false;
+			if (currentState != GameState.PlayGame_Playing)
+				GuardManager.Instance().enabled = false;
 		}
 	}
 
@@ -78,9 +83,9 @@ public class GameManager : MonoBehaviour {
 	/*****************************************************************/
 	/*MonoBehaviour*/
 	void Awake () {
-		if (instance == null)
-			instance = this;
-		else if (instance != null)
+		if (_instance == null)
+			_instance = this;
+		else if (_instance != null)
 			Destroy (gameObject);
 		DontDestroyOnLoad (gameObject);
 
@@ -102,10 +107,10 @@ public class GameManager : MonoBehaviour {
 
 	void OnSceneLoad (Scene scene, LoadSceneMode mode) {
 		if (scene.buildIndex == 0) {
-			GameManager.CurrentState = GameStateEnum.StageSelected;
+			GameManager.CurrentState = GameState.StageSelected;
 		}
 		if (scene.buildIndex == 1) {
-			GameManager.CurrentState = GameStateEnum.StageSelection;
+			GameManager.CurrentState = GameState.StageSelection;
 		}
 	}
 
@@ -122,15 +127,15 @@ public class GameManager : MonoBehaviour {
 		new MapGenerator().createMap(mapData);
 
 		// 3. update GameState
-		GameManager.CurrentState = GameStateEnum.StageGenerated;
+		GameManager.CurrentState = GameState.StageGenerated;
 
 		// 4. create DecisionAlgorithm
 		da = new DecisionAlgorithm(mapData);
 	}
-///*
+
 	void playGame(){
 		// 1. update GameState
-		currentState = GameStateEnum.PlayGame_Playing;
+		currentState = GameState.PlayGame_Playing;
 		// 2. Enable the GuardManager
 		GetComponent<GuardManager>().enabled = true;
 
@@ -140,5 +145,4 @@ public class GameManager : MonoBehaviour {
 		else
 			Debug.Log ("Not Filled");
 	}
-//*/
 }

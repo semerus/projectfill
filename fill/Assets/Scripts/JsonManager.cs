@@ -8,16 +8,26 @@ public class JsonManager {
 	/*****************************************************************/
 	/* Variables */
 	// for singleton design
-	//private static JsonManager instance;
+	private static JsonManager _instance = null;
 
 	/*****************************************************************/
 	/* Constructor */
+	// private constructor
 	private JsonManager () {
 	}
 
 	/*****************************************************************/
 	/* Functions */
-	//getter for singleton
+	// getter for singleton
+	public static JsonManager GetInstance()
+	{
+		if( _instance == null)
+		{
+			_instance = new JsonManager();
+		}
+
+		return _instance;
+	}
 
 	public static List<ThumbnailData> readMapList (string fileName, string theme) {
 		//string jsonString = File.ReadAllText (fileName);

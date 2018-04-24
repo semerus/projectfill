@@ -5,10 +5,14 @@ public class Triangulator
 {
 	private List<Vector2> m_points = new List<Vector2>();
 
+	/*****************************************************************/
+	/* Constructor */
 	public Triangulator (Vector2[] points) {
 		m_points = new List<Vector2>(points);
 	}
 
+	/*****************************************************************/
+	/* Methods */
 	public int[] Triangulate() {
 		List<int> indices = new List<int>();
 

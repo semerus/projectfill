@@ -18,10 +18,10 @@ public class Gameplay_MenuClick : MonoBehaviour, IPointerClickHandler {
 	public void OnPointerClick (PointerEventData eventData)
 	{
 		if (!menuList.activeSelf) {
-			GameManager.CurrentState = GameStateEnum.PlayGame_Menu;
+			GameManager.CurrentState = GameState.PlayGame_Menu;
 			menuList.SetActive (true);
 		} else {
-			GameManager.CurrentState = GameStateEnum.PlayGame_Playing;
+			GameManager.CurrentState = GameState.PlayGame_Playing;
 			menuList.SetActive (false);
 		}
 	}

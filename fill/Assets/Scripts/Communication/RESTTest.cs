@@ -1,5 +1,6 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.UI;
 using System.Collections;
 
 // Get the latest webcam shot from outside "Friday's" in Times Square
@@ -16,7 +17,6 @@ public class RESTTest : MonoBehaviour {
 //		// assign texture
 //		Renderer renderer = GetComponent<Renderer>();
 //		renderer.material.mainTexture = www.texture;
-		GUIText text = GetComponent<GUIText>();
-		text.text = www.text;
+		GetComponent<Text>().text = www.text;
 	}
 }

@@ -44,7 +44,8 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 		layerMask = ~layerMask;
 
 		if (guardId == -1) { //normal creation
-			guardId = GuardManager.GuardIdCount++;
+			guardId = GuardManager.GenerateGuardId();
+			Debug.Log ("Guard Id: " + guardId);
 			GuardManager.GuardDic.Add (guardId, this);
 			GuardManager.HistoryList.Push (new HistoryData (HistoryState.Destroy, guardId, transform.position));
 		} else { //reverse creation
@@ -93,7 +94,7 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 	void OnDestroy () {
 		GuardManager.GuardDic.Remove (guardId);
 		GuardManager.guardList.Remove (this);
-		GuardManager.guardCount--;
+		GuardManager.ReturnGuardId (guardId);
 	}
 
 	/*****************************************************************/
