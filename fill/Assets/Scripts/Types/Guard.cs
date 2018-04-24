@@ -8,10 +8,9 @@ using UnityEngine.EventSystems;
 public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHandler{
 	public GameObject vgMesh;
 	public int layerMask = 1 << 8;
-	MapData md = GameManager.MapData;
 	private Vector3 previousPos; // for reverse function, saved on drag start
 	private Vector3 maxBoundPos;
-	private int guardId = -1; // pls do not touch
+	private int guardId = -1; // -1 by default
 
 	// Setting Variables
 	private const float angleDelta = 0.01f;
@@ -54,10 +53,10 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 		GuardManager.guardList.Add (GetComponent<Guard> ());
 
 		/* Set colors*/
-		gameObject.GetComponent<SpriteRenderer> ().color = md.getGuardBasicColor ();
-		GUARD_BASIC_COLOR = md.getGuardBasicColor ();
-		GUARD_SELECTED_COLOR = md.getGuardSeletedColor ();
-		VG_COLOR = md.getVgColor ();
+		gameObject.GetComponent<SpriteRenderer> ().color = GameManager.MapData.getGuardBasicColor ();
+		GUARD_BASIC_COLOR = GameManager.MapData.getGuardBasicColor ();
+		GUARD_SELECTED_COLOR = GameManager.MapData.getGuardSeletedColor ();
+		VG_COLOR = GameManager.MapData.getVgColor ();
 
 		/* Create GameObject to make VG */
 		vgMesh = new GameObject ("VGMesher"); // VG stands for Visibility Graph
