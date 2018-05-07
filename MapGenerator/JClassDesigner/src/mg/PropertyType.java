@@ -1,0 +1,82 @@
+package mg;
+
+/**
+ * These are properties that are to be loaded from workspace_properties.xml. They
+ * will provide custom labels and other UI details for this application and
+ * it's custom workspace. Note that in this application we're using two different
+ * properties XML files. simple_app_properties.xml is for settings known to the
+ * Simple App Framework and so helps to set it up. These properties would be for
+ * anything relevant to this custom application. The reason for loading this stuff
+ * from an XML file like this is to make these settings independent of the code
+ * and therefore easily interchangeable, like if we wished to change the language
+ * the application ran in.
+ * 
+ * @author Richard McKenna
+ * @author Yun Joon Soh
+ * @version 1.0
+ */
+public enum PropertyType {
+    SELECTION_TOOL_ICON,
+    SELECTION_TOOL_TOOLTIP,
+    RECTANGLE_ICON,
+    RECTANGLE_TOOLTIP,
+    ELLIPSE_ICON,
+    ELLIPSE_TOOLTIP,
+    FILL_ICON,
+    FILL_TOOLTIP,
+    OUTLINE_ICON,
+    OUTLINE_TOOLTIP,
+    REMOVE_ICON,
+    REMOVE_TOOLTIP,
+    UP_ICON,
+    UP_TOOLTIP,
+    DOWN_ICON,
+    DOWN_TOOLTIP,
+    BACKGROUND_COLOR_TOOLTIP,
+    BACKGROUND_COLOR_ICON,
+    FILL_COLOR_TOOLTIP,
+    FILL_COLOR_ICON,
+    OUTLINE_COLOR_TOOLTIP,
+    OUTLINE_COLOR_ICON,
+    OUTLINE_THICKNESS_TOOLTIP,
+    OUTLINE_THICKNESS_ICON,
+    SNAPSHOT_ICON,
+    SNAPSHOT_TOOLTIP,
+    
+    ATTRIBUTE_UPDATE_ERROR_MESSAGE,
+    ATTRIBUTE_UPDATE_ERROR_TITLE,
+    ADD_ELEMENT_ERROR_MESSAGE,
+    ADD_ELEMENT_ERROR_TITLE,
+    REMOVE_ELEMENT_ERROR_MESSAGE,
+    REMOVE_ELEMENT_ERROR_TITLE,
+    ILLEGAL_NODE_REMOVAL_ERROR_MESSAGE, 
+    ILLEGAL_NODE_REMOVAL_ERROR_TITLE,
+    TEMP_PAGE_LOAD_ERROR_MESSAGE,
+    TEMP_PAGE_LOAD_ERROR_TITLE,
+    CSS_EXPORT_ERROR_MESSAGE,
+    CSS_EXPORT_ERROR_TITLE,
+    UPDATE_ERROR_MESSAGE,
+    UPDATE_ERROR_TITLE,
+    
+    TO_CODE_ERROR_MESSAGE,
+    TO_CODE_ERROR_TITLE,
+    EXPORT_TO_CODE_TITLE,
+    TO_CODE_IOERROR_TITLE, 
+    TO_CODE_IOERROR_MESSAGE,
+    TO_CODE_SUCCESS_TITLE,
+    TO_CODE_SUCCESS_MESSAGE,
+    
+    ADD_CLASS_ICON, ADD_INTERFACE_ICON, ADD_INTERFACE_TOOLTIP, ADD_CLASS_TOOLTIP, 
+    SAVE_AS_ICON, SAVE_AS_TOOLTIP,
+    REDO_ICON, UNDO_ICON, REDO_TOOLTIP, UNDO_TOOLTIP, 
+    ZOOMIN_ICON, ZOOMIN_TOOLTIP, ZOOMOUT_ICON, ZOOMOUT_TOOLTIP, 
+    GRID_LABEL, SNAP_LABEL, GRID_TOOLTIP, SNAP_TOOLTIP, 
+    CLASS_NAME_LABEL, PACKAGE_NAME_LABEL, PARENT_SELECTION_LABEL, 
+    VARIABLE_PANE_LABEL, METHOD_PANE_LABEL, 
+    EXPORT_TO_PHOTO_ICON, EXPORT_TO_CODE_ICON, EXPORT_TO_PHOTO_TOOLTIP, EXPORT_TO_CODE_TOOLTIP,
+    ADD_VARIABLE_ICON, ADD_VARIABLE_TOOLTIP, ADD_METHOD_ICON, ADD_METHOD_TOOLTIP, REMOVE_VARIABLE_ICON, REMOVE_VARIABLE_TOOLTIP, REMOVE_METHOD_ICON, REMOVE_METHOD_TOOLTIP,
+    
+    ARGUMENT_PANE_LABEL,
+    ADD_PARENT_ICON, REMOVE_PARENT_ICON,
+    ADD_PARENT_TOOLTIP, REMOVE_PARENT_TOOLTIP;
+}

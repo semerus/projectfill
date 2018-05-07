@@ -5,7 +5,7 @@ public class MapGenerator {
 
 //	public GameObject linePrefab;
 	public GameObject vertexPrefab;
-	float scale = 2f;
+	float scale = 0.1f;
 
 	//creating map using the vertices
 	public void createMap (MapData md) {
@@ -23,7 +23,7 @@ public class MapGenerator {
 
 		GameObject temp = new GameObject("Line Renderer " + "Outer");
 		LineRenderer lineRenderer = temp.AddComponent<LineRenderer> ();
-		lineRenderer.SetWidth (0.1f * scale, 0.1f * scale);
+		lineRenderer.SetWidth (1f * scale, 1f * scale);
 		lineRenderer.SetColors (md.getLineColor(), md.getLineColor());
 		lineRenderer.SetVertexCount (vertices.Length);
 		lineRenderer.material = new Material(Shader.Find("Sprites/Default"));
@@ -44,7 +44,7 @@ public class MapGenerator {
 
 			GameObject temp_hole = new GameObject("Line Renderer " + "Hole" + i);
 			LineRenderer lineRenderer_hole = temp_hole.AddComponent<LineRenderer> ();
-			lineRenderer_hole.SetWidth (0.1f * scale, 0.1f * scale);
+			lineRenderer_hole.SetWidth (1f * scale, 1f * scale);
 			lineRenderer_hole.SetColors (md.getLineColor(), md.getLineColor());
 			lineRenderer_hole.material = new Material (Shader.Find ("Sprites/Default"));
 			lineRenderer_hole.SetVertexCount (hole_vertices.Length);

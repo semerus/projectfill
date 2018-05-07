@@ -62,6 +62,30 @@ public class JsonManager {
 		return mapData;
 	}
 
+	public static ScoreSet readScoreSet(string jsonString){
+		JsonData jsonData = JsonMapper.ToObject (jsonString);
+
+		int[] guards = new int[6];
+		guards[0] = (int) jsonData ["Guards"] ["g_low1"];
+		guards[1] = (int) jsonData ["Guards"] ["g_low2"];
+		guards[2] = (int) jsonData ["Guards"] ["g_low3"];
+		guards[3] = (int) jsonData ["Guards"] ["g_high1"];
+		guards[4] = (int) jsonData ["Guards"] ["g_high2"];
+		guards[5] = (int) jsonData ["Guards"] ["g_high3"];
+
+		float[] scores = new float[6];
+		scores[0] = (int) jsonData ["Scores"] ["low1"];
+		scores[1] = (int) jsonData ["Scores"] ["low2"];
+		scores[2] = (int) jsonData ["Scores"] ["low3"];
+		scores[3] = (int) jsonData ["Scores"] ["high1"];
+		scores[4] = (int) jsonData ["Scores"] ["high2"];
+		scores[5] = (int) jsonData ["Scores"] ["high3"];
+
+
+
+		return new ScoreSet (scores, guards);
+	}
+
 	private static string readName(JsonData data, string theme, int order) {
 		string name = data [theme] [order] ["name"].ToString();
 		return name;

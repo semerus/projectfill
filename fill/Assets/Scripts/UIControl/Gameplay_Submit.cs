@@ -1,5 +1,6 @@
 ﻿using UnityEngine;
 using System.Collections;
+using UnityEngine.SceneManagement;
 using UnityEngine.EventSystems;
 using UnityEngine.UI;
 
@@ -21,7 +22,12 @@ public class Gameplay_Submit : MonoBehaviour, IPointerClickHandler {
 
 	public void OnPointerClick (PointerEventData eventData)
 	{
-		throw new System.NotImplementedException ();
+		SceneManager.LoadScene ("Submission", LoadSceneMode.Additive);
+//		var sample = new GameObject ();
+//		sample.AddComponent (typeof(WWWTopScore));
+//		sample.AddComponent (typeof(RESTTest));
+//		sample.AddComponent (typeof(GUIText));
+//		sample.AddComponent (typeof(GUIText));
 	}
 
 	#endregion

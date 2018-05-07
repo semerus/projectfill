@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    This XML file allows us to easily customize the look and language used
+    in our program's user interface. Note that this properties file is only
+    for the workspace controls, which are custom for each application
+-->
+<properties>
+    <property_list>
+        <!-- PROGRAM ICON FILES -->
+        <property name="SAVE_AS_ICON"	    value="saveAs.png"></property>
+
+        <property name="ADD_CLASS_ICON" value="classAdd.png"></property>
+        <property name="ADD_INTERFACE_ICON" value="interfaceAdd.png"></property>
+        <property name="REMOVE_ICON" value="classInterfaceDelete.png"></property>
+
+        <property name="REDO_ICON" value="redo.png"></property>
+        <property name="UNDO_ICON" value="undo.png"></property>
+        <property name="ZOOMIN_ICON" value="zoomin.png"></property>
+        <property name="ZOOMOUT_ICON" value="zoomout.png"></property>
+        <property name="EXPORT_TO_PHOTO_ICON" value="toCode.png"></property>
+        <property name="EXPORT_TO_CODE_ICON" value="snapshot.png"></property>
+
+        <property name="ADD_PARENT_ICON" value="add.png"></property>
+        <property name="ADD_VARIABLE_ICON" value="add.png"></property>
+        <property name="ADD_METHOD_ICON" value="add.png"></property>
+
+        <property name="REMOVE_PARENT_ICON" value="rm.png"></property>
+        <property name="REMOVE_VARIABLE_ICON" value="rm.png"></property>
+        <property name="REMOVE_METHOD_ICON" value="rm.png"></property>
+		
+        <!-- Labels for indication-->
+        <property name="CLASS_NAME_LABEL" value="Class Name"></property>
+        <property name="PACKAGE_NAME_LABEL" value="Package Name"></property>
+        <property name="PARENT_SELECTION_LABEL" value="Parent List"></property>
+        <property name="VARIABLE_PANE_LABEL" value="Variable"></property>
+        <property name="METHOD_PANE_LABEL" value="Method"></property>
+        <property name="GRID_LABEL" value="Grid"></property>
+        <property name="SNAP_LABEL" value="Snap"></property>
+        <property name="ARGUMENT_PANE_LABEL" value="Argument"></property>
+        
+        <!-- TOOLTIPS FOR BUTTONS -->
+        <property name="REMOVE_ELEMENT_TOOLTIP"	    value="Remove Element"></property>
+		
+        <!-- MESSAGES -->
+        <property name="REMOVE_ELEMENT_MESSAGE"	    value="Are you sure you wish to remove that element?"></property>
+
+        <!-- ERROR MESSAGES AND TITLES FOR THEIR DIALOGS -->
+        <property name="ATTRIBUTE_UPDATE_ERROR_MESSAGE"	    value="WARNING: An error occured updating the element's attribute."></property>
+        <property name="ATTRIBUTE_UPDATE_ERROR_TITLE"	    value="Attribute Update Error"></property>
+        <property name="ADD_ELEMENT_ERROR_MESSAGE"	    value="WARNING: An error occured adding the element."></property>
+        <property name="ADD_ELEMENT_ERROR_TITLE"	    value="Add Element Error"></property>
+        <property name="REMOVE_ELEMENT_ERROR_MESSAGE"	    value="WARNING: An error occured removing the element."></property>
+        <property name="REMOVE_ELEMENT_ERROR_TITLE"	    value="Remove Element Error"></property>
+        <property name="ILLEGAL_NODE_REMOVAL_ERROR_MESSAGE" value="WARNING: That element cannot be removed."></property>
+        <property name="ILLEGAL_NODE_REMOVAL_ERROR_TITLE"   value="Illegal Node Removal Error"></property>
+        <property name="TEMP_PAGE_LOAD_ERROR_MESSAGE"	    value="WARNING: An error occured loading the starting temp page."></property>
+        <property name="TEMP_PAGE_LOAD_ERROR_TITLE"	    value="Temp Page Loading Error"></property>
+        <property name="CSS_EXPORT_ERROR_MESSAGE"	    value="WARNING: An error occured exporting the CSS file."></property>
+        <property name="CSS_EXPORT_ERROR_TITLE"		    value="CSS Export Error"></property>
+        <property name="UPDATE_ERROR_MESSAGE"		    value="An error occured updating the UI"></property>
+        <property name="UPDATE_ERROR_TITLE"		    value="UI Update Error"></property>
+        <property name="TO_CODE_ERROR_MESSAGE"		    value="To Code Error, do not use default name for class"></property>
+        <property name="TO_CODE_ERROR_TITLE"		    value="To Code Error"></property>
+        <property name="EXPORT_TO_CODE_TITLE"		    value="Folder to export code"></property>
+        <property name="TO_CODE_IOERROR_TITLE"              value="To Code Error: IOException"></property>
+        <property name="TO_CODE_IOERROR_MESSAGE"            value="IOException occured while exporting to code"></property>
+        <property name="TO_CODE_SUCCESS_TITLE"              value="To Code Done"></property>
+        <property name="TO_CODE_SUCCESS_MESSAGE"            value="Exported to code sucessfully:"></property>
+    </property_list>
+    <property_options_list>
+    </property_options_list>
+</properties>

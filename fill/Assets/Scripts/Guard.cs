@@ -201,9 +201,13 @@ public class Guard : MonoBehaviour, IBeginDragHandler, IDragHandler, IEndDragHan
 
 			/* 2. Shoot rays with the calculated angles */
 			// Color : Left Blue, Right White
-			RaycastHit2D rightHit = raycastWithDebug (targetPos, rightAngle, Color.white, layerMask);
-			RaycastHit2D leftHit = raycastWithDebug (targetPos, leftAngle, Color.blue, layerMask);
-			RaycastHit2D hit = raycastWithDebug (targetPos, standardAngle, Color.red, layerMask);
+//			RaycastHit2D rightHit = raycastWithDebug (targetPos, rightAngle, Color.white, layerMask);
+//			RaycastHit2D leftHit = raycastWithDebug (targetPos, leftAngle, Color.blue, layerMask);
+//			RaycastHit2D hit = raycastWithDebug (targetPos, standardAngle, Color.red, layerMask);
+
+			RaycastHit2D rightHit = raycastWithoutDebug (targetPos, rightAngle, layerMask);
+			RaycastHit2D leftHit = raycastWithoutDebug (targetPos, leftAngle, layerMask);
+			RaycastHit2D hit = raycastWithoutDebug (targetPos, standardAngle, layerMask);
 
 			/* 3. Add hit point to unorderedVertices if the ray hits collider */
 			// check if the ray is hit
