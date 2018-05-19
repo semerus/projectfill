@@ -12,6 +12,7 @@ public class StageMakerModule : MonoBehaviour {
 	GameObject background;
 	GameObject board;
 	LineRenderer line;
+    GameObject editableSpace;
 
 	List<Vertex> dots = new List<Vertex>();
 
@@ -32,18 +33,22 @@ public class StageMakerModule : MonoBehaviour {
 		line = lineGO.GetComponent<LineRenderer> ();
 
 		CreateBackground (12f, 20f, 1f);
+
+        Init();
 	}
 
-	void Update()
-	{
-		if (dotProcessing) { return; }
-		if (Input.GetKeyDown (KeyCode.Mouse0)) 
-		{
-			var mousePosInWorld = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-			mousePosInWorld = new Vector3 (mousePosInWorld.x, mousePosInWorld.y, 0f);
-			CreateDot (mousePosInWorld);
-		}
-	}
+    void Init()
+    {
+        editableSpace = GameObject.Find("EditableSpace");
+        var clickable = editableSpace.GetComponent<ClickableSpace>();
+        clickable.OnPointerClicked += () =>
+        {
+            if (dotProcessing) { return; }
+            var mousePosInWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
+            mousePosInWorld = new Vector3(mousePosInWorld.x, mousePosInWorld.y, 0f);
+            CreateDot(mousePosInWorld);            
+        };
+    }
 
 	public void CreateDot(Vector3 position)
 	{

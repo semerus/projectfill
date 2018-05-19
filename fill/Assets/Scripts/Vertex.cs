@@ -2,26 +2,47 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
+using GiraffeStar;
 
-public class Vertex : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBeginDragHandler, IDragHandler, IEndDragHandler {
+public class Vertex : InputBehaviour {
 	public int Id { get; private set; }
-	bool isDragging;
+	//bool isDragging;
 	StageMakerModule module;
 
 	public void Start()
 	{
 		module = GameObject.Find ("DrawingBoard").GetComponent<StageMakerModule> ();
+        Init();
 	}
 
+    void Init()
+    {
+        OnInputDown += () =>
+        {
+            module.dotProcessing = true;
+        };
+
+        OnInputUp += () =>
+        {
+            module.dotProcessing = false;
+        };
+
+        OnDrag += () =>
+        {
+            Vector3 nextPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
+            transform.position = nextPos;
+            module.ChangeDotPosition();
+        };
+    }
 	public void SetVertex(int id)
 	{
 		Id = id;
 	}
 
-	/*****************************************************************/
-	/*Eventsystem Interface*/
+    /*****************************************************************/
+    /*Eventsystem Interface*/
 
-
+    /*
 	#region IPointerDownHandler implementation
 
 	public void OnPointerDown (PointerEventData eventData)
@@ -42,16 +63,17 @@ public class Vertex : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBe
 	}
 
 	#endregion
+    */
+    /*
+    #region IBeginDragHandler implementation
 
-	#region IBeginDragHandler implementation
-
-	public void OnBeginDrag (PointerEventData eventData)
+    public void OnBeginDrag (PointerEventData eventData)
 	{
 		isDragging = true;
 	}
 
 	#endregion
-
+    
 	#region IDragHandler implementation
 
 	public void OnDrag (PointerEventData eventData)
@@ -59,6 +81,8 @@ public class Vertex : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBe
 		Vector3 nextPos = Camera.main.ScreenToWorldPoint (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
 		transform.position = nextPos;
 		module.ChangeDotPosition ();
+
+        Debug.Log("Dragging");
 	}
 
 	#endregion
@@ -71,6 +95,6 @@ public class Vertex : MonoBehaviour, IPointerDownHandler, IPointerUpHandler, IBe
 	}
 
 	#endregion
-
+    */
 	/*****************************************************************/
 }
