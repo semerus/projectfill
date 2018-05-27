@@ -162,5 +162,12 @@ public class StageMakerModule : MonoBehaviour {
 
 	void Save()
 	{
+		List<Vector2> outer = new List<Vector2> ();
+		foreach (var dot in dots) {
+			outer.Add (dot.transform.localPosition);
+		}
+		var stageData = new StageData ("test", 99, outer, Color.green);
+
+
 	}
 }
