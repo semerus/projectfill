@@ -3,8 +3,10 @@ using System.Collections;
 using System.Collections.Generic;
 
 public class GuardManager : MonoBehaviour {
-	private static GuardManager instance = null;
+	private static GuardManager _instance = null;
 	public static int guardCount = 0; //number of current guards
+	private static Stack<int> guardIdPool = new Stack<int>();
+	private static int lastUsedGuardId = -1;
 	private static int guardIdCount = 0; //generates guardId for each Guard
 	private static Stack<HistoryData> historyList = new Stack<HistoryData>(); //stack storing action history data
 	private static Dictionary<int, Guard> guardDic = new Dictionary<int, Guard>(); //dictionary storing with guardId as key, Guard as value
@@ -14,11 +16,21 @@ public class GuardManager : MonoBehaviour {
 //	private const float maxX = 10, maxY = 10, minX = -10, minY = -10;
 
 	/*****************************************************************/
+	/* Constructor */
+	// private constructor
+	private GuardManager() 
+	{
+	}
+
 	/*Getters and Setters*/
-	public static GuardManager Instance {
-		get {
-			return instance;
+	public static GuardManager Instance()
+	{
+		if( _instance == null)
+		{
+			_instance = new GuardManager();
 		}
+
+		return _instance;
 	}
 
 	public static int GuardIdCount {
@@ -45,9 +57,9 @@ public class GuardManager : MonoBehaviour {
 	/*****************************************************************/
 	/*MonoBehaviour*/
 	void Awake () {
-		if (instance == null)
-			instance = this;
-		else if (instance != null)
+		if (_instance == null)
+			_instance = this;
+		else if (_instance != null)
 			Destroy (gameObject);
 	}
 
@@ -120,14 +132,14 @@ public class GuardManager : MonoBehaviour {
 		//guard has to be inside outer, but outside holes
 
 		// first check if the position is inside outer
-		if (!md.getOuter ().isInsidePolygon (position)) {
+		if (!md.getOuter ().IsInsidePolygon (position)) {
 			return false;
 		}
 
 		// check if the position is outside of every hole
 		SimplePolygon2D[] holes = md.getHoles();
 		for (int i = 0; i < holes.Length; i++) {
-			if (holes [i].isInsidePolygon (position))
+			if (holes [i].IsInsidePolygon (position))
 				return false;
 		}
 
@@ -141,5 +153,23 @@ public class GuardManager : MonoBehaviour {
 			list [i] = guardList [i].transform.position;
 		}
 		return list;
+	}
+
+	/// <summary>
+	/// Generates the guard identifier.
+	/// </summary>
+	/// <returns>The guard identifier.</returns>
+	public static int GenerateGuardId() {
+		// if pool is empty
+		if (guardIdPool.Count == 0) {
+			Debug.Log ("GuardIdPool Empty");
+			return ++lastUsedGuardId;
+		} else {
+			return guardIdPool.Pop ();
+		}
+	}
+
+	public static void ReturnGuardId(int returnedId) {
+		guardIdPool.Push (returnedId);
 	}
 }

@@ -3,10 +3,14 @@ using UnityEngine;
 
 public class ScoreAlgorithm
 {
+	/*****************************************************************/
+	/* Constructor */
 	public ScoreAlgorithm ()
 	{
 	}
 
+	/*****************************************************************/
+	/* Methods */
 	public static double calculateArea(Vector3[] vertices, int[] triangles){
 		// remember triangle is a vector of indices that every three pair is one triangle
 		double totalArea = 0;
@@ -22,5 +26,3 @@ public class ScoreAlgorithm
 		return (b.x - a.x) * (c.y - a.y) - (c.x - a.x) * (b.y - a.y);
 	}
 }
-
-

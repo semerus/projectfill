@@ -4,6 +4,8 @@ using System.Collections.Generic;
 
 public class DecisionAlgorithm
 {
+	/*****************************************************************/
+	/* Variables */
 	static int NORTH = 0, SOUTH = 1, EAST = 2, WEST = 3;
 	static float scale = 0.1f;
 
@@ -12,6 +14,8 @@ public class DecisionAlgorithm
 	Edge[] mapEdges;
 	List<Vector2>[] guardingInfo;
 
+	/*****************************************************************/
+	/* Constructor */
 	public DecisionAlgorithm(MapData md){
 		this.md = md;
 
@@ -24,15 +28,17 @@ public class DecisionAlgorithm
 		guardingInfo = new List<Vector2>[visibilityCheckpoints.Length];
 	}
 
+	/*****************************************************************/
+	/* Methods */
 	public bool isFilled(Vector3[] guards){
 		Debug.Log ("Checking " + visibilityCheckpoints.Length + " number of points\n");
 		for(int i = 0; i < visibilityCheckpoints.Length; i++){
 			bool isCheckpointCovered = false;
 			for(int j = 0; j < guards.Length; j++){
 				bool isCheckpointVisible = true;
-				Edge check = new Edge (visibilityCheckpoints [i], guards [j]);
+				Edge visibilityEdge = new Edge (visibilityCheckpoints [i], guards [j]);
 				for(int k = 0; k < mapEdges.Length; k++){
-					if (check.isCross (mapEdges [k])) {
+					if (visibilityEdge.isCross (mapEdges [k])) {
 						isCheckpointVisible = false;
 //						Debug.Log ("Vertex #" + i + "/" + vertices.Length + ": " + vertices [i] + " Not visible by guard " + j + ": " + guards [j] + " because of edge: " + edges [k].ToString ());
 						break;
@@ -45,7 +51,7 @@ public class DecisionAlgorithm
 				if (isCheckpointVisible) {
 					isCheckpointCovered = true;
 					continue;
-				} 
+				}
 			}
 
 			if (!isCheckpointCovered) {

@@ -1,14 +1,12 @@
 ﻿using System;
 using System.Collections;
 using UnityEngine;
-
-/*SimplePolygon is a polygon that has no edge crossing*/
 using System.Collections.Generic;
 
-
+// SimplePolygon is a polygon that has no edge crossing
 public class SimplePolygon2D
 {
-	/*Variables*/
+	/* Variables */
 	// Vector2[] is ordered such that polygon[i] has an undirected edge to polygon[i+1]
 	private Stack<Vector2> polygon;
 	private List<Edge> edges;
@@ -21,11 +19,16 @@ public class SimplePolygon2D
 		edges = new List<Edge> ();
 	}
 
-	/*Functions*/
+	/* Functions */
 	/**
 	 * This function returns true if successfully added a new vertex to polygon.
 	 * This function fails when there exists a self intersection. 
 	*/
+	/// <summary>
+	/// Adds the vertex.
+	/// </summary>
+	/// <returns><c>true</c>, if vertex was added, <c>false</c> otherwise.</returns>
+	/// <param name="newVertex">New vertex.</param>
 	public bool addVertex(Vector2 newVertex){
 //		if (validateNewVertex (newVertex)) {
 			// must add edge first, before pushing in to stack
@@ -44,6 +47,11 @@ public class SimplePolygon2D
 	 * This function returns true if adding the new Vertex does not create an intersection
 	 * This function returns false if adding the new Vertex does create an intersection
 	*/
+	/// <summary>
+	/// Validates the new vertex.
+	/// </summary>
+	/// <returns><c>true</c>, if new vertex was validated, <c>false</c> otherwise.</returns>
+	/// <param name="newVertex">New vertex.</param>
 	private bool validateNewVertex(Vector2 newVertex){
 		// if the number of vertices currently in polygon is less than or equal to 1 return true
 		// because there is no way two points can form an intersection
@@ -70,6 +78,10 @@ public class SimplePolygon2D
 	/**
 	 * @return Returns Vector2[] of the vertices in which they form a polygon
 	*/
+	/// <summary>
+	/// Gets the vertices.
+	/// </summary>
+	/// <returns>The vertices.</returns>
 	public Vector2[] getVertices(){
 		Vector2[] oArray = polygon.ToArray ();
 		Vector2[] toRet = new Vector2[polygon.Count];
@@ -87,7 +99,12 @@ public class SimplePolygon2D
 	 * 		true: if the position is strictly inside the polygon
 	 * 		false: if the position is not strictly inside the polygon
 	 */
-	public bool isInsidePolygon(Vector3 position){
+	/// <summary>
+	/// Determine whether the provided position is inside the polygon.
+	/// </summary>
+	/// <returns><c>true</c>, if position is inside the polygon, <c>false</c> otherwise.</returns>
+	/// <param name="position">Position to check.</param>
+	public bool IsInsidePolygon(Vector3 position){
 		Vector2[] vertices = getVertices ();
 		//TODO
 		// For now assume that 
@@ -108,8 +125,7 @@ public class SimplePolygon2D
 	 * @return
 	 * 		Returns edges ordered from start to end
 	*/
-	public List<Edge> getEdges(){
-		
+	public List<Edge> GetEdges(){
 		return edges;
 	}
 }
