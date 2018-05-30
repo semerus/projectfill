@@ -25,8 +25,11 @@ var connection = mysql.createConnection({
 	password: '1234',
 	database: 'Fill'
 });
-connection.connect();
-console.log('Database connected');
+connection.connect(function(err) {
+	if(err) throw err;
+	console.log('Database connected');
+});
+
 
 // ASYNC
 // Include the async package
@@ -49,15 +52,13 @@ app.get('/', function(req, res) {
 const top_score_query = 'SELECT * FROM GameInfo WHERE GameId = ? ORDER BY NumOfGuards, Score DESC;'
 const bot_score_query = 'SELECT * FROM GameInfo WHERE GameId = ? ORDER BY NumOfGuards, Score ASC;'
 
-app.post('/top_scores', function(req, res) {
+app.get('/top_scores', function(req, res) {
 
-	console.log("GameId:" + req.body.GameId);
-	var numberGameId = parseInt(req.body.GameId, 10);
-
-	console.log(numberGameId);
+	var numberGameId = parseInt(req.query.GameId, 10);
+	console.log("GameId:" + req.query.GameId);
 
 	if (isNaN(numberGameId)) {
-		res.end("Error: GameId is invalid!");
+		res.status(404).end("Error: GameId is invalid!");
 	} else {
 
 		var ret_scores = '"Scores": {\n';
@@ -66,13 +67,16 @@ app.post('/top_scores', function(req, res) {
 		doQueries(numberGameId, ret_scores, ret_guards, function(err, ret_guards, ret_scores) {
 			if (err) {
 				console.log("Query failed: " + err);
+				res.status(500).end("Error: DB query error");
 				return;
 			}
+
+			console.log(ret_guards);
 
 			ret_guards = ret_guards.substring(0, ret_guards.length - 2) + "}";
 			ret_scores = ret_scores.substring(0, ret_scores.length - 2) + "}";
 
-			res.end('{\n' + ret_guards + ",\n" + ret_scores + "\n}");
+			res.status(200).end('{\n' + ret_guards + ",\n" + ret_scores + "\n}");
 		});
 	}
 });
@@ -182,7 +186,7 @@ var user = function(DeviceId, Email, Pwd, UserName) {
 		console.log("CheckUser returned" + rows);
 		// if the checkUser returns rows not null, then you have to update
 		if (rows[0] != null) {
-			connection.query(updateUser, [Email, Pwd, UserName, DeviceId], function(err, rows, fields)) {
+			connection.query(updateUser, [Email, Pwd, UserName, DeviceId], function(err, rows, fields) {
 				if (err) {
 					console.log("query error: " + top_score_query);
 					console.log(err);
@@ -192,9 +196,9 @@ var user = function(DeviceId, Email, Pwd, UserName) {
 				}
 
 				console.log()
-			}
+			});
 		} else {
-			connection.query(registerUser, [DeviceId, Email, Pwd, UserName], function(err, rows, fields)) {
+			connection.query(registerUser, [DeviceId, Email, Pwd, UserName], function(err, rows, fields) {
 				if (err) {
 					console.log("query error: " + top_score_query);
 					console.log(err);
@@ -202,7 +206,7 @@ var user = function(DeviceId, Email, Pwd, UserName) {
 					res.end("Error:" + err);
 					throw err;
 				}
-			}
+			});
 		}
 	});
 
