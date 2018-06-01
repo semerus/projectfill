@@ -21,8 +21,8 @@ app.use(bodyParser.urlencoded({ // to support URL-encoded bodies
 var mysql = require('mysql');
 var connection = mysql.createConnection({
 	host: 'localhost',
-	user: 'root',
-	password: '1234',
+	user: 'groot',
+	password: '1234ABcd@',
 	database: 'Fill'
 });
 connection.connect(function(err) {
@@ -41,11 +41,9 @@ var asyncTasks = [];
 
 
 /**************************************************************/
-
-
 // respond with "hello world" when a GET request is made to the homepage
 app.get('/', function(req, res) {
-	res.send('hello world');
+	res.send('This is server for Project Fill');
 });
 
 // POST method route

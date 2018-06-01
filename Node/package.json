@@ -1,8 +1,9 @@
 {
   "name": "projectfillserver",
   "version": "0.0.0",
-  "main": "Node.js",
+  "main": "server.js",
   "dependencies": {
+    "async": "^2.6.1",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
     "mysql": "^2.15.0"

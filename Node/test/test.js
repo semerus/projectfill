@@ -6,7 +6,7 @@ let chaiHttp = require('chai-http');
 chai.use(chaiHttp);
 
 var request = require("request");
-let server = require('../Node.js')
+let server = require('../server.js')
 
 const server_addr = "http://localhost:8080";
 const gameid_exist = 1;
