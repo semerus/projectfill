@@ -5,7 +5,7 @@ var new_line_string = '----------------------------------------------';
 
 var server_ip_addr = '127.0.0.1';
 var server_port = '8080';
-const MAX_SCORES = 3;
+const MAX_SCORES = 10;
 
 var express = require('express');
 var app = express();
@@ -52,10 +52,17 @@ app.get('/', function(req, res) {
 const top_score_query = 'SELECT * FROM GameInfo WHERE GameId = ? ORDER BY NumOfGuards, Score DESC;'
 const bot_score_query = 'SELECT * FROM GameInfo WHERE GameId = ? ORDER BY NumOfGuards, Score ASC;'
 
-app.get('/top_scores', function(req, res) {
+app.get('/all_scores', function(req, res) {
 
 	var numberGameId = parseInt(req.query.GameId, 10);
 	console.log("GameId:" + req.query.GameId);
+
+	var numberN = parseInt(req.query.N, 10);
+	console.log("N:" + req.query.N);
+
+	if(isNaN(numberN) || numberN <= 0) {
+		numberN = 3; // by default
+	}
 
 	if (isNaN(numberGameId)) {
 		res.status(404).end("Error: GameId is invalid!");
@@ -64,19 +71,19 @@ app.get('/top_scores', function(req, res) {
 		var ret_scores = '"Scores": {\n';
 		var ret_guards = '"Guards": {\n'
 
-		doQueries(numberGameId, ret_scores, ret_guards, function(err, ret_guards, ret_scores) {
+		doQueries(numberGameId, ret_scores, ret_guards, numberN, function(err, ret_guards, ret_scores) {
 			if (err) {
 				console.log("Query failed: " + err);
 				res.status(500).end("Error: DB query error");
 				return;
 			}
 
-			console.log(ret_guards);
+			console.log(ret_guards)
 
 			ret_guards = ret_guards.substring(0, ret_guards.length - 2) + "}";
 			ret_scores = ret_scores.substring(0, ret_scores.length - 2) + "}";
 
-			res.status(200).end('{\n' + ret_guards + ",\n" + ret_scores + "\n}");
+			res.status(200).json('{\n' + ret_guards + ",\n" + ret_scores + "\n}");
 		});
 	}
 });
@@ -104,7 +111,7 @@ app.post('/submit', function(req, res) {
 	}
 });
 
-var doQueries = function(numberGameId, ret_scores, ret_guards, callback) {
+var doQueries = function(numberGameId, ret_scores, ret_guards, max_scores, callback) {
 	connection.query(top_score_query, [numberGameId], function(err, rows, fields) {
 		// connection.query(top_score_query, [1], function(err, rows, fields) {
 		if (err) {
@@ -117,7 +124,9 @@ var doQueries = function(numberGameId, ret_scores, ret_guards, callback) {
 
 		console.log("row length:" + rows.length);
 
-		for (var i = 0; i < MAX_SCORES; i++) {
+		size = (max_scores > MAX_SCORES) ? MAX_SCORES : max_scores;
+
+		for (var i = 0; i < size; i++) {
 			var gNum = (rows[i] != null) ? (rows[i].NumOfGuards) : 0;
 			var sc = (rows[i] != null) ? (rows[i].Score) : 0;
 			ret_guards += '"g_high' + (i + 1) + '": ' + gNum + ',\n';
@@ -136,7 +145,7 @@ var doQueries = function(numberGameId, ret_scores, ret_guards, callback) {
 				throw err;
 			}
 
-			for (var i = 0; i < MAX_SCORES; i++) {
+			for (var i = 0; i < size; i++) {
 				var gNum = (rows[i] != null) ? (rows[i].NumOfGuards) : 0;
 				var sc = (rows[i] != null) ? (rows[i].Score) : 0;
 				ret_guards += '"g_low' + (i + 1) + '": ' + gNum + ',\n';
