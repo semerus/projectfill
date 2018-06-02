@@ -15,7 +15,7 @@ public class ScoreAlgorithm
 		// remember triangle is a vector of indices that every three pair is one triangle
 		double totalArea = 0;
 		for (int i = 0; i < triangles.Length / 3; i++) { // for every triangle
-			double area = Math.Abs(areaOfTriangle(vertices[triangles[i * 3]], vertices[triangles[i * 3 + 1]], vertices[triangles[i * 3 + 2]]));
+			double area = System.Math.Abs(areaOfTriangle(vertices[triangles[i * 3]], vertices[triangles[i * 3 + 1]], vertices[triangles[i * 3 + 2]]));
 			totalArea += (area * 1000);
 		}
 

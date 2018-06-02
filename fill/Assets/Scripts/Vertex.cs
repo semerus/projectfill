@@ -11,7 +11,7 @@ public class Vertex : InputBehaviour {
 
 	public void Start()
 	{
-		module = GameObject.Find ("DrawingBoard").GetComponent<StageMakerModule> ();
+        module = GiraffeSystem.FindModule<StageMakerModule>();
         Init();
 	}
 
@@ -25,6 +25,11 @@ public class Vertex : InputBehaviour {
         OnInputUp += () =>
         {
             module.dotProcessing = false;
+
+            if (module.IsSnapping)
+            {
+                Snap();
+            }
         };
 
         OnDrag += () =>
@@ -34,10 +39,19 @@ public class Vertex : InputBehaviour {
             module.ChangeDotPosition();
         };
     }
+
 	public void SetVertex(int id)
 	{
 		Id = id;
 	}
+
+    public void Snap()
+    {        
+        var snappedX = Mathf.Round(transform.position.x);
+        var snappedY = Mathf.Round(transform.position.y);
+
+        transform.position = new Vector3(snappedX, snappedY);
+    }
 
     /*****************************************************************/
     /*Eventsystem Interface*/

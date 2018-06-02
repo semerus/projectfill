@@ -14,8 +14,8 @@ public class StageData
 	[JsonProperty]
 	public List<Vector2> OuterVectices { get; private set; }
 
-	[JsonProperty]
-	public Color LineColor { get; private set; }
+	//[JsonProperty]
+	//public Color LineColor { get; private set; }
 
 //	[JsonProperty]
 //	public Color BackgroundColor { get; private set; }
@@ -34,11 +34,21 @@ public class StageData
 	private Color vgColor;
 	private float minX, minY, maxX, maxY;
 	*/
+    
+    [JsonConstructor]
 	public StageData(string name, int id, List<Vector2> outerVertices, Color lineColor)
 	{
 		Name = name;
 		Id = id;
 		OuterVectices = outerVertices;
-		LineColor = lineColor;
+		//LineColor = Color.blue;
 	}
+
+    public StageData()
+    {
+        Name = "NewMap";
+        Id = 1;
+        OuterVectices = new List<Vector2>();
+        //LineColor = Color.black;
+    }
 }
