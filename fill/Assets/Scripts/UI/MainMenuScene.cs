@@ -30,7 +30,7 @@ namespace FillClient.UI
             {
                 new SwitchStateMessage()
                 {
-                    NextState = FillState.StageRoom,
+					NextState = FillState.StageSelect,
                 }.Dispatch();
             });
 

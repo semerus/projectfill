@@ -1,17 +1,26 @@
 ﻿using System;
+using System.Text;
 using UnityEngine;
 using System.Collections;
 using UnityEngine.UI;
+using GiraffeStar;
 
 public class WWWTopScore : MonoBehaviour {
 
-	public string url= "http://127.0.0.1:8080/top_scores";
+	public string url= "http://ec2-13-125-236-11.ap-northeast-2.compute.amazonaws.com/top_scores?GameId=1";
 
-	public Text[] highest = new Text[3];
-	public Text[] lowest = new Text[3];
+	//public Text[] highest = new Text[3];
+	//public Text[] lowest = new Text[3];
+
+	public Text log;
+
+	void Start()
+	{
+		StartCoroutine ("Submit");
+	}
 
 	// Use this for initialization
-	IEnumerator Start () {
+	IEnumerator Submit () {
 		Debug.Log ("Start() of WWWTopScore");
 
 		// Create a Web Form
@@ -31,15 +40,21 @@ public class WWWTopScore : MonoBehaviour {
 		} else {
 			Debug.Log ("Finished downloading topscore");
 
-			ScoreSet ss = JsonManager.readScoreSet (w.text);
-			Debug.Log (w.text);
-			Debug.Log (this);
+			//ScoreSet ss = JsonManager.readScoreSet (w.text);
+			//Debug.Log (w.text);
+			//Debug.Log (this);
+
+			var builder = new StringBuilder ();
+
+			/*
 			for (int i = 0; i < 3; i++) {
-				highest[i].text = ss.getScore ("High", (i+1)).ToString ();
+				builder.Append(ss.getScore ("High", (i+1)).ToString ());
 			}
 			for (int i = 0; i < 3; i++) {
-				lowest[i].text = ss.getScore ("Low", (i+1)).ToString ();
+				builder.Append(ss.getScore ("Low", (i+1)).ToString ());
 			}
+			*/
+			log.text = w.text;
 		}
 
 	}

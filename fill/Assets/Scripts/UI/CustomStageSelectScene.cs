@@ -47,7 +47,7 @@ namespace FillClient.UI
 
         void LoadStages()
         {
-            var stages = JsonIO.Load<List<StageData>>(Application.dataPath + "/test.json");
+			var stages = JsonIO.Load<List<StageData>>(Application.persistentDataPath + "/test.json");
             if(stages == null)
             {
                 Debug.LogError("File load failed.");
@@ -60,6 +60,13 @@ namespace FillClient.UI
                 var item = Object.Instantiate(stageItemPrefab, stageList.transform);
                 var button = item.GetComponentInChildren<Button>();
                 var title = item.GetComponentInChildren<Text>();
+
+				button.onClick.AddListener (() => {
+					new StartPlayRoomMessage () {
+						StageData = stage,
+						NextState = FillState.PlayRoom,
+					}.Dispatch ();
+				});
 
                 title.text = stage.Name;
             }

@@ -124,11 +124,16 @@ namespace GiraffeStar
                 {
                     var parameters = method.GetParameters();
                     // currently allowing only one parameter
-                    if(parameters[0].ParameterType == message)
+					// currently checks one more base type
+					if(parameters[0].ParameterType == message || parameters[0].ParameterType == message.BaseType)
                     {
                         reserved.Add(method);
                     }
                 }
+
+				if (reserved.Count < 0) {
+					Debug.LogWarning(string.Format("Subscriber for {0} not found.", message.ToString()));
+				}
 
                 foreach (var method in reserved)
                 {

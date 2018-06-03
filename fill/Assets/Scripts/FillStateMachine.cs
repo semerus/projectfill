@@ -15,6 +15,8 @@ namespace FillClient
         StageSelect,
         StageRoom,
         CustomStageSelect,
+		Splash,
+		PlayRoom,
     }
 
     public class SwitchStateMessage : MessageCore
@@ -22,6 +24,11 @@ namespace FillClient
         public FillState NextState;
         public bool Reoccur;
     }
+
+	public class StartPlayRoomMessage : SwitchStateMessage
+	{
+		public StageData StageData;
+	}
 
     public class FillStateMachine : StateMachine
     {
@@ -35,7 +42,7 @@ namespace FillClient
         [Subscriber]
         void SwitchTo(SwitchStateMessage msg)
         {
-            base.SwitchTo(ConvertEnumToType(msg.NextState), msg.Reoccur);
+            base.SwitchTo(ConvertEnumToType(msg.NextState), msg.Reoccur, msg);
             Debug.Log(string.Format("Changed to {0}", msg.NextState.ToString()));
         }
 
@@ -53,6 +60,10 @@ namespace FillClient
                     return typeof(StageSelectState);
                 case FillState.CustomStageSelect:
                     return typeof(CustomStageSelectState);
+				case FillState.Splash:
+					return typeof(SplashState);
+				case FillState.PlayRoom:
+					return typeof(PlayRoomState);
             }
 
             return null;
@@ -72,6 +83,10 @@ namespace FillClient
                     return FillState.StageSelect;
                 case "CustomStageSelect":
                     return FillState.CustomStageSelect;
+				case "Splash":
+					return FillState.Splash;
+				case "PlayRoom":
+					return FillState.PlayRoom;
             }
 
             return FillState.MainMenu;
@@ -86,7 +101,7 @@ namespace FillClient
         // TODO: improve sceneloading style
         class MainMenuState : State
         {
-            public override void OnEnter()
+			public override void OnEnter(object msg)
             {
                 if(!SceneManager.GetActiveScene().name.Equals("MainMenu"))
                 {
@@ -99,7 +114,7 @@ namespace FillClient
                 }
             }
 
-            public override void OnExit()
+			public override void OnExit(object msg)
             {
                 UnRegisterAll();
             }
@@ -113,7 +128,7 @@ namespace FillClient
 
         class StageMakerState : State
         {
-            public override void OnEnter()
+			public override void OnEnter(object msg)
             {
                 if (!SceneManager.GetActiveScene().name.Equals("StageEditor"))
                 {
@@ -127,7 +142,7 @@ namespace FillClient
                 }
             }
 
-            public override void OnExit()
+			public override void OnExit(object msg)
             {
                 UnRegisterAll();
             }
@@ -142,12 +157,12 @@ namespace FillClient
 
         class StageSelectState : State
         {
-            public override void OnEnter()
+			public override void OnEnter(object msg)
             {
                 SceneManager.LoadScene("StageSelect");
             }
 
-            public override void OnExit()
+			public override void OnExit(object msg)
             {
                 UnRegisterAll();
             }
@@ -160,7 +175,7 @@ namespace FillClient
 
         class CustomStageSelectState : State
         {
-            public override void OnEnter()
+			public override void OnEnter(object msg)
             {
                 if (!SceneManager.GetActiveScene().name.Equals("CustomStageSelect"))
                 {
@@ -173,7 +188,7 @@ namespace FillClient
                 }
             }
 
-            public override void OnExit()
+			public override void OnExit(object msg)
             {
                 UnRegisterAll();
             }
@@ -184,6 +199,79 @@ namespace FillClient
                 SceneManager.sceneLoaded -= OnSceneLoaded;
             }
         }
+
+		class SplashState : State
+		{
+			public override void OnEnter(object msg)
+			{
+				if (!SceneManager.GetActiveScene().name.Equals("Splash"))
+				{
+					SceneManager.sceneLoaded += OnSceneLoaded;
+					SceneManager.LoadScene("Splash");
+				}
+				else
+				{
+					RegisterAndHold(new SplashScene());
+				}
+			}
+
+			public override void OnExit(object msg)
+			{
+				UnRegisterAll();
+			}
+
+			void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+			{
+				RegisterAndHold(new SplashScene());
+				SceneManager.sceneLoaded -= OnSceneLoaded;
+			}
+		}
+
+		class PlayRoomState : State
+		{
+			StartPlayRoomMessage cachedMessage;
+
+			public override void OnEnter(object msg)
+			{
+				var convertedMessage = msg as StartPlayRoomMessage;
+				if (convertedMessage != null) 
+				{
+					cachedMessage = convertedMessage;
+				}
+
+				if (!SceneManager.GetActiveScene().name.Equals("PlayRoom"))
+				{
+					SceneManager.sceneLoaded += OnSceneLoaded;
+					SceneManager.LoadScene("PlayRoom");
+				}
+				else
+				{
+					RegisterAndHold (new PlayRoomModule ());
+					RegisterAndHold(new PlayRoomScene());
+
+					var playRoomModule = GiraffeSystem.FindModule<PlayRoomModule> ();
+					playRoomModule.SetStage (cachedMessage.StageData);
+				}
+
+				Debug.Log ("Entered PlayRoom");
+			}
+
+			public override void OnExit(object msg)
+			{
+				UnRegisterAll();
+			}
+
+			void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+			{
+				RegisterAndHold (new PlayRoomModule ());
+				RegisterAndHold(new PlayRoomScene());
+
+				var playRoomModule = GiraffeSystem.FindModule<PlayRoomModule> ();
+				playRoomModule.SetStage (cachedMessage.StageData);
+
+				SceneManager.sceneLoaded -= OnSceneLoaded;
+			}
+		}
     }
 }
 

@@ -6,9 +6,9 @@ namespace GiraffeStar
     {
         List<Module> cachedModules;
 
-        public virtual void OnEnter() { }
-        public virtual void OnState() { }
-        public virtual void OnExit() { }
+		public virtual void OnEnter(object msg) { }
+		public virtual void OnState(object msg) { }
+		public virtual void OnExit(object msg) { }
 
         protected void RegisterAndHold(Module module)
         {

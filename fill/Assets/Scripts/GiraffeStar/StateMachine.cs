@@ -1,6 +1,7 @@
 ﻿using System.Collections.Generic;
 using System.Reflection;
 using System;
+using UnityEngine;
 
 namespace GiraffeStar
 {
@@ -30,14 +31,14 @@ namespace GiraffeStar
             }
         }
 
-        public virtual void SwitchTo(Type nextState, bool reoccur = false)
+		public virtual void SwitchTo(Type nextState, bool reoccur = false, object msg = null)
         {
             if(!nextState.IsSubclassOf(typeof(State))) { return; }
 
             if(currentState == null)
             {
                 currentState = states[nextState.Name];
-                currentState.OnEnter();
+                currentState.OnEnter(msg);
                 return;
             }
 
@@ -46,9 +47,9 @@ namespace GiraffeStar
                 if (!reoccur) { return; }                
             }
 
-            currentState.OnExit();
+            currentState.OnExit(msg);
             currentState = states[nextState.Name];
-            currentState.OnEnter();
+            currentState.OnEnter(msg);
         }
     }
 }
