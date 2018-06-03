@@ -14,6 +14,7 @@ namespace FillClient
         StageMaker,
         StageSelect,
         StageRoom,
+        CustomStageSelect,
     }
 
     public class SwitchStateMessage : MessageCore
@@ -50,6 +51,8 @@ namespace FillClient
                     return typeof(StageRoomState);
                 case FillState.StageSelect:
                     return typeof(StageSelectState);
+                case FillState.CustomStageSelect:
+                    return typeof(CustomStageSelectState);
             }
 
             return null;
@@ -67,6 +70,8 @@ namespace FillClient
                     return FillState.StageMaker;
                 case "StageSelect":
                     return FillState.StageSelect;
+                case "CustomStageSelect":
+                    return FillState.CustomStageSelect;
             }
 
             return FillState.MainMenu;
@@ -151,6 +156,33 @@ namespace FillClient
         class StageRoomState : State
         {
 
+        }
+
+        class CustomStageSelectState : State
+        {
+            public override void OnEnter()
+            {
+                if (!SceneManager.GetActiveScene().name.Equals("CustomStageSelect"))
+                {
+                    SceneManager.sceneLoaded += OnSceneLoaded;
+                    SceneManager.LoadScene("CustomStageSelect");
+                }
+                else
+                {
+                    RegisterAndHold(new CustomStageSelectScene());
+                }
+            }
+
+            public override void OnExit()
+            {
+                UnRegisterAll();
+            }
+
+            void OnSceneLoaded(Scene scene, LoadSceneMode mode)
+            {
+                RegisterAndHold(new CustomStageSelectScene());
+                SceneManager.sceneLoaded -= OnSceneLoaded;
+            }
         }
     }
 }

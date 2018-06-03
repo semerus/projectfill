@@ -212,13 +212,17 @@ public class StageMakerModule : Module {
     // save stage data
 	public void Save()
 	{
+        var stageLists = new List<StageData>();
 		List<Vector2> outer = new List<Vector2> ();
 		foreach (var dot in dots) {
 			outer.Add (dot.transform.position);
 		}
 		var stageData = new StageData ("test", 1, outer, new Color(0f,0f,0f,1f));
 
-        JsonIO.Save(Application.dataPath + "/test.json", stageData);
+        stageLists.Add(stageData);
+        stageLists.Add(stageData);
+
+        JsonIO.Save(Application.dataPath + "/test.json", stageLists);
 	}
 
     // caching

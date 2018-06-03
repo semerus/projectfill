@@ -10,4 +10,10 @@ public class JsonIO
         File.WriteAllText(path, JsonConvert.SerializeObject(obj, Formatting.Indented));
         Debug.Log(string.Format("File saved at {0}", path));
     }
+
+    public static T Load<T>(string path)
+    {
+        var textAsset = File.ReadAllText(path);
+        return JsonConvert.DeserializeObject<T>(textAsset);
+    }
 }

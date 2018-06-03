@@ -46,7 +46,7 @@ namespace FillClient.UI
             {
                 new SwitchStateMessage()
                 {
-                    NextState = FillState.StageSelect,
+                    NextState = FillState.CustomStageSelect,
                 }.Dispatch();
             });
 
