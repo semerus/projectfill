@@ -13,6 +13,9 @@ public class JsonIO
 
     public static T Load<T>(string path)
     {
+		if (!File.Exists (path)) {
+			return null;
+		}
         var textAsset = File.ReadAllText(path);
         return JsonConvert.DeserializeObject<T>(textAsset);
     }

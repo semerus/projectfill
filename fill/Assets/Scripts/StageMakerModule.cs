@@ -214,7 +214,10 @@ public class StageMakerModule : Module {
 	{
 		var previousList = JsonIO.Load<List<StageData>> (Application.persistentDataPath + "/test.json");
 		var stageLists = new List<StageData> ();
-		stageLists.AddRange (previousList);
+		if (previousList != null) {
+			stageLists.AddRange (previousList);
+		}
+
 
 		List<Vector2> outer = new List<Vector2> ();
 		foreach (var dot in dots) {
