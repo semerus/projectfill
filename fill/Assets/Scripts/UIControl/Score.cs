@@ -1,16 +1,16 @@
-﻿using UnityEngine;
-using System.Collections;
-using UnityEngine.UI;
+﻿//using UnityEngine;
+//using System.Collections;
+//using UnityEngine.UI;
 
-public class Score : MonoBehaviour {
-	//	this script is used to display number of guards on screen
-	Text score;
+//public class Score : MonoBehaviour {
+//	//	this script is used to display number of guards on screen
+//	Text score;
 
-	void Start() {
-		score = GetComponentInChildren<Text> ();
-	}
+//	void Start() {
+//		score = GetComponentInChildren<Text> ();
+//	}
 
-	void Update() {
-		score.text = "Score: "+ GuardManager.currentScore;
-	}
-}
+//	void Update() {
+//		score.text = "Score: "+ GuardManager.currentScore;
+//	}
+//}

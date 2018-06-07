@@ -250,6 +250,13 @@ namespace FillClient
 					RegisterAndHold(new PlayRoomScene());
 
 					var playRoomModule = GiraffeSystem.FindModule<PlayRoomModule> ();
+                    if(cachedMessage == null)
+                    {
+                        cachedMessage = new StartPlayRoomMessage()
+                        {
+                            StageData = new StageData(),
+                        };
+                    }
 					playRoomModule.SetStage (cachedMessage.StageData);
 				}
 

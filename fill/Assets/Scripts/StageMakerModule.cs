@@ -21,13 +21,15 @@ public class StageMakerModule : Module {
 	LineRenderer line;
     GameObject editableSpace;
 
-	List<Vertex> dots = new List<Vertex>();
+	List<Vertex> outerVertices = new List<Vertex>();
+    List<List<Vertex>> innerGroups = new List<List<Vertex>>();
     Stack<List<Vertex>> cachedHistory = new Stack<List<Vertex>>();
 
 	int vertexIdCounter = 0;
     int viewState = 3;
     public bool IsSnapping { get; set; }
-    bool isComplete;
+    bool isOuterComplete;
+    bool isInnerComplete;
 
 	public bool dotProcessing;
 
@@ -61,63 +63,58 @@ public class StageMakerModule : Module {
 
         editableSpace = GameObject.Find("EditableSpace");
         var clickable = editableSpace.GetComponent<ClickableSpace>();
-        clickable.OnPointerClicked += () =>
-        {
-            if (dotProcessing) { return; }
-            var mousePosInWorld = Camera.main.ScreenToWorldPoint(Input.mousePosition);
-            mousePosInWorld = new Vector3(mousePosInWorld.x, mousePosInWorld.y, 0f);
-            CreateDot(mousePosInWorld);            
+        clickable.onPointerClick += (e) =>
+        {            
+            var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition).OverrideZ(0f);
+            CreateDot(worldPos);            
         };                
     }
 
 	public void CreateDot(Vector3 position)
 	{
-		// when coming back to the first dot
-		// end the polygon
-		if (dots.Count > 2 && Vector2.Distance (dots [0].transform.position, position) < 0.5f) 
+        // when coming back to the first dot
+        // end the polygon
+        if (outerVertices.Count > 2 && Vector2.Distance (outerVertices [0].transform.position, position) < 0.5f) 
 		{			
-            isComplete = true;
+            isOuterComplete = true;
+            UpdateLine();
             return;
 		}
 
-		// coming back to already drawn dot
-		else if (dots.Count > 0) 
+        // 이미 점을 컨트롤하는 있으면 패스
+        if (dotProcessing) { return; }
+
+        // 이미 존재하는 점 근처면 패스
+        if (outerVertices.Count > 0) 
 		{
-			for (int i = 0; i < dots.Count; i++) {
-				if (Vector2.Distance (dots [i].transform.position, position) < 0.5f) {
+			for (int i = 0; i < outerVertices.Count; i++) {
+				if (Vector2.Distance (outerVertices [i].transform.position, position) < 0.5f) {
 					return;
 				}
 			}
 		}
 
-
-		var dot = Object.Instantiate (dotPrefab, board.transform);
-        var vertex = dot.AddComponent<Vertex>();
-        dot.transform.position = position;
-        if(IsSnapping)
+        if (!isOuterComplete)
         {
-            vertex.Snap();
+            var dot = Object.Instantiate(dotPrefab, board.transform);
+            var vertex = dot.AddComponent<Vertex>();
+            dot.transform.position = position;
+            if (IsSnapping)
+            {
+                vertex.Snap();
+            }
+            vertex.SetVertex(vertexIdCounter++);
+            outerVertices.Add(vertex);
         }
 
-        /*
-		foreach (var _dot in dots) {
-			if (Vector2.Distance (_dot.transform.position, position) < 0.5f) 
-			{
-				dot.transform.position = _dot.transform.position;
-				break;
-			}
-		}
-		*/
-        vertex.SetVertex (vertexIdCounter++);
 
-		dots.Add (vertex);
-		UpdateLine ();
 
         //CacheDotHistory();
 
+        UpdateLine();
         new VertexCountMessage
         {
-            VertexCount = dots.Count,
+            VertexCount = outerVertices.Count,
         }.Dispatch();
 	}    
 
@@ -128,16 +125,16 @@ public class StageMakerModule : Module {
 
 	void UpdateLine()
 	{
-		if (dots.Count < 2) { return; }
+		if (outerVertices.Count < 2) { return; }
 
 		var posList = new List<Vector3> ();
-		foreach (var _dot in dots) {
+		foreach (var _dot in outerVertices) {
 			posList.Add(_dot.transform.position);
 		}
 
-        if(isComplete)
+        if(isOuterComplete)
         {
-            posList.Add(dots[0].transform.position);
+            posList.Add(outerVertices[0].transform.position);
         }
 
 		DrawLine (posList, line);
@@ -195,17 +192,19 @@ public class StageMakerModule : Module {
 
     public void Clear()
     {
-        foreach (var dot in dots)
+        foreach (var dot in outerVertices)
         {
             Object.Destroy(dot.gameObject);
         }
 
-        dots.Clear();
+        outerVertices.Clear();
         line.positionCount = 0;
+        isOuterComplete = false;
+        isInnerComplete = false;
 
         new VertexCountMessage
         {
-            VertexCount = dots.Count,
+            VertexCount = outerVertices.Count,
         }.Dispatch();
     }
 
@@ -220,7 +219,7 @@ public class StageMakerModule : Module {
 
 
 		List<Vector2> outer = new List<Vector2> ();
-		foreach (var dot in dots) {
+		foreach (var dot in outerVertices) {
 			outer.Add (dot.transform.position);
 		}
 		var stageData = new StageData ("test", 1, outer, new Color(0f,0f,0f,1f));
@@ -235,8 +234,8 @@ public class StageMakerModule : Module {
     public void CacheDotHistory()
     {
         var copy = new List<Vertex>();
-        copy.AddRange(dots);
-        cachedHistory.Push(dots);
+        copy.AddRange(outerVertices);
+        cachedHistory.Push(outerVertices);
     }
 
     public void LoadDotHistory()

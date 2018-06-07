@@ -19,6 +19,26 @@ public class SimplePolygon2D
 		edges = new List<Edge> ();
 	}
 
+    public static SimplePolygon2D Create(Vector2[] points)
+    {
+        if(points.Length < 3)
+        {
+            return null;
+        }
+
+        var result = new SimplePolygon2D();
+
+        foreach (var point in points)
+        {
+            if(!result.addVertex(point))
+            {
+                return null;
+            }
+        }
+
+        return result;
+    }
+
 	/* Functions */
 	/**
 	 * This function returns true if successfully added a new vertex to polygon.

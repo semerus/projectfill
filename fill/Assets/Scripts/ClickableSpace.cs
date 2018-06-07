@@ -2,15 +2,24 @@
 using UnityEngine;
 using UnityEngine.EventSystems;
 
-public class ClickableSpace : MonoBehaviour, IPointerClickHandler
+public class ClickableSpace : MonoBehaviour, IPointerClickHandler, IPointerUpHandler
 {
-    public Action OnPointerClicked;
+    public Action<PointerEventData> onPointerClick;
+    public Action<PointerEventData> onPointerUp;
 
     public void OnPointerClick(PointerEventData eventData)
     {
-        if(OnPointerClicked != null)
+        if(onPointerClick != null)
         {
-            OnPointerClicked();
+            onPointerClick(eventData);
+        }
+    }
+
+    public void OnPointerUp(PointerEventData eventData)
+    {
+        if(onPointerUp != null)
+        {
+            onPointerUp(eventData);
         }
     }
 }

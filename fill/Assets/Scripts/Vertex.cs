@@ -8,8 +8,9 @@ public class Vertex : InputBehaviour {
 	public int Id { get; private set; }
 	//bool isDragging;
 	StageMakerModule module;
+    bool isInitialized;
 
-	public void Start()
+	public void Awake()
 	{
         module = GiraffeSystem.FindModule<StageMakerModule>();
         Init();
@@ -17,6 +18,8 @@ public class Vertex : InputBehaviour {
 
     void Init()
     {
+        if(isInitialized) { return; }
+
         OnInputDown += () =>
         {
             module.dotProcessing = true;
@@ -34,10 +37,12 @@ public class Vertex : InputBehaviour {
 
         OnDrag += () =>
         {
-            Vector3 nextPos = Camera.main.ScreenToWorldPoint(new Vector3(Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
-            transform.position = nextPos;
+            Vector3 nextPos = Camera.main.ScreenToWorldPoint(Input.mousePosition).OverrideZ(0f);
+            transform.position = nextPos + Offset;
             module.ChangeDotPosition();
         };
+
+        isInitialized = true;
     }
 
 	public void SetVertex(int id)
@@ -51,6 +56,7 @@ public class Vertex : InputBehaviour {
         var snappedY = Mathf.Round(transform.position.y);
 
         transform.position = new Vector3(snappedX, snappedY);
+        module.ChangeDotPosition();
     }
 
     /*****************************************************************/

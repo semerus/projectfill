@@ -30,12 +30,12 @@ public class WWWFormImage : MonoBehaviour {
 		// Create a Web Form
 		WWWForm form = new WWWForm();
 		form.AddBinaryData("fileUpload", bytes, "screenShot.png", "image/png");
-		form.AddField("GameId", GameManager.MapData.getId());
-		form.AddField("Email", SystemInfo.deviceUniqueIdentifier);
-		form.AddField("NumOfGuards", GuardManager.guardCount);
-		form.AddField("GuardLocation", GuardManager.guardList.ToString());
-		form.AddField("GameHash", GameManager.MapData.GetHashCode());
-		form.AddField("Score", GuardManager.currentScore.ToString());
+		//form.AddField("GameId", GameManager.MapData.getId());
+		//form.AddField("Email", SystemInfo.deviceUniqueIdentifier);
+		//form.AddField("NumOfGuards", GuardManager.guardCount);
+		//form.AddField("GuardLocation", GuardManager.guardList.ToString());
+		//form.AddField("GameHash", GameManager.MapData.GetHashCode());
+		//form.AddField("Score", GuardManager.currentScore.ToString());
 
 		// Upload to a cgi script
 		WWW w = new WWW(screenShotURL, form);

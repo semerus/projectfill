@@ -8,7 +8,7 @@ namespace GiraffeStar
     public abstract class StateMachine : Module
     {
         Dictionary<string, State> states;
-        State currentState;
+        State currentState;        
 
         public override void OnRegister()
         {

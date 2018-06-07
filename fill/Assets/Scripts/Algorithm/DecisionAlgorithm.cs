@@ -9,28 +9,28 @@ public class DecisionAlgorithm
 	static int NORTH = 0, SOUTH = 1, EAST = 2, WEST = 3;
 	static float scale = 0.1f;
 
-	MapData md;
+	StageData stageData;
 	Vector2[] visibilityCheckpoints;
 	Edge[] mapEdges;
 	List<Vector2>[] guardingInfo;
 
 	/*****************************************************************/
 	/* Constructor */
-	public DecisionAlgorithm(MapData md){
-		this.md = md;
+	public DecisionAlgorithm(StageData stageData){
+		this.stageData = stageData;
 
 		// fixed vertices to guard
-		visibilityCheckpoints = getVisibilityCheckpoints(md);
+		visibilityCheckpoints = GetVisibilityCheckpoints(stageData);
 
 		// fixed edges to check if hindering the visibility
-		mapEdges = md.getMapEdges ().ToArray ();
+		mapEdges = stageData.GetEdges().ToArray ();
 
 		guardingInfo = new List<Vector2>[visibilityCheckpoints.Length];
 	}
 
 	/*****************************************************************/
 	/* Methods */
-	public bool isFilled(Vector3[] guards){
+	public bool IsFilled(Vector3[] guards){
 		Debug.Log ("Checking " + visibilityCheckpoints.Length + " number of points\n");
 		for(int i = 0; i < visibilityCheckpoints.Length; i++){
 			bool isCheckpointCovered = false;
@@ -67,27 +67,26 @@ public class DecisionAlgorithm
 
 	/**
 	 * This function returns a Vector2[] that will be checked by the guard*/
-	private static Vector2[] getVisibilityCheckpoints(MapData md){
+	private static Vector2[] GetVisibilityCheckpoints(StageData md){
 //		int N = md.getSize ();
 //		Vector2[] toRet = new Vector2[N];
 		List<Vector2> toRet = new List<Vector2>();
 
 //		int index = 0;
-		Vector2[] outer = md.getOuter ().getVertices();
+		Vector2[] outer = md.OuterPolygon.getVertices();
 		for (int i = 0; i < outer.Length; i++) {
 			toRet.Add (outer [i]);
 //			toRet [index++] = outer [i];
 		}
 
-		SimplePolygon2D[] holes = md.getHoles ();
-		for (int i = 0; i < holes.Length; i++) {
-			for(int j = 0; j < holes[i].getVertices().Length; j++){
-//				toRet [index++] = holes [i].getVertices () [j];
-				toRet.Add (holes [i].getVertices () [j]);
-			}
-		}
+		//SimplePolygon2D[] holes = md.getHoles ();
+		//for (int i = 0; i < holes.Length; i++) {
+		//	for(int j = 0; j < holes[i].getVertices().Length; j++){
+		//		toRet.Add (holes [i].getVertices () [j]);
+		//	}
+		//}
 
-		Vector2[] extreme = md.getExtremePoints ();
+		Vector2[] extreme = md.GetExtremePoints ();
 		Debug.Log ("North: " + extreme[NORTH].ToString () + "\n");
 		Debug.Log ("South: " + extreme[SOUTH].ToString () + "\n");
 		Debug.Log ("West: " + extreme[WEST].ToString () + "\n");
@@ -95,7 +94,7 @@ public class DecisionAlgorithm
 
 		for (float y = extreme [SOUTH].y; y < extreme [NORTH].y; y += scale) {
 			for (float x = extreme [WEST].x; x < extreme [EAST].x; x += scale) {
-				if (md.isInsideMap (x, y))
+				if (md.IsInsideMap (x, y))
 					toRet.Add (new Vector2 (x, y));
 			}
 		}
