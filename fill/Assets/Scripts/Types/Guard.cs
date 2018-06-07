@@ -115,9 +115,14 @@ namespace FillClient
 
             // add targetPos to unorderVertices if targetPos is outside polygon
             Vector2[] outer = md.OuterPolygon.getVertices();
+            var innerGroups = md.InnerGroups;
             //SimplePolygon2D[] holes = md.getHoles();
 
             int totalCount = outer.Length;
+            foreach (var group in innerGroups)
+            {
+                totalCount += group.Count;
+            }
             //for (int i = 0; i < holes.Length; i++)
             //{
             //    totalCount += holes[i].getVertices().Length;
@@ -130,6 +135,13 @@ namespace FillClient
                 mapVertices2D[currentIndex++] = outer[i];
             }
 
+            foreach (var group in innerGroups)
+            {
+                foreach (var point in group)
+                {
+                    mapVertices2D[currentIndex++] = point;
+                }
+            }
             //for (int i = 0; i < holes.Length; i++)
             //{
             //    for (int j = 0; j < holes[i].getVertices().Length; j++)
@@ -140,7 +152,7 @@ namespace FillClient
 
             const int maxCount = 10000; // max angle turn
 
-            for (int i = 0; i < mapVertices2D.Length - 1; i++)
+            for (int i = 0; i < mapVertices2D.Length; i++)
             {
 
                 /* 1. Calculate Angles */

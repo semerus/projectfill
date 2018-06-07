@@ -1,5 +1,6 @@
 ﻿using GiraffeStar;
 using DG.Tweening;
+using FillClient.UI;
 
 namespace FillClient
 {
@@ -31,6 +32,7 @@ namespace FillClient
         void InitModules()
         {
             GiraffeSystem.Register(new FillStateMachine());
+            GiraffeSystem.Register(new ModalModule());
         }
     }
 }

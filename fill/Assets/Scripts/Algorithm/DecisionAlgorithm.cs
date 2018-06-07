@@ -79,14 +79,16 @@ public class DecisionAlgorithm
 //			toRet [index++] = outer [i];
 		}
 
-		//SimplePolygon2D[] holes = md.getHoles ();
-		//for (int i = 0; i < holes.Length; i++) {
-		//	for(int j = 0; j < holes[i].getVertices().Length; j++){
-		//		toRet.Add (holes [i].getVertices () [j]);
-		//	}
-		//}
+		SimplePolygon2D[] holes = md.InnerPolygons.ToArray();
+        for (int i = 0; i < holes.Length; i++)
+        {
+            for (int j = 0; j < holes[i].getVertices().Length; j++)
+            {
+                toRet.Add(holes[i].getVertices()[j]);
+            }
+        }
 
-		Vector2[] extreme = md.GetExtremePoints ();
+        Vector2[] extreme = md.GetExtremePoints ();
 		Debug.Log ("North: " + extreme[NORTH].ToString () + "\n");
 		Debug.Log ("South: " + extreme[SOUTH].ToString () + "\n");
 		Debug.Log ("West: " + extreme[WEST].ToString () + "\n");

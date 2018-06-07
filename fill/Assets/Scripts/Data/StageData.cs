@@ -15,8 +15,14 @@ public class StageData
 	[JsonProperty]
 	public List<Vector2> OuterVertices { get; private set; }
 
+    [JsonProperty]
+    public List<List<Vector2>> InnerGroups { get; private set; }
+
     [JsonIgnore]
     public SimplePolygon2D OuterPolygon { get; private set; }
+
+    [JsonIgnore]
+    public List<SimplePolygon2D> InnerPolygons { get; private set; }
 	//[JsonProperty]
 	//public Color LineColor { get; private set; }
 
@@ -39,12 +45,25 @@ public class StageData
 	*/
     
     [JsonConstructor]
-	public StageData(string name, int id, List<Vector2> outerVertices, Color lineColor)
+	public StageData(string name, int id, List<Vector2> outerVertices, List<List<Vector2>> innerGroups, Color lineColor)
 	{
 		Name = name;
 		Id = id;
 		OuterVertices = outerVertices;
-        OuterPolygon = SimplePolygon2D.Create(this.GetCompleteVertices().ToArray());
+        InnerGroups = innerGroups;
+        OuterPolygon = SimplePolygon2D.Create(GetCompleteVertices(outerVertices).ToArray());
+        if(InnerGroups != null)
+        {
+            InnerPolygons = new List<SimplePolygon2D>();
+            foreach (var inner in innerGroups)
+            {
+                InnerPolygons.Add(SimplePolygon2D.Create(GetCompleteVertices(inner).ToArray()));
+            }
+        }
+        else
+        {
+            InnerGroups = new List<List<Vector2>>();
+        }
     }
 
     public StageData()
@@ -52,15 +71,15 @@ public class StageData
         Name = "NewMap";
         Id = 1;
         OuterVertices = new List<Vector2>() { new Vector2(-1f,-1f), new Vector2(-1f, 1f), new Vector2(1f, 1f), new Vector2(1f, -1f) };
-        OuterPolygon = SimplePolygon2D.Create(this.GetCompleteVertices().ToArray());
+        OuterPolygon = SimplePolygon2D.Create(GetCompleteVertices(OuterVertices).ToArray());
     }
 
-    public List<Vector2> GetCompleteVertices()
+    public static List<Vector2> GetCompleteVertices(List<Vector2> vectors)
     {
-        if(OuterVertices.Count < 1) { return OuterVertices; }
+        if(vectors.Count < 1) { return vectors; }
         var complete = new List<Vector2>();
-        complete.AddRange(OuterVertices);
-        complete.Add(OuterVertices[0]);
+        complete.AddRange(vectors);
+        complete.Add(vectors[0]);
 
         return complete;
     }
@@ -68,10 +87,11 @@ public class StageData
     public List<Edge> GetEdges()
     {
         List<Edge> edges = OuterPolygon.GetEdges();
-        //for (int i = 0; i < holes.Length; i++)
-        //{
-        //    toRet.AddRange(holes[i].GetEdges());
-        //}
+        foreach (var inner in InnerPolygons)
+        {
+            edges.AddRange(inner.GetEdges());
+        }
+                
         return edges;
     }
 
@@ -107,13 +127,17 @@ public class StageData
     {
         Vector3 vec3 = new Vector3(x, y, 0);
         if (!OuterPolygon.IsInsidePolygon(vec3))
+        {
             return false;
+        }
 
-        //for (int i = 0; i < holes.Length; i++)
-        //{
-        //    if (holes[i].IsInsidePolygon(vec3))
-        //        return false;
-        //}
+        foreach (var inner in InnerPolygons)
+        {
+            if(inner.IsInsidePolygon(vec3))
+            {
+                return false;
+            }
+        }        
 
         return true;
     }

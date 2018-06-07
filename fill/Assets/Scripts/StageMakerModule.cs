@@ -2,10 +2,79 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using FillClient.UI;
 
 public class VertexCountMessage : MessageCore
 {
     public int VertexCount;
+}
+
+public class DrawData
+{
+    public bool IsComplete;
+    public List<Vertex> vertices = new List<Vertex>();
+    public LineRenderer Line;    
+    public int Count
+    {
+        get { return vertices.Count; }
+    }
+    public Vertex FirstVertex
+    {
+        get { return vertices.Count > 0 ? vertices[0] : null; }
+    }
+
+    public DrawData(LineRenderer line)
+    {
+        Line = line;
+    }
+
+    public bool AddVertex(Vertex vertex)
+    {
+        vertices.Add(vertex);
+
+        return true;
+    }
+
+    public void Clear()
+    {
+        vertices.Clear();
+        Line.positionCount = 0;
+        IsComplete = false;
+    }
+
+    public bool IsCloseToFirstVertex(Vector3 pos)
+    {
+        return Count > 2 && Vector2.Distance(FirstVertex.transform.position, pos) < 0.5f;
+    }
+
+    public List<Vector2> GetDataPoints()
+    {
+        var data = new List<Vector2>();
+        foreach (var vertex in vertices)
+        {
+            data.Add(vertex.transform.position);
+        }
+
+        return data;
+    }
+
+    public List<Vector3> GetDrawPoints()
+    {
+        if (Count < 2) { return null; }
+
+        var posList = new List<Vector3>();
+        foreach (var _dot in vertices)
+        {
+            posList.Add(_dot.transform.position);
+        }
+
+        if (IsComplete)
+        {
+            posList.Add(FirstVertex.transform.position);
+        }
+
+        return posList;
+    }
 }
 
 public class StageMakerModule : Module {
@@ -17,19 +86,17 @@ public class StageMakerModule : Module {
 
 	GameObject background;
     Transform basicLayer;
-	GameObject board;
-	LineRenderer line;
+    GameObject board;	
     GameObject editableSpace;
 
-	List<Vertex> outerVertices = new List<Vertex>();
-    List<List<Vertex>> innerGroups = new List<List<Vertex>>();
+    DrawData outerVertices;
+    List<DrawData> innerGroups = new List<DrawData>();
     Stack<List<Vertex>> cachedHistory = new Stack<List<Vertex>>();
 
 	int vertexIdCounter = 0;
     int viewState = 3;
     public bool IsSnapping { get; set; }
-    bool isOuterComplete;
-    bool isInnerComplete;
+    int currentInnerIndex = 0;
 
 	public bool dotProcessing;
 
@@ -53,13 +120,10 @@ public class StageMakerModule : Module {
         layer.transform.SetParent(background.transform);
         basicLayer = layer.transform;
         CreateBackground(1f, 0.1f, Color.black, basicLayer);
-        
+
         // prepare dot line
-        var lineGO = Object.Instantiate(linePrefab, board.transform);
-        lineGO.transform.SetAsFirstSibling();
-        line = lineGO.GetComponent<LineRenderer>();
-        line.startWidth = 0.3f;
-        line.endWidth = 0.3f;
+        var line = CreateLine();
+        outerVertices = new DrawData(line);
 
         editableSpace = GameObject.Find("EditableSpace");
         var clickable = editableSpace.GetComponent<ClickableSpace>();
@@ -70,20 +134,42 @@ public class StageMakerModule : Module {
         };                
     }
 
+    public LineRenderer CreateLine()
+    {
+        var lineGO = Object.Instantiate(linePrefab, board.transform);
+        lineGO.transform.SetAsFirstSibling();
+        var line = lineGO.GetComponent<LineRenderer>();
+        line.startWidth = 0.3f;
+        line.endWidth = 0.3f;
+
+        return line;
+    }
+
 	public void CreateDot(Vector3 position)
 	{
         // when coming back to the first dot
         // end the polygon
-        if (outerVertices.Count > 2 && Vector2.Distance (outerVertices [0].transform.position, position) < 0.5f) 
-		{			
-            isOuterComplete = true;
+        if(!outerVertices.IsComplete && outerVertices.IsCloseToFirstVertex(position))
+        {
+            outerVertices.IsComplete = true;
             UpdateLine();
             return;
-		}
+        }
+
+        foreach (var inner in innerGroups)
+        {
+            if(!inner.IsComplete && inner.IsCloseToFirstVertex(position))
+            {
+                inner.IsComplete = true;
+                UpdateLine();
+                return;
+            }
+        }
 
         // 이미 점을 컨트롤하는 있으면 패스
         if (dotProcessing) { return; }
 
+        /*
         // 이미 존재하는 점 근처면 패스
         if (outerVertices.Count > 0) 
 		{
@@ -93,21 +179,44 @@ public class StageMakerModule : Module {
 				}
 			}
 		}
+        */
 
-        if (!isOuterComplete)
+        // 일단 생성
+        var dot = Object.Instantiate(dotPrefab, board.transform);
+        var vertex = dot.AddComponent<Vertex>();
+        dot.transform.position = position;
+        if (IsSnapping)
         {
-            var dot = Object.Instantiate(dotPrefab, board.transform);
-            var vertex = dot.AddComponent<Vertex>();
-            dot.transform.position = position;
-            if (IsSnapping)
-            {
-                vertex.Snap();
-            }
-            vertex.SetVertex(vertexIdCounter++);
-            outerVertices.Add(vertex);
+            vertex.Snap();
         }
+        vertex.SetVertex(vertexIdCounter++);
 
+        // 어느 도형에 들어가는지 판단
+        if (!outerVertices.IsComplete)
+        {
+            outerVertices.AddVertex(vertex);
+        }
+        else
+        {
+            DrawData data = null;
+            foreach (var inner in innerGroups)
+            {
+                if (!inner.IsComplete)
+                {
+                    data = inner;
+                    break;
+                }
+            }
 
+            if (data == null)
+            {
+                var line = CreateLine();
+                data = new DrawData(line);
+                innerGroups.Add(data);
+            }
+
+            data.AddVertex(vertex);
+        }        
 
         //CacheDotHistory();
 
@@ -125,23 +234,25 @@ public class StageMakerModule : Module {
 
 	void UpdateLine()
 	{
-		if (outerVertices.Count < 2) { return; }
-
-		var posList = new List<Vector3> ();
-		foreach (var _dot in outerVertices) {
-			posList.Add(_dot.transform.position);
-		}
-
-        if(isOuterComplete)
+        var outerDots = outerVertices.GetDrawPoints();
+        if(outerDots != null)
         {
-            posList.Add(outerVertices[0].transform.position);
+            DrawLine(outerDots, outerVertices.Line);
         }
 
-		DrawLine (posList, line);
+        foreach (var inner in innerGroups)
+        {
+            var innerDots = inner.GetDrawPoints();
+            if(innerDots != null)
+            {
+                DrawLine(innerDots, inner.Line);
+            }
+        }
 	}
 
 	void DrawLine(List<Vector3> points, LineRenderer renderer)
 	{
+        if(points.Count < 2) { return; }
 		var array = points.ToArray ();
 		renderer.positionCount = array.Length;
 		renderer.SetPositions (array);
@@ -192,15 +303,24 @@ public class StageMakerModule : Module {
 
     public void Clear()
     {
-        foreach (var dot in outerVertices)
+        foreach (var dot in outerVertices.vertices)
         {
             Object.Destroy(dot.gameObject);
         }
 
+        foreach (var inner in innerGroups)
+        {
+            foreach (var vertex in inner.vertices)
+            {
+                Object.Destroy(vertex.gameObject);
+            }
+        }
+
         outerVertices.Clear();
-        line.positionCount = 0;
-        isOuterComplete = false;
-        isInnerComplete = false;
+        foreach (var inner in innerGroups)
+        {
+            inner.Clear();
+        }        
 
         new VertexCountMessage
         {
@@ -217,25 +337,35 @@ public class StageMakerModule : Module {
 			stageLists.AddRange (previousList);
 		}
 
+		var outerData = new List<Vector2> ();
+        outerData.AddRange(outerVertices.GetDataPoints());
 
-		List<Vector2> outer = new List<Vector2> ();
-		foreach (var dot in outerVertices) {
-			outer.Add (dot.transform.position);
-		}
-		var stageData = new StageData ("test", 1, outer, new Color(0f,0f,0f,1f));
+        var innerData = new List<List<Vector2>>();
+        foreach (var inner in innerGroups)
+        {
+            var data = new List<Vector2>();
+            data.AddRange(inner.GetDataPoints());
+            innerData.Add(data);
+        }
+
+		var stageData = new StageData ("test", 1, outerData, innerData, new Color(0f,0f,0f,1f));
 
         stageLists.Add(stageData);
 
 		// path should be constant
 		JsonIO.Save(Application.persistentDataPath + "/test.json", stageLists);
+        new DisplayModalMessage()
+        {
+            message = "Saved Successfully",
+        }.Dispatch();
 	}
 
     // caching
     public void CacheDotHistory()
     {
         var copy = new List<Vertex>();
-        copy.AddRange(outerVertices);
-        cachedHistory.Push(outerVertices);
+        copy.AddRange(outerVertices.vertices);
+        //cachedHistory.Push(outerVertices);
     }
 
     public void LoadDotHistory()

@@ -57,33 +57,60 @@ namespace FillClient
         }        
 
         public void SetStage(StageData stageData)
-       {
+        {
             sceneModule = GiraffeSystem.FindModule<PlayRoomScene>();
-            var points = stageData.GetCompleteVertices();
+            var points = StageData.GetCompleteVertices(stageData.OuterVertices);
             if (points == null) { return; }
 
+            var converted = new List<Vector3>();
+            foreach (var point in points)
+            {
+                converted.Add(point);
+            }
+            CreateLine(converted, "OuterLine");
+            CreateCollider(points, "OuterCollider");
+
+            var index = 0;
+            var innerGroups = stageData.InnerGroups;
+            foreach (var inner in innerGroups)
+            {
+                var completed = StageData.GetCompleteVertices(inner);
+                var convert = new List<Vector3>();
+                foreach (var point in completed)
+                {
+                    convert.Add(point);
+                }
+                CreateLine(convert, "InnerLine" + (++index).ToString());
+                CreateCollider(completed, "InnerCollider" + index);
+            }
+            
+            StageData = stageData;
+            algorithm = new DecisionAlgorithm(StageData);
+        }
+
+        LineRenderer CreateLine(List<Vector3> points, string name)
+        {
             var lineObj = Object.Instantiate(linePrefab, drawBoard.transform);
-            lineObj.transform.name = "Line";
+            lineObj.transform.name = name;
             var line = lineObj.GetComponent<LineRenderer>();
             line.widthMultiplier = 0.15f;
             line.SetFullWidth(0.1f);
-            line.SetFullColor(Color.black);            
+            line.SetFullColor(Color.black);
             line.positionCount = points.Count;
+            line.SetPositions(points.ToArray());
 
-            var colObj = new GameObject("Edges");
+            return line;
+        }
+
+        EdgeCollider2D CreateCollider(List<Vector2> points, string name)
+        {
+            var colObj = new GameObject(name);
             colObj.transform.SetParent(colliderBoard.transform);
             colObj.transform.localPosition = Vector3.zero;
-            var col = colObj.AddComponent<EdgeCollider2D>();
-
-            var converted = new List<Vector3>();
-            foreach (var point in points) {
-                converted.Add(point);
-            }
-
+            var col = colObj.AddComponent<EdgeCollider2D>();          
             col.points = points.ToArray();
-            line.SetPositions(converted.ToArray());
-            StageData = stageData;
-            algorithm = new DecisionAlgorithm(StageData);
+
+            return col;
         }
 
         void OnClick(PointerEventData e)
