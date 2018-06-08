@@ -10,6 +10,7 @@ namespace FillClient.UI
 		Button backButton;
         Button menuButton;
         Button trashButton;
+        Button historyButton;
         Text guardCount;
         Image checkDisplay;
 
@@ -30,6 +31,7 @@ namespace FillClient.UI
 			backButton = root.FindChildByName("BackButton").GetComponent<Button>();
             menuButton = root.FindChildByName("MenuButton").GetComponent<Button>();
             trashButton = root.FindChildByName("TrashButton").GetComponent<Button>();
+            historyButton = root.FindChildByName("HistoryButton").GetComponent<Button>();
             guardCount = root.FindChildByName("GuardCount").GetComponent<Text>();
             checkDisplay = root.FindChildByName("CheckDisplay").GetComponent<Image>();
             playModule = GiraffeSystem.FindModule<PlayRoomModule>();
@@ -45,6 +47,11 @@ namespace FillClient.UI
             menuButton.onClick.AddListener(() =>
             {
 
+            });
+
+            historyButton.onClick.AddListener(() =>
+            {
+                playModule.LoadPlayRoomHistory();
             });
 
             trashButton.onClick.AddListener(() =>

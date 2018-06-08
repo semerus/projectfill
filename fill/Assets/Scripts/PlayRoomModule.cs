@@ -6,6 +6,11 @@ using UnityEngine.EventSystems;
 
 namespace FillClient
 {
+    public class PlayRoomHistory
+    {
+        public List<Vector2> GuardPosition = new List<Vector2>();
+    }
+
     public class PlayRoomModule : Module {
 
         // 제너릭한 풀링은 나중에 제대로 만들자 지금은 임시조치
@@ -25,6 +30,8 @@ namespace FillClient
         PlayRoomScene sceneModule;
         DecisionAlgorithm algorithm;
         Guard selectedGuard;
+        Stack<PlayRoomHistory> records = new Stack<PlayRoomHistory>();
+        PlayRoomHistory bufferRecord;
 
         bool isInitialized;
 
@@ -85,7 +92,7 @@ namespace FillClient
             }
             
             StageData = stageData;
-            algorithm = new DecisionAlgorithm(StageData);
+            algorithm = new DecisionAlgorithm(StageData);            
         }
 
         LineRenderer CreateLine(List<Vector3> points, string name)
@@ -118,14 +125,15 @@ namespace FillClient
             if(InputProcessing) { return; }
             // check bounds
 
-            PlaceGuard(e.pressPosition);
+            var worldPos = Camera.main.ScreenToWorldPoint(e.pressPosition);
+            PlaceGuard(worldPos.OverrideZ(0f));
+            RecordPlayRoom();
         }
 
-        void PlaceGuard(Vector2 screenPos)
+        void PlaceGuard(Vector3 worldPos)
         {
-            var worldPos = Camera.main.ScreenToWorldPoint(screenPos);
             var guardObj = SpawnGuard();
-            guardObj.transform.position = worldPos.OverrideZ(0f);
+            guardObj.transform.position = worldPos;
             var guard = guardObj.GetComponent<Guard>();
             guardList.Add(guard);
 
@@ -137,6 +145,16 @@ namespace FillClient
         public void TrashSelectedGuard()
         {
             TrashGuard(selectedGuard);
+            RecordPlayRoom();
+        }
+
+        void ClearAllGuards()
+        {
+            foreach (var guard in guardList)
+            {
+                DespawnGuard(guard);
+            }
+            guardList.Clear();
         }
 
         void TrashGuard(Guard guard)
@@ -183,8 +201,38 @@ namespace FillClient
                 guard.gameObject.SetActive(false);
             }
         }
+        // 히스토리 기능
         //=======================================================================================
+        public void RecordPlayRoom()
+        {
+            var history = new PlayRoomHistory();
+            foreach (var guard in guardList)
+            {
+                history.GuardPosition.Add(guard.transform.position);
+            }
+            if(bufferRecord != null)
+            {
+                records.Push(bufferRecord);
+            }
+            bufferRecord = history;
+            //Debug.Log("history saved" + history.GuardPosition.Count);
+        }
 
+        public void LoadPlayRoomHistory()
+        {
+            ClearAllGuards();
+            if(records.Count > 0)
+            {
+                var latest = records.Pop();
+                foreach (var position in latest.GuardPosition)
+                {
+                    PlaceGuard(position);
+                }
+            }
+            sceneModule.UpdateGuardCount(guardList.Count);
+            bufferRecord = null;
+        }
+        //=======================================================================================
         public void CheckFill()
         {
             var guardPositions = new List<Vector3>();

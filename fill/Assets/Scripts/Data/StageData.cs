@@ -72,6 +72,8 @@ public class StageData
         Id = 1;
         OuterVertices = new List<Vector2>() { new Vector2(-1f,-1f), new Vector2(-1f, 1f), new Vector2(1f, 1f), new Vector2(1f, -1f) };
         OuterPolygon = SimplePolygon2D.Create(GetCompleteVertices(OuterVertices).ToArray());
+        InnerGroups = new List<List<Vector2>>();
+        InnerPolygons = new List<SimplePolygon2D>();
     }
 
     public static List<Vector2> GetCompleteVertices(List<Vector2> vectors)

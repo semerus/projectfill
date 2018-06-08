@@ -72,6 +72,11 @@ namespace FillClient
                 playModule.CheckFill();
             };
 
+            OnDragEnd += () =>
+            {
+                playModule.RecordPlayRoom();
+            };
+
             isInitialized = true;
         }
 
