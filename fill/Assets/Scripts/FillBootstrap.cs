@@ -19,6 +19,7 @@ namespace FillClient
 
         void Init()
         {
+            Config.Init();
             GiraffeSystem.Init();
             InitPlugins();
             InitModules();

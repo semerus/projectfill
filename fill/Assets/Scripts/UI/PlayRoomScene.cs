@@ -36,6 +36,9 @@ namespace FillClient.UI
             checkDisplay = root.FindChildByName("CheckDisplay").GetComponent<Image>();
             playModule = GiraffeSystem.FindModule<PlayRoomModule>();
 
+            // 필요없는 것 같아서 일단 히스토리 버튼을 꺼둔다
+            historyButton.gameObject.SetActive(false);
+
 			backButton.onClick.AddListener (() => 
             {
 				new SwitchStateMessage()

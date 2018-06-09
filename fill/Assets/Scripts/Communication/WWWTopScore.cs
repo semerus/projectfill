@@ -7,7 +7,7 @@ using GiraffeStar;
 
 public class WWWTopScore : MonoBehaviour {
 
-	public string url= "http://ec2-13-125-236-11.ap-northeast-2.compute.amazonaws.com/top_scores?GameId=1";
+	string url= "top_scores?GameId=1";
 
 	//public Text[] highest = new Text[3];
 	//public Text[] lowest = new Text[3];
@@ -17,6 +17,8 @@ public class WWWTopScore : MonoBehaviour {
 	void Start()
 	{
 		StartCoroutine ("Submit");
+        url = Config.GetString("ServerEndpoint") + url;
+        Debug.Log(url);
 	}
 
 	// Use this for initialization

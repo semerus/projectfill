@@ -1,6 +1,7 @@
 ﻿using UnityEngine;
 using GiraffeStar;
 using UnityEngine.UI;
+using DG.Tweening;
 
 namespace FillClient.UI
 {
@@ -8,6 +9,7 @@ namespace FillClient.UI
 
 		GameObject root;
 		Button playButton;
+        Text touchText;
 
 		bool isInitialized;
 
@@ -23,14 +25,17 @@ namespace FillClient.UI
 
 			root = GameObject.Find ("Root");
 			playButton = root.FindChildByName ("PlayButton").GetComponent<Button>();
+            touchText = playButton.GetComponentInChildren<Text>();
 
-			playButton.onClick.AddListener (() => 
+            playButton.onClick.AddListener (() => 
 			{
 					new SwitchStateMessage()
 					{
 						NextState = FillState.MainMenu,
 					}.Dispatch();
 			});
+
+            var touchAnim = touchText.DOFade(0f, 1f).SetLoops(-1, LoopType.Yoyo);
 
 			isInitialized = true;
 		}
