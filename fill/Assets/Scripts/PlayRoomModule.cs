@@ -124,8 +124,9 @@ namespace FillClient
         {
             if(InputProcessing) { return; }
             // check bounds
-
             var worldPos = Camera.main.ScreenToWorldPoint(e.pressPosition);
+            if (!Calculator.JudgeValidPositions(worldPos, StageData)) { return; }
+
             PlaceGuard(worldPos.OverrideZ(0f));
             RecordPlayRoom();
         }

@@ -50,20 +50,14 @@ public class StageData
 		Name = name;
 		Id = id;
 		OuterVertices = outerVertices;
-        InnerGroups = innerGroups;
+        InnerGroups = innerGroups ?? new List<List<Vector2>>();
         OuterPolygon = SimplePolygon2D.Create(GetCompleteVertices(outerVertices).ToArray());
-        if(InnerGroups != null)
+        InnerPolygons = new List<SimplePolygon2D>();
+
+        foreach (var inner in InnerGroups)
         {
-            InnerPolygons = new List<SimplePolygon2D>();
-            foreach (var inner in innerGroups)
-            {
-                InnerPolygons.Add(SimplePolygon2D.Create(GetCompleteVertices(inner).ToArray()));
-            }
-        }
-        else
-        {
-            InnerGroups = new List<List<Vector2>>();
-        }
+            InnerPolygons.Add(SimplePolygon2D.Create(GetCompleteVertices(inner).ToArray()));
+        }        
     }
 
     public StageData()

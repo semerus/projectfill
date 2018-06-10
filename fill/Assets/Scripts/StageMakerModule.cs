@@ -237,7 +237,7 @@ public class StageMakerModule : Module {
         var outerDots = outerVertices.GetDrawPoints();
         if(outerDots != null)
         {
-            DrawLine(outerDots, outerVertices.Line);
+            DrawLines(outerDots, outerVertices.Line);
         }
 
         foreach (var inner in innerGroups)
@@ -245,18 +245,36 @@ public class StageMakerModule : Module {
             var innerDots = inner.GetDrawPoints();
             if(innerDots != null)
             {
-                DrawLine(innerDots, inner.Line);
+                DrawLines(innerDots, inner.Line);
             }
         }
 	}
 
-	void DrawLine(List<Vector3> points, LineRenderer renderer)
+	void DrawLines(List<Vector3> points, LineRenderer renderer)
 	{
         if(points.Count < 2) { return; }
 		var array = points.ToArray ();
 		renderer.positionCount = array.Length;
 		renderer.SetPositions (array);
 	}
+
+    void SetLine(Vector2 from, Vector2 to, GameObject line)
+    {
+        var midPoint = (from + to) / 2f;
+        var distance = Vector2.Distance(from, to);
+        var angle = Vector2.SignedAngle(new Vector2(midPoint.x, distance / 2f), to);
+
+        var renderer = line.GetOrAddComponent<LineRenderer>();
+        var collider = line.GetOrAddComponent<BoxCollider2D>();
+
+        renderer.positionCount = 2;
+        renderer.SetPosition(0, new Vector3(0f, -distance / 2f, 0f));
+        renderer.SetPosition(1, new Vector3(0f, distance / 2f, 0f));
+        renderer.widthMultiplier = 0.1f;
+        renderer.SetFullWidth(0.1f);
+
+        collider.size = new Vector2(0.1f, distance - 0.2f);
+    }
 
 	void CreateBackground(float interval, float width, Color color, Transform layer)
 	{
