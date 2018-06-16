@@ -39,6 +39,8 @@ async = require("async");
 // Array to hold async tasks
 var asyncTasks = [];
 
+// Custom functions
+var map = require('./src/map')(app, connection);
 
 /**************************************************************/
 // respond with "hello world" when a GET request is made to the homepage

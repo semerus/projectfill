@@ -22,7 +22,8 @@ describe('Ping', function() {
     describe('GET /', function() {
         it('should answer', function(done) {
             request(server_addr, function(err, res, body) {
-                assert.equal(res.statusCode, 200);
+                // assert.equal(res.statusCode, 200);
+                console.log(body);
                 done();
             })
         })
@@ -74,6 +75,18 @@ describe('Scores', function() {
                 assert.equal(res.statusCode, 200);
                 assert.equal(res.toJSON().headers['content-type'], 'application/json; charset=utf-8');
                 assert.equal(res.body.length, 661);
+                done();
+            });
+        });
+    });
+});
+
+describe('Maps', function() {
+    describe('GET /map?GameId=?', function() {
+        it('should return json formatted map information (game id exists)', function(done) {
+            request(server_addr + "/map?GameId=2", function(err, res, body) {
+                assert.equal(res.statusCode, 200);
+                console.log(body);
                 done();
             });
         });
