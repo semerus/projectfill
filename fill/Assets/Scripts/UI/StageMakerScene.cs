@@ -15,10 +15,16 @@ namespace FillClient.UI
         Button maxButton;
         Button minButton;
         Button backButton;
-        Button historyButton;
+        Button trashButton;
+        InputField titleInput;
         Toggle snapToggle;
 
         StageMakerModule stageMakerModule;
+
+        public string Title
+        {
+            get { return titleInput.text; }
+        }
 
         public override void OnRegister()
         {
@@ -35,17 +41,18 @@ namespace FillClient.UI
             saveButton = root.FindChildByName("SaveButton").GetComponent<Button>();
             maxButton = root.FindChildByName("MaxButton").GetComponent<Button>();
             minButton = root.FindChildByName("MinButton").GetComponent<Button>();
-            historyButton = root.FindChildByName("HistoryButton").GetComponent<Button>();
+            trashButton = root.FindChildByName("TrashButton").GetComponent<Button>();
             snapToggle = root.FindChildByName("SnapToggle").GetComponent<Toggle>();
             clearButton = root.FindChildByName("ClearButton").GetComponent<Button>();
             backButton = root.FindChildByName("BackButton").GetComponent<Button>();
+            titleInput = root.FindChildByName("TitleInput").GetComponent<InputField>();
 
             stageMakerModule = GiraffeSystem.FindModule<StageMakerModule>();
 
             saveButton.onClick.AddListener(OnSave);
             maxButton.onClick.AddListener(() => ChangeView(true));
             minButton.onClick.AddListener(() => ChangeView(false));
-            historyButton.onClick.AddListener(OnReturnHistory);
+            trashButton.onClick.AddListener(OnTrash);
             clearButton.onClick.AddListener(OnClear);
             backButton.onClick.AddListener(() =>
             {
@@ -75,9 +82,9 @@ namespace FillClient.UI
             stageMakerModule.Save();
         }
 
-        void OnReturnHistory()
+        void OnTrash()
         {
-
+            stageMakerModule.DeleteVertex();
         }
 
         void ChangeView(bool magnify)

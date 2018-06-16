@@ -45,7 +45,7 @@ public class StageData
 	*/
     
     [JsonConstructor]
-	public StageData(string name, int id, List<Vector2> outerVertices, List<List<Vector2>> innerGroups, Color lineColor)
+	public StageData(string name, int id, List<Vector2> outerVertices, List<List<Vector2>> innerGroups)
 	{
 		Name = name;
 		Id = id;

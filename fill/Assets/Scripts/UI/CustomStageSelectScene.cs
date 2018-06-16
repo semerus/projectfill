@@ -2,6 +2,7 @@
 using UnityEngine;
 using UnityEngine.UI;
 using GiraffeStar;
+using FillClient;
 
 namespace FillClient.UI
 {
@@ -60,8 +61,12 @@ namespace FillClient.UI
                 var item = Object.Instantiate(stageItemPrefab, stageList.transform);
                 var button = item.GetComponentInChildren<Button>();
                 var title = item.GetComponentInChildren<Text>();
+                var stageItem = item.AddComponent<StageItem>();
 
 				button.onClick.AddListener (() => {
+
+                    if(Time.realtimeSinceStartup > stageItem.PointerDownTime + stageItem.holdThreshold) { return; }
+
 					new StartPlayRoomMessage () {
 						StageData = stage,
 						NextState = FillState.PlayRoom,

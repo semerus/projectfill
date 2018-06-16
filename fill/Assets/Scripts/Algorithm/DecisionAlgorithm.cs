@@ -82,6 +82,7 @@ public class DecisionAlgorithm
 		SimplePolygon2D[] holes = md.InnerPolygons.ToArray();
         for (int i = 0; i < holes.Length; i++)
         {
+            if(holes[i].getVertices() == null) { continue; }
             for (int j = 0; j < holes[i].getVertices().Length; j++)
             {
                 toRet.Add(holes[i].getVertices()[j]);

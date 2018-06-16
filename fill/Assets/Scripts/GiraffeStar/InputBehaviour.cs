@@ -11,21 +11,27 @@ namespace GiraffeStar
     public class InputBehaviour : MonoBehaviour
     {
         bool isDragging;
+        float mouseDownTime;
+        float clickThreshold = 0.3f;
+        float holdThreshold = 0.7f;
         float dragThreshold = 0.5f;
+        Vector3 inputPos;
 
         public Vector3 Offset { get; private set; }
 
         public Action OnInputDown;
         public Action OnClick;
+        public Action OnHoldEnd;
         //public Action onMouseDragStart;
         public Action OnDrag;
         public Action OnDragEnd;
         public Action OnInputUp;
 
 
+
         void OnMouseDown()
         {
-            var inputPos = Input.mousePosition;
+            inputPos = Input.mousePosition;
             var worldPos = Camera.main.ScreenToWorldPoint(inputPos).OverrideZ(0f);
             Offset = transform.position - worldPos;
 
@@ -33,6 +39,8 @@ namespace GiraffeStar
             {
                 OnInputDown();
             }
+
+            mouseDownTime = Time.realtimeSinceStartup;
         }
 
         void OnMouseDrag()
@@ -49,13 +57,23 @@ namespace GiraffeStar
         {
             yield return new WaitForFixedUpdate();
 
-            if(OnDragEnd != null && isDragging)
+            var inputPos = Input.mousePosition;
+
+            if (OnDragEnd != null && isDragging)
             {
                 OnDragEnd();
             }
 
+            if(OnHoldEnd != null && Time.realtimeSinceStartup > mouseDownTime + holdThreshold)
+            {
+                if(Vector3.Distance(inputPos.OverrideZ(0f), Input.mousePosition.OverrideZ(0f)) < 0.1f)
+                {
+                    OnHoldEnd();
+                }
+            }
+
             // onclick 이 잘 작동안한다.. 나중에 한번 제대로 보자
-            if(OnClick != null && !isDragging)
+            if(OnClick != null && Time.realtimeSinceStartup < mouseDownTime + clickThreshold)
             {
                 OnClick();
             }
