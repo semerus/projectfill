@@ -1,120 +1,97 @@
-﻿using System.Collections;
-using System.Collections.Generic;
-using UnityEngine;
-using UnityEngine.EventSystems;
+﻿using UnityEngine;
 using GiraffeStar;
 
-public class Vertex : InputBehaviour {
-	public int Id { get; private set; }
-	//bool isDragging;
-	StageMakerModule module;
-    bool isInitialized;
-
-	public void Awake()
-	{
-        module = GiraffeSystem.FindModule<StageMakerModule>();
-        Init();
-	}
-
-    void Init()
+namespace FillClient
+{
+    public class Vertex : InputBehaviour
     {
-        if(isInitialized) { return; }
+        public int Id { get; private set; }
+        //bool isDragging;
+        StageMakerModule module;
+        bool isInitialized;
+        Color originalColor;
+        public EditablePolygon IncludedPolygon { get; set; }
 
-        OnInputDown += () =>
+        public Line StartingLine { get; set; }
+        public Line EndingLine { get; set; }
+
+        void Awake()
         {
-            module.dotProcessing = true;
-        };
+            module = GiraffeSystem.FindModule<StageMakerModule>();
+            Init();
+        }
 
-        OnInputUp += () =>
+        void Init()
         {
-            module.dotProcessing = false;
+            if (isInitialized) { return; }
 
-            if (module.IsSnapping)
+            OnInputDown += () =>
             {
-                Snap();
-            }
-        };
+                module.dotProcessing = true;
+            };
 
-        OnDrag += () =>
+            OnInputUp += () =>
+            {
+                module.dotProcessing = false;
+
+                if (module.IsSnapping)
+                {
+                    Snap();
+                }
+            };
+
+            OnClick += () =>
+            {
+                module.SelectedVertex = this;
+            };
+
+            OnDrag += () =>
+            {
+                Vector3 nextPos = Camera.main.ScreenToWorldPoint(Input.mousePosition).OverrideZ(0f);
+                transform.position = nextPos + Offset;
+                if(StartingLine != null)
+                {
+                    StartingLine.SetLine(this, StartingLine.EndVertex, StartingLine.IncludedPolygon);
+                }
+
+                if(EndingLine != null)
+                {
+                    EndingLine.SetLine(EndingLine.StartVertex, this, EndingLine.IncludedPolygon);
+                }
+            };
+
+            originalColor = transform.GetComponent<SpriteRenderer>().color;
+
+            isInitialized = true;
+        }
+
+        public void ChangeColor(bool isSelected)
         {
-            Vector3 nextPos = Camera.main.ScreenToWorldPoint(Input.mousePosition).OverrideZ(0f);
-            transform.position = nextPos + Offset;
+            var renderer = GetComponent<SpriteRenderer>();
+            renderer.color = isSelected ? Color.red : originalColor;
+        }
+
+        public void DeleteVertex()
+        {
+            IncludedPolygon.vertices.Remove(this);
+
+            if(StartingLine != null)
+            {
+                var endingVertex = StartingLine.EndVertex;
+                StartingLine.DeleteLine();
+                EndingLine.SetLine(EndingLine.StartVertex, endingVertex, EndingLine.IncludedPolygon);
+            }
+            GameObject.Destroy(gameObject);
+        }
+
+        public void Snap()
+        {
+            var snappedX = Mathf.Round(transform.position.x);
+            var snappedY = Mathf.Round(transform.position.y);
+
+            transform.position = new Vector3(snappedX, snappedY);
             module.ChangeDotPosition();
-        };
-
-        isInitialized = true;
+        }
     }
-
-	public void SetVertex(int id)
-	{
-		Id = id;
-	}
-
-    public void Snap()
-    {        
-        var snappedX = Mathf.Round(transform.position.x);
-        var snappedY = Mathf.Round(transform.position.y);
-
-        transform.position = new Vector3(snappedX, snappedY);
-        module.ChangeDotPosition();
-    }
-
-    /*****************************************************************/
-    /*Eventsystem Interface*/
-
-    /*
-	#region IPointerDownHandler implementation
-
-	public void OnPointerDown (PointerEventData eventData)
-	{
-		module.dotProcessing = true;
-	}
-
-	public void OnPointerUp(PointerEventData eventData)
-	{
-		if (!isDragging) 
-		{
-			var pos = Camera.main.ScreenToWorldPoint (Input.mousePosition);
-			pos = new Vector3 (pos.x, pos.y, 0f);
-			module.CreateDot (pos);
-		}
-		isDragging = false;
-		module.dotProcessing = false;
-	}
-
-	#endregion
-    */
-    /*
-    #region IBeginDragHandler implementation
-
-    public void OnBeginDrag (PointerEventData eventData)
-	{
-		isDragging = true;
-	}
-
-	#endregion
-    
-	#region IDragHandler implementation
-
-	public void OnDrag (PointerEventData eventData)
-	{
-		Vector3 nextPos = Camera.main.ScreenToWorldPoint (new Vector3 (Input.mousePosition.x, Input.mousePosition.y, -Camera.main.transform.position.z));
-		transform.position = nextPos;
-		module.ChangeDotPosition ();
-
-        Debug.Log("Dragging");
-	}
-
-	#endregion
-
-	#region IEndDragHandler implementation
-
-	public void OnEndDrag (PointerEventData eventData)
-	{
-		module.dotProcessing = false;
-	}
-
-	#endregion
-    */
-	/*****************************************************************/
 }
+

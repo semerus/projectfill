@@ -82,6 +82,7 @@ namespace FillClient
             foreach (var inner in innerGroups)
             {
                 var completed = StageData.GetCompleteVertices(inner);
+                if(completed.Count < 1) { continue; }
                 var convert = new List<Vector3>();
                 foreach (var point in completed)
                 {
@@ -114,7 +115,7 @@ namespace FillClient
             var colObj = new GameObject(name);
             colObj.transform.SetParent(colliderBoard.transform);
             colObj.transform.localPosition = Vector3.zero;
-            var col = colObj.AddComponent<EdgeCollider2D>();          
+            var col = colObj.AddComponent<EdgeCollider2D>();   
             col.points = points.ToArray();
 
             return col;
