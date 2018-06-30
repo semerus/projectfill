@@ -16,7 +16,7 @@
     "request": "^2.85.0"
   },
   "scripts": {
-    "test": "mocha --exit"
+    "test": "mocha --recursive --exit"
   },
   "author": "Yun Joon Soh",
   "license": "ISC",
