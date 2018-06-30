@@ -17,7 +17,7 @@ CREATE TABLE Category(
 );
 
 -- perhaps add DEFAULT for colors as well
-CREATE TABLE Game(
+CREATE TABLE MapMeta(
 	GameId int AUTO_INCREMENT,
 	GName char(100),
 	CName char(50),
@@ -39,21 +39,21 @@ CREATE TABLE Game(
 		ON UPDATE CASCADE ON DELETE NO ACTION
 );
 
-CREATE TABLE GameData(
+CREATE TABLE Map(
 	GameId int,
 	Creater int,
 	JsonFile mediumtext,
 	ImageFile blob,
 	PRIMARY KEY (GameId),
 	FOREIGN KEY (GameId)
-		REFERENCES Game(GameId)
+		REFERENCES MapMeta(GameId)
 		ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (Creater)
 		REFERENCES User(UserId)
 		ON UPDATE CASCADE ON DELETE NO ACTION
 );
 
-CREATE TABLE PlayData(
+CREATE TABLE PlayResult(
 	GameId int,
 	UserId int,
 	Submission int,
@@ -62,7 +62,7 @@ CREATE TABLE PlayData(
 	GameHash char(255) NOT NULL, -- hash created about the game w/o GameInfo, to validate user's play
 	Score float NOT NULL,
 	FOREIGN KEY (GameId)
-		REFERENCES Game(GameId)
+		REFERENCES MapMeta(GameId)
 		ON UPDATE CASCADE ON DELETE NO ACTION,
 	FOREIGN KEY (UserId)
 		REFERENCES User(UserId)

@@ -8,9 +8,9 @@ DATABASE      : name of the database where mock data is created
 1. creation.sql
 2. mock\_user.sql
 3. mock\_category.sql
-4. mock\_game.sql
-5. mock\_playdata.sql
-6. mock\_gamedata.sql
+4. mock\_MapMeta.sql
+5. mock\_Map.sql
+6. mock\_PlayResult.sql
 
 # load_file(), secure_file_priv 관련 trouble shooting
  * my.ini/my.cnf 파일을 수정 (secure_file_priv)
