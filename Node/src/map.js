@@ -1,30 +1,32 @@
-module.exports = function(app, connection, sha256) {
+module.exports = function(app, connection, sha256, logger) {
 
     /* Constant */
     const query_map_sql = "SELECT * FROM Map WHERE MapId = ?;";
     const submit_map_sql = "INSERT INTO Map (GName, CName, Creator, JsonFile) VALUES (?, ?, ?, ?);";
 
     app.get('/map', function(req, res) {
-    	console.log("Map query requested");
+    	logger.info("/map GET: Map query requested");
 
     	var MapId = parseInt(req.query.MapId, 10);
 
     	if (isNaN(MapId)) {
-    		res.end("Error: invalid field");
+            logger.warn("External Error: Invalid MapId");
+    		res.status(400).end("Error: Invalid MapId");
     	} else {
             queryMap(MapId, function(success, mapInfo) {
                 if(!success) {
-                    res.end("Error: " + mapInfo);
+                    logger.error("Internal Error: " + mapInfo);
+                    res.status(500).end("Error: Internal Error");
                 } else {
-                    console.log("Map query done");
-                    res.end(JSON.stringify(mapInfo));
+                    logger.info("Map query done");
+                    res.status(200).end(JSON.stringify(mapInfo));
                 }
             });
     	}
     });
 
     app.post('/map', function(req, res) {
-    	console.log("Map submission received");
+    	logger.info("/map POST: Map submission received");
 
         var UserId = parseInt(req.body.UserId, 10);
         var MapHash = String(req.body.MapHash);
@@ -32,12 +34,15 @@ module.exports = function(app, connection, sha256) {
 
     	validateMap(MapHash, MapFile, function(valid) {
             if(!valid) {
-                res.status(400).end("Invalid MapFile");
+                logger.warn("External Error: Invalid MapFile");
+                res.status(400).end("Error: Invalid MapFile");
             } else {
                 submitMap(UserId, MapFile, function(success, result) {
                     if(!success) {
-                        res.status(500).end("Error: " + result)
+                        logger.error("Internal Error: " + result);
+                        res.status(500).end("Error: Internal Error");
                     } else {
+                        logger.info("Map File successfully submitted");
                         res.status(201).end("Submitted");
                     }
                 });
@@ -47,50 +52,57 @@ module.exports = function(app, connection, sha256) {
 
     /* Function */
     var submitMap = function(UserId, MapFile, callback) {
+        logger.debug("submitMap(" + UserId + ", " + MapFile + ") called");
         var J = JSON.parse(MapFile);
     	connection.query(submit_map_sql, [J.GName, J.CName, UserId, MapFile], function(err, rows, fields) {
     		if (err) {
-    			console.log("query error: " + submit_map_sql);
-    			console.log(err);
+    			logger.error("query error: " + submit_map_sql);
+    			logger.error(err);
 
                 callback(false, err);
-    			throw err;
     		}
 
+            logger.debug("submitMap(" + UserId + ", " + MapFile + ") returns: " + rows);
             callback(true, rows);
     	});
     };
 
     var queryMap = function(MapId, callback) {
+        logger.debug("queryMap(" + MapId + ") called");
         connection.query(query_map_sql, [MapId], function(err, rows, fields) {
             if (err) {
-    			console.log("query error: " + query_map_sql);
-    			console.log(err);
+    			logger.error("query error: " + query_map_sql);
+    			logger.error(err);
 
     			callback(false, err);
-    			throw err;
     		}
 
             var mapInfo = [];
             for (var i = 0; i < rows.length; i++) {
                 mapInfo.push(rows[i]);
             }
+
+            logger.debug("queryMap(" + MapId + ") returns: " + mapInfo);
             callback(true, mapInfo);
         });
     };
 
     var validateMap = function(MapHash, MapFile, callback) {
+        logger.debug("validateMap(" + MapHash + ", " + MapFile + ") called");
+
         var J = JSON.parse(MapFile);
         var hashVal = sha256(MapFile);
 
         if(!J.hasOwnProperty("GName") || !J.hasOwnProperty("CName") ||! J.hasOwnProperty("OuterVertices")) {
-            console.log("Missing Json Property");
+            logger.warn("Missing Json Property(GName, CName, OuterVertices)=" + !J.hasOwnProperty("GName") + " " + !J.hasOwnProperty("CName")  + " " + ! J.hasOwnProperty("OuterVertices"));
             callback(false);
         }
         if(hashVal !== MapHash) {
-            console.log("Hash does not match");
+            logger.warn("Hash does not match: expected=" + MapHash + ", actual=" + hashVal);
             callback(false);
         }
+
+        logger.debug("validateMap(" + MapHash + ", " + MapFile + ") returns: true");
         callback(true);
     };
 }

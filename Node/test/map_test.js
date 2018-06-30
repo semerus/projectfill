@@ -68,7 +68,7 @@ describe('Maps', function() {
                 },
                 function (err, res, body) {
                     assert.equal(res.statusCode, 400);
-                    assert.equal(body, "Invalid MapFile");
+                    assert.equal(body, "Error: Invalid MapFile");
                     done();
                 }
             );
@@ -87,7 +87,7 @@ describe('Maps', function() {
                 },
                 function (err, res, body) {
                     assert.equal(res.statusCode, 400);
-                    assert.equal(body, "Invalid MapFile");
+                    assert.equal(body, "Error: Invalid MapFile");
                     done();
                 }
             );
@@ -106,7 +106,7 @@ describe('Maps', function() {
                 },
                 function (err, res, body) {
                     assert.equal(res.statusCode, 400);
-                    assert.equal(body, "Invalid MapFile");
+                    assert.equal(body, "Error: Invalid MapFile");
                     done();
                 }
             );
@@ -125,7 +125,7 @@ describe('Maps', function() {
                 },
                 function (err, res, body) {
                     assert.equal(res.statusCode, 400);
-                    assert.equal(body, "Invalid MapFile");
+                    assert.equal(body, "Error: Invalid MapFile");
                     done();
                 }
             );

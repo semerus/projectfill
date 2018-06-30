@@ -31,6 +31,15 @@ connection.connect(function(err) {
 
 // Utlities
 var sha256 = require('sha256');
+const winston = require('winston');
+const tsFormat = () => (new Date()).toLocaleTimeString();
+const logger = winston.createLogger({
+  transports: [
+    new (winston.transports.Console)({
+      timestamp: tsFormat
+    })
+  ]
+});
 
 // ASYNC
 // Include the async package
@@ -41,7 +50,7 @@ async = require("async");
 var asyncTasks = [];
 
 // Custom functions
-var map = require('./src/map')(app, connection, sha256);
+var map = require('./src/map')(app, connection, sha256, logger);
 var score = require('./src/score')(app, connection);
 var playresult = require('./src/playresult')(app, connection);
 var user = require('./src/user')(app, connection);
