@@ -53,7 +53,7 @@ CREATE TABLE GameData(
 		ON UPDATE CASCADE ON DELETE NO ACTION
 );
 
-CREATE TABLE GameInfo(
+CREATE TABLE PlayData(
 	GameId int,
 	UserId int,
 	Submission int,
