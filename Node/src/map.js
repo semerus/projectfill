@@ -12,7 +12,7 @@ module.exports = function(app, connection, sha256) {
     	if (isNaN(MapId)) {
     		res.end("Error: invalid field");
     	} else {
-            queryMap(GameId, function(mapInfo) {
+            queryMap(MapId, function(mapInfo) {
                 console.log("Map query done");
                 res.end(JSON.stringify(mapInfo));
             });
@@ -53,8 +53,8 @@ module.exports = function(app, connection, sha256) {
     	});
     };
 
-    var queryMap = function(GameId, callback) {
-        connection.query(query_map_sql, [GameId], function(err, rows, fields) {
+    var queryMap = function(MapId, callback) {
+        connection.query(query_map_sql, [MapId], function(err, rows, fields) {
             if (err) {
     			console.log("query error: " + top_score_query);
     			console.log(err);
