@@ -12,9 +12,12 @@ var express = require('express');
 var app = express();
 let map = require("../src/map.js")(app, null, null);
 
+var sha256 = require("sha256")
+
 const server_addr = "http://localhost:8080";
 const mapid_exist = 1;
 const mapid_does_not_exist = 100;
+const sample_map = "{\"GName\" : \"test_Mecca\",    \"CName\" : \"Random\",\"OuterVertices\" : [{\"x\": 4.0,\"y\": 5.0},{\"x\": -1.0,\"y\": 7.0},{\"x\": -3.0,\"y\": 3.0},{\"x\": -1.0,\"y\": -1.0},{\"x\": 3.0,\"y\": 1.0},{\"x\": 4.0,\"y\": 5.0}],\"holes\" : [{ \"innerVertices\" : [{\"x\": 0.0,\"y\": 3.0},{\"x\": -1.0,\"y\": 4.0},{\"x\": 0.0,\"y\": 5.0},{\"x\": 1.0,\"y\": 4.0},{\"x\": 0.0,\"y\": 3.0}]}],\"lineColor\" : {\"r\": 0.392,\"g\": 0.047, \"b\": 0.012, \"a\": 1.0},\"backgroundColor\" : {\"r\": 0.706,\"g\": 0.765, \"b\": 1.000, \"a\": 1.0},\"guardBasicColor\" : {\"r\": 0.492,\"g\": 0.147, \"b\": 0.112, \"a\": 1.0},\"guardSelectedColor\" : {\"r\": 0.592,\"g\": 0.247, \"b\": 0.212, \"a\": 1.0},\"vgColor\" : {\"r\": 0.692,\"g\": 0.347, \"b\": 0.312, \"a\": 0.2}}"
 
 describe('Maps', function() {
     describe('GET /map?MapId=?', function() {
@@ -26,14 +29,27 @@ describe('Maps', function() {
             });
         });
     });
-    //
-    // describe('POST /map', function() {
-    //     it('should successfully parse map file', function (done) {
-    //         console.log(map.submit_map_query);
-    //         parseMap("\[\{    \"Name\": \"test\",    \"Id\": 1,    \"OuterVectices\": \[      \{        \"x\": -3.33333349,        \"y\": 2.22222281      \},      \{        \"x\": 0.4666668,        \"y\": 2.60000038      \},      \{        \"x\": 1.0666678,        \"y\": -1.333333      \},      \{        \"x\": -1.11111069,        \"y\": -3.51111126      \},      \{        \"x\": -4.244445,        \"y\": -1.71111107      \},      \{        \"x\": -5.15555573,        \"y\": 0.222222209    \},      \{        \"x\": -6.15555573,        \"y\": 1.377778      \}    \]  \}\]", function() {
-    //             console.log("Done");
-    //             done();
-    //         });
-    //     });
-    // });
+
+    describe('POST /map', function() {
+        it('should successfully post map file', function (done) {
+            hVal = sha256(sample_map);
+            formData = {
+                "UserId": 2,
+                "MapHash": hVal,
+                "MapFile": sample_map
+            }
+            console.log(sample_map);
+            request.post(
+                {
+                    url: server_addr + "/map",
+                    form: formData
+                },
+                function optionalCallback(err, res, body) {
+                    assert.equal(res.statusCode, 200);
+                    console.log(body);
+                    done();
+                }
+            );
+        });
+    });
 });

@@ -2,7 +2,7 @@ module.exports = function(app, connection, sha256) {
 
     /* Constant */
     const query_map_sql = "SELECT * FROM Map WHERE MapId = ?;";
-    const submit_map_sql = "INSERT INTO Map (GName, CName, Creator, JsonFile) WHERE (?, ?, ?, ?);";
+    const submit_map_sql = "INSERT INTO Map (GName, CName, Creator, JsonFile) VALUES (?, ?, ?, ?);";
 
     app.get('/map', function(req, res) {
     	console.log("Map query requested");
@@ -12,9 +12,13 @@ module.exports = function(app, connection, sha256) {
     	if (isNaN(MapId)) {
     		res.end("Error: invalid field");
     	} else {
-            queryMap(MapId, function(mapInfo) {
-                console.log("Map query done");
-                res.end(JSON.stringify(mapInfo));
+            queryMap(MapId, function(success, mapInfo) {
+                if(!success) {
+                    res.end("Error: " + mapInfo);
+                } else {
+                    console.log("Map query done");
+                    res.end(JSON.stringify(mapInfo));
+                }
             });
     	}
     });
@@ -30,8 +34,12 @@ module.exports = function(app, connection, sha256) {
             if(!valid) {
                 res.end("Invalid GameFile");
             } else {
-                submitMap(UserId, MapFile, function() {
-                    res.end("Submitted");
+                submitMap(UserId, MapFile, function(success, result) {
+                    if(!success) {
+                        res.end("Error: " + result)
+                    } else {
+                        res.end("Submitted");
+                    }
                 });
             }
         });
@@ -42,24 +50,24 @@ module.exports = function(app, connection, sha256) {
         var J = JSON.parse(MapFile);
     	connection.query(submit_map_sql, [J.GName, J.CName, UserId, MapFile], function(err, rows, fields) {
     		if (err) {
-    			console.log("query error: " + top_score_query);
+    			console.log("query error: " + submit_map_sql);
     			console.log(err);
 
-    			res.end("Error:" + err);
+                callback(false, err);
     			throw err;
     		}
 
-            callback();
+            callback(true, rows);
     	});
     };
 
     var queryMap = function(MapId, callback) {
         connection.query(query_map_sql, [MapId], function(err, rows, fields) {
             if (err) {
-    			console.log("query error: " + top_score_query);
+    			console.log("query error: " + query_map_sql);
     			console.log(err);
 
-    			res.end("Error:" + err);
+    			callback(false, err);
     			throw err;
     		}
 
@@ -67,14 +75,20 @@ module.exports = function(app, connection, sha256) {
             for (var i = 0; i < rows.length; i++) {
                 mapInfo.push(rows[i]);
             }
-            callback(mapInfo);
+            callback(true, mapInfo);
         });
     };
 
     var validateMap = function(MapHash, MapFile, callback) {
         var J = JSON.parse(MapFile);
         var hashVal = sha256(MapFile);
-        if(isNaN(J.name) || isNaN(J.OuterVectices) || hashVal != MapHash) {
+
+        if(!J.hasOwnProperty("GName") || !J.hasOwnProperty("CName") ||! J.hasOwnProperty("OuterVertices")) {
+            console.log("Missing Json Property");
+            callback(false);
+        }
+        if(hashVal !== MapHash) {
+            console.log("Hash does not match");
             callback(false);
         }
         callback(true);
