@@ -32,13 +32,13 @@ module.exports = function(app, connection, sha256) {
 
     	validateMap(MapHash, MapFile, function(valid) {
             if(!valid) {
-                res.end("Invalid GameFile");
+                res.status(400).end("Invalid MapFile");
             } else {
                 submitMap(UserId, MapFile, function(success, result) {
                     if(!success) {
-                        res.end("Error: " + result)
+                        res.status(500).end("Error: " + result)
                     } else {
-                        res.end("Submitted");
+                        res.status(201).end("Submitted");
                     }
                 });
             }
