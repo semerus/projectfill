@@ -1,7 +1,7 @@
 JSON_FOLDER="./MapJson/"
 IMG_FOLDER="C:\\mp_img\\"
-mecca=[8, 1, "Mecca.json", "Mecca.png"]
-empire=[9, 1, "Empire_State_Building.json", "Empire.png"]
+mecca=[8, "Mecca.json", "Mecca.png"]
+empire=[9, "Empire_State_Building.json", "Empire.png"]
 
 # 기존 secure_file_prive
 # secure_file_priv = "C:\ProgramData\MySQL\MySQL Server 8.0\Uploads\"

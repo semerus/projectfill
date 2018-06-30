@@ -21,6 +21,7 @@ CREATE TABLE MapMeta(
 	GameId int AUTO_INCREMENT,
 	GName char(100),
 	CName char(50),
+	Creater int,
 	NumOfVertices int,
 	NumOfHoles int,
 	LineColorRGB int, -- 9 digit number: rrrgggbbb = r:0.rrr g:0.ggg b:0.bbb
@@ -33,24 +34,23 @@ CREATE TABLE MapMeta(
 	GuardSelectedColorA float DEFAULT 1.0,
 	VGColorRGB int,
 	VGColorA float DEFAULT 1.0,
-	PRIMARY KEY (GameId),
 	FOREIGN KEY (CName)
 		REFERENCES Category(CName)
-		ON UPDATE CASCADE ON DELETE NO ACTION
+		ON UPDATE CASCADE ON DELETE NO ACTION,
+	FOREIGN KEY (Creater)
+		REFERENCES User(UserId)
+		ON UPDATE CASCADE ON DELETE NO ACTION,
+	PRIMARY KEY (GameId)
 );
 
 CREATE TABLE Map(
 	GameId int,
-	Creater int,
 	JsonFile mediumtext,
 	ImageFile blob,
-	PRIMARY KEY (GameId),
 	FOREIGN KEY (GameId)
 		REFERENCES MapMeta(GameId)
 		ON UPDATE CASCADE ON DELETE NO ACTION,
-	FOREIGN KEY (Creater)
-		REFERENCES User(UserId)
-		ON UPDATE CASCADE ON DELETE NO ACTION
+	PRIMARY KEY (GameId)
 );
 
 CREATE TABLE PlayResult(

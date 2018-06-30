@@ -49,8 +49,8 @@ app.get('/', function(req, res) {
 });
 
 // POST method route
-const top_score_query = 'SELECT * FROM GameInfo WHERE GameId = ? ORDER BY NumOfGuards, Score DESC;'
-const bot_score_query = 'SELECT * FROM GameInfo WHERE GameId = ? ORDER BY NumOfGuards, Score ASC;'
+const top_score_query = 'SELECT * FROM PlayResult WHERE GameId = ? ORDER BY NumOfGuards, Score DESC;'
+const bot_score_query = 'SELECT * FROM PlayResult WHERE GameId = ? ORDER BY NumOfGuards, Score ASC;'
 
 app.get('/all_scores', function(req, res) {
 
@@ -88,8 +88,8 @@ app.get('/all_scores', function(req, res) {
 	}
 });
 
-const submit_insert = 'INSERT INTO GameInfo (GameId, UserId, Submission, NumOfGuards, GuardLocation, GameHash, Score) VALUES (?, ?, ?, ?, ?, ?, ?)'
-const submit_query_submission = 'SELECT MAX(Submission) AS Max FROM GameInfo WHERE GameId = ? AND UserId = ?;'
+const submit_insert = 'INSERT INTO PlayResult (GameId, UserId, Submission, NumOfGuards, GuardLocation, GameHash, Score) VALUES (?, ?, ?, ?, ?, ?, ?)'
+const submit_query_submission = 'SELECT MAX(Submission) AS Max FROM PlayResult WHERE GameId = ? AND UserId = ?;'
 
 app.post('/submit', function(req, res) {
 
