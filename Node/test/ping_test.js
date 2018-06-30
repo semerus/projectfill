@@ -22,8 +22,8 @@ describe('Ping', function() {
     describe('GET /', function() {
         it('should answer', function(done) {
             request(server_addr, function(err, res, body) {
-                // assert.equal(res.statusCode, 200);
-                console.log(body);
+                assert.equal(res.statusCode, 200);
+                assert.equal(body, "This is server for Project Fill");
                 done();
             })
         })
