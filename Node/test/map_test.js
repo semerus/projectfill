@@ -15,8 +15,8 @@ let map = require("../src/map.js")(app, null, null);
 var sha256 = require("sha256")
 
 const server_addr = "http://localhost:8080";
-const mapid_exist = 1;
-const mapid_does_not_exist = 100;
+const mapid_exist = 2;
+const mapid_does_not_exist = 100000;
 const valid_map = "{\"GName\" : \"test_Mecca\", \"CName\" : \"Random\",\"OuterVertices\" : [{\"x\": 4.0,\"y\": 5.0},{\"x\": -1.0,\"y\": 7.0},{\"x\": -3.0,\"y\": 3.0},{\"x\": -1.0,\"y\": -1.0},{\"x\": 3.0,\"y\": 1.0},{\"x\": 4.0,\"y\": 5.0}],\"holes\" : [{ \"innerVertices\" : [{\"x\": 0.0,\"y\": 3.0},{\"x\": -1.0,\"y\": 4.0},{\"x\": 0.0,\"y\": 5.0},{\"x\": 1.0,\"y\": 4.0},{\"x\": 0.0,\"y\": 3.0}]}],\"lineColor\" : {\"r\": 0.392,\"g\": 0.047, \"b\": 0.012, \"a\": 1.0},\"backgroundColor\" : {\"r\": 0.706,\"g\": 0.765, \"b\": 1.000, \"a\": 1.0},\"guardBasicColor\" : {\"r\": 0.492,\"g\": 0.147, \"b\": 0.112, \"a\": 1.0},\"guardSelectedColor\" : {\"r\": 0.592,\"g\": 0.247, \"b\": 0.212, \"a\": 1.0},\"vgColor\" : {\"r\": 0.692,\"g\": 0.347, \"b\": 0.312, \"a\": 0.2}}"
 const invalid_map_no_GName = "{\"CName\" : \"Random\",\"OuterVertices\" : [{\"x\": 4.0,\"y\": 5.0},{\"x\": -1.0,\"y\": 7.0},{\"x\": -3.0,\"y\": 3.0},{\"x\": -1.0,\"y\": -1.0},{\"x\": 3.0,\"y\": 1.0},{\"x\": 4.0,\"y\": 5.0}],\"holes\" : [{ \"innerVertices\" : [{\"x\": 0.0,\"y\": 3.0},{\"x\": -1.0,\"y\": 4.0},{\"x\": 0.0,\"y\": 5.0},{\"x\": 1.0,\"y\": 4.0},{\"x\": 0.0,\"y\": 3.0}]}],\"lineColor\" : {\"r\": 0.392,\"g\": 0.047, \"b\": 0.012, \"a\": 1.0},\"backgroundColor\" : {\"r\": 0.706,\"g\": 0.765, \"b\": 1.000, \"a\": 1.0},\"guardBasicColor\" : {\"r\": 0.492,\"g\": 0.147, \"b\": 0.112, \"a\": 1.0},\"guardSelectedColor\" : {\"r\": 0.592,\"g\": 0.247, \"b\": 0.212, \"a\": 1.0},\"vgColor\" : {\"r\": 0.692,\"g\": 0.347, \"b\": 0.312, \"a\": 0.2}}"
 const invalid_map_no_CName = "{\"GName\" : \"test_Mecca\", \"OuterVertices\" : [{\"x\": 4.0,\"y\": 5.0},{\"x\": -1.0,\"y\": 7.0},{\"x\": -3.0,\"y\": 3.0},{\"x\": -1.0,\"y\": -1.0},{\"x\": 3.0,\"y\": 1.0},{\"x\": 4.0,\"y\": 5.0}],\"holes\" : [{ \"innerVertices\" : [{\"x\": 0.0,\"y\": 3.0},{\"x\": -1.0,\"y\": 4.0},{\"x\": 0.0,\"y\": 5.0},{\"x\": 1.0,\"y\": 4.0},{\"x\": 0.0,\"y\": 3.0}]}],\"lineColor\" : {\"r\": 0.392,\"g\": 0.047, \"b\": 0.012, \"a\": 1.0},\"backgroundColor\" : {\"r\": 0.706,\"g\": 0.765, \"b\": 1.000, \"a\": 1.0},\"guardBasicColor\" : {\"r\": 0.492,\"g\": 0.147, \"b\": 0.112, \"a\": 1.0},\"guardSelectedColor\" : {\"r\": 0.592,\"g\": 0.247, \"b\": 0.212, \"a\": 1.0},\"vgColor\" : {\"r\": 0.692,\"g\": 0.347, \"b\": 0.312, \"a\": 0.2}}"
@@ -26,9 +26,28 @@ const invalid_map_no_OuterVertices = "{\"GName\" : \"test_Mecca\", \"CName\" : \
 describe('Maps', function() {
     describe('GET /map?MapId=?', function() {
         it('should return json formatted map data (map id exists)', function(done) {
-            request(server_addr + "/map?MapId=2", function(err, res, body) {
+            request(server_addr + "/map?MapId=" + mapid_exist, function(err, res, body) {
                 assert.equal(res.statusCode, 200);
-                console.log(body);
+                var J = JSON.parse(body);
+                assert.equal(J[0].MapId, 2);
+                assert.equal(J[0].GName, "Random2");
+                assert.equal(J[0].CName, "Random");
+                done();
+            });
+        });
+
+        it('should not return json formatted map data (map id does not exists)', function(done) {
+            request(server_addr + "/map?MapId=" + mapid_does_not_exist, function(err, res, body) {
+                assert.equal(res.statusCode, 200);
+                var J = JSON.parse(body);
+                assert.equal(Object.keys(J).length, 0);
+                done();
+            });
+        });
+
+        it('should not return json formatted map data (map id invalid)', function(done) {
+            request(server_addr + "/map?MapId=hello", function(err, res, body) {
+                assert.equal(res.statusCode, 400);
                 done();
             });
         });
