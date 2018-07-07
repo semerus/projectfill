@@ -24,7 +24,7 @@ namespace FillClient.UI
 			if (isInitialized) { return; }
 
 			root = GameObject.Find ("Root");
-			playButton = root.FindChildByName ("PlayButton").GetComponent<Button>();
+
             touchText = playButton.GetComponentInChildren<Text>();
 
             playButton.onClick.AddListener (() => 
