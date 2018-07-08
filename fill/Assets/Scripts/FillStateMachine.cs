@@ -30,6 +30,11 @@ namespace FillClient
 		public StageData StageData;
 	}
 
+    public class EditStageMessage : SwitchStateMessage
+    {
+        public StageData StageData;
+    }
+
     public class FillStateMachine : StateMachine
     {
         public override void OnRegister()

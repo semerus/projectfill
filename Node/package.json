@@ -6,7 +6,9 @@
     "async": "^2.6.1",
     "body-parser": "^1.18.2",
     "express": "^4.16.3",
-    "mysql": "^2.15.0"
+    "mysql": "^2.15.0",
+    "sha256": "^0.2.0",
+    "winston": "^3.0.0"
   },
   "devDependencies": {
     "chai": "^4.1.2",
@@ -15,7 +17,7 @@
     "request": "^2.85.0"
   },
   "scripts": {
-    "test": "mocha --exit"
+    "test": "mocha --recursive --exit"
   },
   "author": "Yun Joon Soh",
   "license": "ISC",

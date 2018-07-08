@@ -50,8 +50,12 @@ namespace FillClient
             vgMesh = new GameObject("VGMesher"); // VG stands for Visibility Graph
             vgMesh.transform.SetParent(transform);
             var mRend = vgMesh.AddComponent<MeshRenderer>();
-            mRend.material.color = vgColor;
-            mRend.material.shader = Shader.Find("Sprites/Default");
+            var mat = Resources.Load<Material>("GuardMat");
+            mRend.material = mat;
+            mRend.material.color = mRend.material.color.OverrideAlpha(0.5f);
+            //mRend.material.color = vgColor;
+            //mRend.material.shader = Shader.Find("Sprites/Default");
+            //mRend.material.enableInstancing = false;
 
             OnInputDown += () =>
             {
