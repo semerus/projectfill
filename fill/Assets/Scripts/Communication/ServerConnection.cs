@@ -2,31 +2,41 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.Networking;
+using GiraffeStar;
 
 public class ServerConnection : MonoBehaviour {
-	NetworkClient myClient;
 
-	// Create a client and connect to the server port
-	public void SetupClient()
+	string url;
+
+	void Start()
 	{
-		myClient = new NetworkClient();
-		myClient.RegisterHandler(MsgType.Connect, OnConnected);     
-		myClient.Connect("127.0.0.1", 8080);
+		url = "http://ec2-52-78-152-38.ap-northeast-2.compute.amazonaws.com/";
+		StartCoroutine ("Submit");
+		Debug.Log(url);
 	}
 
-	// client function
-	public void OnConnected(NetworkMessage netMsg)
-	{
-		Debug.Log("Connected to server");
+	// Use this for initialization
+	IEnumerator Submit () {
+		Debug.Log ("Start() of WWWTopScore");
 
-		// validate the server
-	}
+		WWW w = new WWW (url);
+		yield return w;
+		Debug.Log ("Returned");
 
-	public void SendGameInfo(){
-		
-	}
+		if (!string.IsNullOrEmpty (w.error)) {
+			Debug.Log (w.error);
+			Debug.Log ("Error");
+		} else {
+			Debug.Log ("Finished downloading message" + w.text);
+			new ServerResultMessage () {
+				isSuccess = true,
+			}.Dispatch ();
+		}
 
-	public ScoreSet ReceiveScoreInfo(){
-		return null;
 	}
+}
+
+public class ServerResultMessage : MessageCore
+{
+	public bool isSuccess;
 }

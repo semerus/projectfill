@@ -12,6 +12,7 @@ namespace FillClient.UI
         Button playButton;
         Button editorButton;
         Button customButton;
+		Image serverIndicator;
 		Text touchText;
 
 		static bool isFirstInitial = true;
@@ -71,6 +72,7 @@ namespace FillClient.UI
 			playButton = root.FindChildByName("PlayButton").GetComponent<Button>();
 			editorButton = root.FindChildByName("EditorButton").GetComponent<Button>();
 			customButton = root.FindChildByName("CustomButton").GetComponent<Button>();
+			serverIndicator = root.FindChildByName ("ServerIndicator").GetComponent<Image> ();
 
 			// 아직 기능이 없어서 비활성화
 			playButton.interactable = false;
@@ -98,6 +100,8 @@ namespace FillClient.UI
 						NextState = FillState.CustomStageSelect,
 					}.Dispatch();
 				});
+
+			serverIndicator.color = Color.red;
 		}
 
 		void ShiftButtons()
@@ -110,6 +114,12 @@ namespace FillClient.UI
 			DOTween.To (x => menuAlpha.GroupAlpha = x, menuAlpha.GroupAlpha, 1f, 1f);
 
 			startButton.gameObject.SetActive (false);
+		}
+
+		[Subscriber]
+		void CheckServerConnection(ServerResultMessage msg)
+		{
+			serverIndicator.color = msg.isSuccess ? Color.green : Color.red;
 		}
     }
 }
