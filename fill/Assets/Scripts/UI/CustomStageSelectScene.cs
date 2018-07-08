@@ -16,6 +16,8 @@ namespace FillClient.UI
         GameObject stageList;
         Button backButton;
 
+        Button selectedButton;
+        StageData selectedStage;
 
         public override void OnRegister()
         {
@@ -65,7 +67,20 @@ namespace FillClient.UI
 
 				button.onClick.AddListener (() => {
 
-                    if(Time.realtimeSinceStartup > stageItem.PointerDownTime + stageItem.holdThreshold) { return; }
+                    if(Time.realtimeSinceStartup > stageItem.PointerDownTime + stageItem.holdThreshold)
+                    {
+                        if(selectedButton != null)
+                        {
+                            // change to normal
+                            var bg = selectedButton.transform.GetComponent<Image>();
+                            bg.color = Color.white.OverrideAlpha(bg.color.a);
+                        }
+                        selectedButton = button;
+                        selectedStage = stage;
+                        var currentBg = button.transform.GetComponent<Image>();
+                        currentBg.color = Color.black.OverrideAlpha(currentBg.color.a);
+                        return;
+                    }
 
 					new StartPlayRoomMessage () {
 						StageData = stage,
