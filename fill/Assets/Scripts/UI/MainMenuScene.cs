@@ -56,7 +56,7 @@ namespace FillClient.UI
 
 			var logo = root.FindChildByName ("Logo").GetComponent<RectTransform>();
 			var startPos = logo.anchoredPosition;
-			logo.anchoredPosition = new Vector2 (350f, startPos.y);
+			logo.anchoredPosition = new Vector2 (250f, startPos.y);
 			//logo.DOAnchorPos(new Vector2(350f, startPos.y), 1.6f);
 
 			var menuAlpha = root.FindChildByName ("LeftMenuBar").GetComponent<AlphaGroup> ();
@@ -104,7 +104,7 @@ namespace FillClient.UI
 		{
 			var logo = root.FindChildByName ("Logo").GetComponent<RectTransform>();
 			var startPos = logo.anchoredPosition;
-			logo.DOAnchorPos(new Vector2(350f, startPos.y), 1.6f);
+			logo.DOAnchorPos(new Vector2(250f, startPos.y), 1.6f);
 
 			var menuAlpha = root.FindChildByName ("LeftMenuBar").GetComponent<AlphaGroup> ();
 			DOTween.To (x => menuAlpha.GroupAlpha = x, menuAlpha.GroupAlpha, 1f, 1f);
