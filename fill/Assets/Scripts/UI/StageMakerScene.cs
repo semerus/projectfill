@@ -24,6 +24,7 @@ namespace FillClient.UI
         public string Title
         {
             get { return titleInput.text; }
+            set { titleInput.text = value; }
         }
 
         public override void OnRegister()

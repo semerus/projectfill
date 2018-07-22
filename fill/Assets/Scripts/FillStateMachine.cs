@@ -33,6 +33,12 @@ namespace FillClient
     public class EditStageMessage : SwitchStateMessage
     {
         public StageData StageData;
+
+        public EditStageMessage()
+        {
+            NextState = FillState.StageMaker;
+            Reoccur = false;
+        }
     }
 
     public class FillStateMachine : StateMachine
@@ -133,8 +139,12 @@ namespace FillClient
 
         class StageMakerState : State
         {
+            EditStageMessage cachedMsg;
+
 			public override void OnEnter(object msg)
             {
+                cachedMsg = msg as EditStageMessage;
+
                 if (!SceneManager.GetActiveScene().name.Equals("StageEditor"))
                 {
                     SceneManager.sceneLoaded += OnSceneLoaded;
@@ -144,6 +154,12 @@ namespace FillClient
                 {
                     RegisterAndHold(new StageMakerModule());
                     RegisterAndHold(new StageMakerScene());
+
+                    if(cachedMsg != null)
+                    {
+                        var module = GiraffeSystem.FindModule<StageMakerModule>();
+                        module.InitEdit(cachedMsg.StageData);
+                    }
                 }
             }
 
@@ -156,6 +172,12 @@ namespace FillClient
             {
                 RegisterAndHold(new StageMakerModule());
                 RegisterAndHold(new StageMakerScene());
+
+                if (cachedMsg != null)
+                {
+                    var module = GiraffeSystem.FindModule<StageMakerModule>();
+                    module.InitEdit(cachedMsg.StageData);
+                }
                 SceneManager.sceneLoaded -= OnSceneLoaded;
             }
         }

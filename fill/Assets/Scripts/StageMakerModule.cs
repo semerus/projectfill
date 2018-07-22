@@ -30,6 +30,7 @@ namespace FillClient
         int viewState = 3;
         public bool IsSnapping { get; set; }
         //int currentInnerIndex = 0;
+        int? uniqueId = null;
         EditablePolygon currentPolygon;
 
         public bool dotProcessing;
@@ -76,6 +77,32 @@ namespace FillClient
                 var worldPos = Camera.main.ScreenToWorldPoint(Input.mousePosition).OverrideZ(0f);
                 CreateDot(worldPos);
             };
+        }
+
+        public void InitEdit(StageData stage)
+        {
+            var outer = stage.OuterVertices;
+            var inners = stage.InnerGroups;
+
+            foreach (var vertex in outer)
+            {
+                CreateDot(vertex);
+            }
+            CreateDot(outer[0]);
+
+            foreach (var inner in inners)
+            {
+                foreach (var vertex in inner)
+                {
+                    CreateDot(vertex);
+                }
+                CreateDot(inner[0]);
+            }
+
+            var sceneModule = GiraffeSystem.FindModule<StageMakerScene>();
+            sceneModule.Title = stage.Name;
+
+            uniqueId = stage.Id;
         }
 
         public LineRenderer CreateLine()
@@ -309,9 +336,20 @@ namespace FillClient
 
             var sceneModule = GiraffeSystem.FindModule<StageMakerScene>();
             var title = sceneModule.Title.IsNullOrEmpty() ? "Test" : sceneModule.Title;
-            var stageData = new StageData(title, 1, outerData, innerData);
 
-            stageLists.Add(stageData);
+            // new stage
+            if (uniqueId == null)
+            {
+                var stageData = new StageData(title, stageLists.Count + 1, outerData, innerData);
+                stageLists.Add(stageData);
+                uniqueId = stageData.Id;
+            }
+            else
+            {
+                // overwrite old stage
+                var oldStage = stageLists.FindIndex(t => t.Id == uniqueId);
+                stageLists[oldStage] = new StageData(title, (int)uniqueId, outerData, innerData);
+            }
 
             // path should be constant
             JsonIO.Save(Application.persistentDataPath + "/test.json", stageLists);

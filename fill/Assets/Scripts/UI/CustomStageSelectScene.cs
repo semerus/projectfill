@@ -15,6 +15,7 @@ namespace FillClient.UI
         GameObject root;
         GameObject stageList;
         Button backButton;
+        Button editButton;
 
         Button selectedButton;
         StageData selectedStage;
@@ -34,6 +35,7 @@ namespace FillClient.UI
             root = GameObject.Find("Root");
             stageList = root.FindChildByName("StageList");
             backButton = root.FindChildByName("BackButton").GetComponent<Button>();
+            editButton = root.FindChildByName("EditButton").GetComponent<Button>();
 
             backButton.onClick.AddListener(() =>
             {
@@ -41,6 +43,17 @@ namespace FillClient.UI
                 {
                     NextState = FillState.MainMenu,
                 }.Dispatch();
+            });
+
+            editButton.onClick.AddListener(() =>
+            {
+                if(selectedStage != null)
+                {
+                    new EditStageMessage()
+                    {
+                        StageData = selectedStage,
+                    }.Dispatch();
+                }
             });
 
             LoadStages();
