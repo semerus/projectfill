@@ -10,7 +10,7 @@ public class ServerConnection : MonoBehaviour {
 
 	void Start()
 	{
-		url = "http://ec2-52-78-152-38.ap-northeast-2.compute.amazonaws.com/";
+		url = "http://ec2-13-209-40-17.ap-northeast-2.compute.amazonaws.com/";
 		StartCoroutine ("Submit");
 		Debug.Log(url);
 	}
@@ -27,12 +27,11 @@ public class ServerConnection : MonoBehaviour {
 			Debug.Log (w.error);
 			Debug.Log ("Error");
 		} else {
-			Debug.Log ("Finished downloading message" + w.text);
+			Debug.Log ("Finished downloading message: " + w.text);
 			new ServerResultMessage () {
 				isSuccess = true,
 			}.Dispatch ();
 		}
-
 	}
 }
 
