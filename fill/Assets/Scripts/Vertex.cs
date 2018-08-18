@@ -78,6 +78,7 @@ namespace FillClient
             if(StartingLine != null)
             {
                 var endingVertex = StartingLine.EndVertex;
+                IncludedPolygon.lines.Remove(StartingLine);
                 StartingLine.DeleteLine();
                 EndingLine.SetLine(EndingLine.StartVertex, endingVertex, EndingLine.IncludedPolygon);
             }

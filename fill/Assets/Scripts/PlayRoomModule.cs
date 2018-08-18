@@ -74,7 +74,7 @@ namespace FillClient
             {
                 converted.Add(point);
             }
-            CreateLine(converted, "OuterLine");
+            CreateLine(converted, "OuterLine", stageData.LineColor);
             CreateCollider(points, "OuterCollider");
 
             var index = 0;
@@ -88,7 +88,7 @@ namespace FillClient
                 {
                     convert.Add(point);
                 }
-                CreateLine(convert, "InnerLine" + (++index).ToString());
+                CreateLine(convert, "InnerLine" + (++index).ToString(), stageData.LineColor);
                 CreateCollider(completed, "InnerCollider" + index);
             }
             
@@ -96,7 +96,7 @@ namespace FillClient
             algorithm = new DecisionAlgorithm(StageData);            
         }
 
-        LineRenderer CreateLine(List<Vector3> points, string name)
+        LineRenderer CreateLine(List<Vector3> points, string name, Color color)
         {
             var lineObj = Object.Instantiate(linePrefab, drawBoard.transform);
             lineObj.transform.name = name;
@@ -106,6 +106,7 @@ namespace FillClient
             line.SetFullColor(Color.black);
             line.positionCount = points.Count;
             line.SetPositions(points.ToArray());
+            line.SetFullColor(color);
 
             return line;
         }

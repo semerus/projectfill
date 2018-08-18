@@ -26,12 +26,13 @@ namespace FillClient
         List<EditablePolygon> innerGroups = new List<EditablePolygon>();
         Stack<List<Vertex>> cachedHistory = new Stack<List<Vertex>>();
 
-        //int vertexIdCounter = 0;
         int viewState = 3;
         public bool IsSnapping { get; set; }
-        //int currentInnerIndex = 0;
         int? uniqueId = null;
         EditablePolygon currentPolygon;
+        ColorPicker colorPicker;
+
+        Color lineColor = Color.black;
 
         public bool dotProcessing;
         Vertex selectedVertex;
@@ -68,6 +69,10 @@ namespace FillClient
             var layer = new GameObject("BasicLayer");
             layer.transform.SetParent(background.transform);
             basicLayer = layer.transform;
+            colorPicker = root.FindChildByName("ColorPicker").GetComponent<ColorPicker>();
+            colorPicker.OnColorChange = ChangeColor;
+            colorPicker.Setup(Color.black);
+            lineColor = colorPicker.CurrentColor;
             CreateBackground(1f, 0.1f, Color.black, basicLayer);
             
             editableSpace = GameObject.Find("EditableSpace");
@@ -83,6 +88,8 @@ namespace FillClient
         {
             var outer = stage.OuterVertices;
             var inners = stage.InnerGroups;
+            lineColor = stage.LineColor;
+            colorPicker.Setup(lineColor);
 
             foreach (var vertex in outer)
             {
@@ -101,8 +108,26 @@ namespace FillClient
 
             var sceneModule = GiraffeSystem.FindModule<StageMakerScene>();
             sceneModule.Title = stage.Name;
-
             uniqueId = stage.Id;
+        }
+
+        void ChangeColor()
+        {
+            lineColor = colorPicker.CurrentColor;
+            
+            // 기존 라인들 색상 변경
+            foreach (var line in outerVertices.lines)
+            {                
+                line.LineRenderer.SetFullColor(lineColor);
+            }
+
+            foreach (var group in innerGroups)
+            {
+                foreach (var line in group.lines)
+                {
+                    line.LineRenderer.SetFullColor(lineColor);
+                }
+            }
         }
 
         public LineRenderer CreateLine()
@@ -112,6 +137,7 @@ namespace FillClient
             var line = lineGO.GetComponent<LineRenderer>();
             line.startWidth = 0.3f;
             line.endWidth = 0.3f;
+            line.SetFullColor(lineColor);
 
             return line;
         }
@@ -157,8 +183,9 @@ namespace FillClient
                 // 마지막 연결 잘하기
                 var obj = GameObject.Instantiate(linePrefab);
                 var next = obj.GetOrAddComponent<Line>();
-                next.SetLine(polygon.LastVertex, polygon.FirstVertex, polygon);
+                next.SetLine(polygon.LastVertex, polygon.FirstVertex, polygon, lineColor);
                 polygon.IsComplete = true;
+                polygon.lines.Add(next);
                 return;
             }
 
@@ -176,7 +203,8 @@ namespace FillClient
             {
                 var nextLineObj = GameObject.Instantiate(linePrefab);
                 var nextLine = nextLineObj.GetOrAddComponent<Line>();
-                nextLine.SetLine(startVertex, polygon.LastVertex, polygon);
+                nextLine.SetLine(startVertex, polygon.LastVertex, polygon, lineColor);
+                polygon.lines.Add(nextLine);
             }
 
             new VertexCountMessage
@@ -340,7 +368,7 @@ namespace FillClient
             // new stage
             if (uniqueId == null)
             {
-                var stageData = new StageData(title, stageLists.Count + 1, outerData, innerData);
+                var stageData = new StageData(title, stageLists.Count + 1, outerData, innerData, lineColor);
                 stageLists.Add(stageData);
                 uniqueId = stageData.Id;
             }
@@ -348,7 +376,7 @@ namespace FillClient
             {
                 // overwrite old stage
                 var oldStage = stageLists.FindIndex(t => t.Id == uniqueId);
-                stageLists[oldStage] = new StageData(title, (int)uniqueId, outerData, innerData);
+                stageLists[oldStage] = new StageData(title, (int)uniqueId, outerData, innerData, lineColor);
             }
 
             // path should be constant
@@ -374,11 +402,11 @@ namespace FillClient
             var frontIndex = polygon.vertices.IndexOf(line.StartVertex);
             polygon.vertices.Insert(frontIndex + 1, vertex);
             var endVertex = line.EndVertex;
-            line.SetLine(line.StartVertex, vertex, polygon);
+            line.SetLine(line.StartVertex, vertex, polygon, lineColor);
 
             var nextLineObj = GameObject.Instantiate(linePrefab);
             var nextLine = nextLineObj.GetOrAddComponent<Line>();
-            nextLine.SetLine(vertex, endVertex, polygon);
+            nextLine.SetLine(vertex, endVertex, polygon, lineColor);
         }
 
         public void DeleteVertex()

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using Newtonsoft.Json;
 using FillClient;
+using GiraffeStar;
 
 public class StageData 
 {
@@ -23,8 +24,9 @@ public class StageData
 
     [JsonIgnore]
     public List<SimplePolygon2D> InnerPolygons { get; private set; }
-	//[JsonProperty]
-	//public Color LineColor { get; private set; }
+
+    [JsonProperty]
+	public SerializableColor LineColor { get; private set; }
 
 //	[JsonProperty]
 //	public Color BackgroundColor { get; private set; }
@@ -45,7 +47,7 @@ public class StageData
 	*/
     
     [JsonConstructor]
-	public StageData(string name, int id, List<Vector2> outerVertices, List<List<Vector2>> innerGroups)
+	public StageData(string name, int id, List<Vector2> outerVertices, List<List<Vector2>> innerGroups, Color lineColor)
 	{
 		Name = name;
 		Id = id;
@@ -57,7 +59,9 @@ public class StageData
         foreach (var inner in InnerGroups)
         {
             InnerPolygons.Add(SimplePolygon2D.Create(GetCompleteVertices(inner).ToArray()));
-        }        
+        }
+
+        LineColor = lineColor;
     }
 
     public StageData()
@@ -68,6 +72,7 @@ public class StageData
         OuterPolygon = SimplePolygon2D.Create(GetCompleteVertices(OuterVertices).ToArray());
         InnerGroups = new List<List<Vector2>>();
         InnerPolygons = new List<SimplePolygon2D>();
+        LineColor = Color.black;
     }
 
     public static List<Vector2> GetCompleteVertices(List<Vector2> vectors)

@@ -10,6 +10,7 @@ namespace FillClient
         public EditablePolygon IncludedPolygon { get; private set; }
         public Vertex StartVertex { get; private set; }
         public Vertex EndVertex { get; private set; }
+        public LineRenderer LineRenderer { get; private set; }
 
         void Start()
         {
@@ -34,6 +35,11 @@ namespace FillClient
 
         public void SetLine(Vertex startVertex, Vertex endVertex, EditablePolygon included)
         {
+            SetLine(startVertex, endVertex, included, LineRenderer.startColor);
+        }
+
+        public void SetLine(Vertex startVertex, Vertex endVertex, EditablePolygon included, Color color)
+        {
             StartVertex = startVertex;
             EndVertex = endVertex;
             IncludedPolygon = included;
@@ -42,6 +48,8 @@ namespace FillClient
             EndVertex.EndingLine = this;
 
             SetLineInternal(StartVertex.transform.position, EndVertex.transform.position);
+
+            LineRenderer.SetFullColor(color);
         }
 
         public void DeleteLine()
@@ -64,17 +72,17 @@ namespace FillClient
             }
             
 
-            var renderer = gameObject.GetOrAddComponent<LineRenderer>();
+            LineRenderer = gameObject.GetOrAddComponent<LineRenderer>();
             var collider = gameObject.GetOrAddComponent<BoxCollider2D>();
 
             transform.position = midPoint;
 
-            renderer.useWorldSpace = false;
-            renderer.positionCount = 2;
-            renderer.SetPosition(0, new Vector3(0f, -distance / 2f, 0f));
-            renderer.SetPosition(1, new Vector3(0f, distance / 2f, 0f));
-            renderer.widthMultiplier = 0.1f;
-            renderer.SetFullWidth(0.1f);
+            LineRenderer.useWorldSpace = false;
+            LineRenderer.positionCount = 2;
+            LineRenderer.SetPosition(0, new Vector3(0f, -distance / 2f, 0f));
+            LineRenderer.SetPosition(1, new Vector3(0f, distance / 2f, 0f));
+            LineRenderer.widthMultiplier = 0.1f;
+            LineRenderer.SetFullWidth(0.1f);
 
             collider.size = new Vector2(0.5f, distance - 0.7f);
             transform.localEulerAngles = new Vector3(0f, 0f, angle);
