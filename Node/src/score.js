@@ -20,7 +20,6 @@ module.exports = function(app, connection) {
     	if (isNaN(numberMapId)) {
     		res.status(404).end("Error: MapId is invalid!");
     	} else {
-
     		var ret_scores = '"Scores": {\n';
     		var ret_guards = '"Guards": {\n'
 
@@ -31,7 +30,7 @@ module.exports = function(app, connection) {
     				return;
     			}
 
-    			console.log(ret_guards)
+    			console.log(ret_guards);
 
     			ret_guards = ret_guards.substring(0, ret_guards.length - 2) + "}";
     			ret_scores = ret_scores.substring(0, ret_scores.length - 2) + "}";
@@ -40,7 +39,6 @@ module.exports = function(app, connection) {
     		});
     	}
     });
-
 
     var doQueries = function(numberMapId, ret_scores, ret_guards, max_scores, callback) {
     	connection.query(top_score_query, [numberMapId], function(err, rows, fields) {
